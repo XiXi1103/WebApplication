@@ -32,7 +32,7 @@ public class RegisterController {
         String email = user.email;
         s=userRepository.findByUsername(username).size()+userRepository.findByEmail(email).size();
         if (s!=0){
-            System.out.println("0");
+//            System.out.println("0");
             RegisterResult registerResult = new RegisterResult();
             registerResult.ID = 0;
             registerResult.success = false;
@@ -46,7 +46,7 @@ public class RegisterController {
         tmp.email=email;
         tmp.createTime = new Date();
         userRepository.save(tmp);
-        System.out.println("1");
+//        System.out.println("1");
         RegisterResult registerResult = new RegisterResult();
         registerResult.ID = userRepository.findByUsername(username).get(0).id;
         registerResult.success = true;
