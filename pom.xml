@@ -109,7 +109,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
                     <!-- 工程主入口-->
-                    <mainClass>com.web.server.HelloWorldApplication</mainClass>
+                    <mainClass>com.web.HelloWebApplication</mainClass>
                 </configuration>
                 <executions>
                     <execution>

@@ -1,9 +1,5 @@
 package com.web.entity;
 
-
-
-import org.springframework.stereotype.Controller;
-
 import javax.persistence.*;
 import java.util.Date;
 
