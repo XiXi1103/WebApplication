@@ -9,17 +9,17 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     public int id;
-    @Column(name = "Username",length = 20)
+    @Column(name = "username",length = 20)
     public String username;
-    @Column(name = "Password",length = 20)
-    private String password;
-    @Column(name = "UserID",length = 20)
-    private String ID;
-    @Column(name = "Email")
+    @Column(name = "password",length = 20)
+    public String password;
+    @Column(name = "userid",length = 20)
+    public String ID;
+    @Column(name = "email")
     public String email;
-    @Column(name = "PhoneNumber")
-    public int phoneNumber;
-    @Column(name = "CreateTime")
+    @Column(name = "phone_number")
+    public String phoneNumber;
+    @Column(name = "create_time")
     public Date createTime;
 
     public int getId() {
