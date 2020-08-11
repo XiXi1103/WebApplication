@@ -23,8 +23,8 @@ public class SearchController {
 
     @PostMapping(value={"/searchUser"})
     @ResponseBody
-    public SearchUsrResult searchUser(@RequestParam String username) {
-        List<User> userList = userRepository.findByUsername(username);
+    public SearchUsrResult searchUser(@RequestParam Keyword_vue keyword) {
+        List<User> userList = userRepository.findByUsername(keyword.key);
         SearchUsrResult searchUsrResult = new SearchUsrResult();
 
         if (!userList.isEmpty()) {
@@ -44,8 +44,8 @@ public class SearchController {
 
     @PostMapping(value={"/searchDoc"})
     @ResponseBody
-    public SearchDocResult searchDocumentation(@RequestParam String docname) {
-        List<Documentation> docList = documentationRepository.findByTitle(docname);
+    public SearchDocResult searchDocumentation(@RequestParam Keyword_vue keyword) {
+        List<Documentation> docList = documentationRepository.findByTitle(keyword.key);
         SearchDocResult searchDocResult = new SearchDocResult();
 
         if (!docList.isEmpty()) {
@@ -66,8 +66,8 @@ public class SearchController {
 
     @PostMapping(value={"/searchGrp"})
     @ResponseBody
-    public SearchGrpResult searchGroup(@RequestParam String groupname) {
-        List<Group> grpList = groupRepository.findByGroupName(groupname);
+    public SearchGrpResult searchGroup(@RequestParam Keyword_vue keyword) {
+        List<Group> grpList = groupRepository.findByGroupName(keyword.key);
         SearchGrpResult searchGrpResult = new SearchGrpResult();
 
         if (!grpList.isEmpty()) {
@@ -84,5 +84,36 @@ public class SearchController {
         }
 
         return searchGrpResult;
+    }
+
+    @PostMapping(value={"/searchDocThroughUsr"})
+    @ResponseBody
+    public SearchDocResult searchDocThroughUsr(@RequestParam Keyword_vue keyword) {
+        List<User> userList = userRepository.findByUsername(keyword.key);
+        SearchDocResult searchDocResult = new SearchDocResult();
+
+        if (!userList.isEmpty()) {
+            searchDocResult.success = false;
+            searchDocResult.docIdList = null;
+            searchDocResult.msg = "搜索失败";
+            return searchDocResult;
+        }
+
+        List<Documentation> docList = documentationRepository.findByCreatorId(userList.get(0).id);
+
+        if (!docList.isEmpty()) {
+            searchDocResult.success = true;
+            for (Documentation doc : docList) {
+                searchDocResult.docIdList.add(doc.id);
+            }
+            searchDocResult.msg = "搜索成功";
+        }
+        else  {
+            searchDocResult.success = false;
+            searchDocResult.docIdList = null;
+            searchDocResult.msg = "搜索失败";
+        }
+
+        return searchDocResult;
     }
 }
