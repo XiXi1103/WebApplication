@@ -21,4 +21,7 @@ public class Documentation {
     public int groupId;
     @Column(name = "other_permission")
     public int otherPermission;
+    @Column(name = "recycled")
+    public boolean recycled;
+
 }

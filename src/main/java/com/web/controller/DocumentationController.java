@@ -66,13 +66,33 @@ public class DocumentationController {
         return result;
     }
 
+    @PostMapping(value = {"/recycle/delete"})
+    @ResponseBody
+    public Result recycleDelete(@RequestBody Documentation_vue documentation_vue,
+                         Model model, HttpSession session) {
+        Documentation documentation = documentationRepository.findDocumentationById(documentation_vue.documentationId);
+        if (documentation.creatorId == documentation_vue.userId) {
+            documentationRepository.delete(documentation);
+            Result result = new Result();
+            result.success = true;
+            result.msg = "删除文档成功!";
+            return result;
+        } else {
+            Result result = new Result();
+            result.success = false;
+            result.msg = "删除文档失败，权限不足!";
+            return result;
+        }
+    }
+    
     @PostMapping(value = {"/documentation/delete"})
     @ResponseBody
     public Result delete(@RequestBody Documentation_vue documentation_vue,
                          Model model, HttpSession session) {
         Documentation documentation = documentationRepository.findDocumentationById(documentation_vue.documentationId);
         if (documentation.creatorId == documentation_vue.userId) {
-            documentationRepository.delete(documentation);
+            documentation.recycled = false;
+            documentationRepository.save(documentation);
             Result result = new Result();
             result.success = true;
             result.msg = "删除文档成功!";
