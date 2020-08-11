@@ -29,7 +29,6 @@ public class DocumentationController {
     @ResponseBody
     public Result create(@RequestBody Documentation_vue documentation_vue,
                          Model model, HttpSession session) {
-
         int creatorId = -1;
         creatorId = documentation_vue.userId;
         String title = documentation_vue.title;

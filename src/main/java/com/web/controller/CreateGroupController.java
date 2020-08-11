@@ -26,7 +26,7 @@ public class CreateGroupController {
         String groupName = group_vue.groupName;
         int creatorId = -1;
         creatorId = group_vue.creatorId;
-        String groupInformation = group_vue.groupInformation;
+        String groupContent = group_vue.groupContent;
         Result result = new Result();
         if(groupName == null){
             result.success = false;
@@ -44,7 +44,7 @@ public class CreateGroupController {
         group.creatorId = creatorId;
         group.createTime = new Date();
         group.groupName = groupName;
-        group.information = groupInformation;
+        group.content = groupContent;
         groupRepository.save(group);
 
         GroupMember groupMember = new GroupMember();
