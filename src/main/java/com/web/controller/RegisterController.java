@@ -1,8 +1,10 @@
 package com.web.controller;
 
+import com.web.entity.Group;
 import com.web.entity.RegisterResult;
 import com.web.entity.User;
 import com.web.entity.User_vue;
+import com.web.repository.GroupRepository;
 import com.web.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -27,6 +29,7 @@ public class RegisterController {
     @ResponseBody
     public RegisterResult register(@RequestBody User_vue user,
                         Map<String,Object> map)  {
+
         String username = user.username;
         String password = user.password;
         String email = user.email;
@@ -40,13 +43,10 @@ public class RegisterController {
         }
         User tmp =new User();
         tmp.username=username;
-//        tmp.ID = "yc";
-//        tmp.phoneNumber = "1";
         tmp.setPassword(password);
         tmp.email=email;
         tmp.createTime = new Date();
         userRepository.save(tmp);
-//        System.out.println("1");
         RegisterResult registerResult = new RegisterResult();
         registerResult.ID = tmp.id;
 //        System.out.println(tmp.id);

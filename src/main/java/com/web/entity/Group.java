@@ -17,8 +17,9 @@ public class Group {
     public Date createTime;
     @Column(name = "creator_id")
     public int creatorId;
-    @Column(name = "information",length = 255)
+    @Column(name = "information", length = 200)
     public String information;
+
     public int getId() {
         return id;
     }
