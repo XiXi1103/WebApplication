@@ -12,9 +12,19 @@ public class GroupMember {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     public int id;
     @Column(name = "UserId", length = 20)
-    public int userid;
+    public int userId;
     @Column(name = "GroupId", length = 20)
-    public int groupid;
+    public int groupId;
+    @Column(name = "permission")
+    public int permission;
+
+    public int getPermission() {
+        return permission;
+    }
+
+    public void setPermission(int permission) {
+        this.permission = permission;
+    }
 
     public int getId() {
         return id;
@@ -24,20 +34,20 @@ public class GroupMember {
         this.id = id;
     }
 
-    public int getUserid() {
-        return userid;
+    public int getUserId() {
+        return userId;
     }
 
-    public void setUserid(int userid) {
-        this.userid = userid;
+    public void setUserId(int userid) {
+        this.userId = userid;
     }
 
-    public int getGroupid() {
-        return groupid;
+    public int getGroupId() {
+        return groupId;
     }
 
-    public void setGroupid(int groupid) {
-        this.groupid = groupid;
+    public void setGroupId(int groupid) {
+        this.groupId = groupid;
     }
 
     public Date getJoin_time() {

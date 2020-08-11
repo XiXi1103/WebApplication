@@ -1,6 +1,7 @@
 package com.web.controller;
 
 import com.web.entity.*;
+import com.web.repository.GroupMemberRepository;
 import com.web.repository.GroupRepository;
 import com.web.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,9 +17,11 @@ import java.util.Date;
 public class CreateGroupController {
     @Autowired
     GroupRepository groupRepository;
+    @Autowired
+    GroupMemberRepository groupMemberRepository;
     @PostMapping(value = {"/group/create"})
     @ResponseBody
-    public Result login(@RequestBody Group_vue group_vue,
+    public Result create(@RequestBody Group_vue group_vue,
                              Model model, HttpSession session){
         String groupName=group_vue.groupName;
         int creatorId=-1;
@@ -43,6 +46,13 @@ public class CreateGroupController {
         group.groupName=groupName;
         group.information=groupInformation;
         groupRepository.save(group);
+
+        GroupMember groupMember = new GroupMember();
+        groupMember.groupId = group.id;
+        groupMember.userId = creatorId;
+        groupMember.permission = 5;
+        groupMemberRepository.save(groupMember);
+
         result.success = true;
         result.ID = group.id ;
         return result;

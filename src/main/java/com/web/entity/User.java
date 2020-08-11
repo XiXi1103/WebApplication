@@ -13,8 +13,6 @@ public class User {
     public String username;
     @Column(name = "password",length = 20)
     public String password;
-    @Column(name = "userid",length = 20)
-    public String ID;
     @Column(name = "email")
     public String email;
     @Column(name = "phone_number")
