@@ -6,17 +6,17 @@ import java.util.Date;
 import java.util.List;
 
 @Entity
-@Table(name = "Group")
+@Table(name = "group")
 public class Group {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     public int id;
-    @Column(name = "GroupName", length = 20)
-    public String Groupname;
+    @Column(name = "group_name", length = 20)
+    public String groupName;
     @Column(name = "create_time")
     public Date createTime;
-    @Column(name = "creater")
-    public int createrid;
+    @Column(name = "creator_id")
+    public int creatorId;
     @Column(name = "information",length = 255)
     public String information;
     public int getId() {
@@ -35,14 +35,6 @@ public class Group {
         this.id = id;
     }
 
-    public String getGroupname() {
-        return Groupname;
-    }
-
-    public void setGroupname(String groupname) {
-        Groupname = groupname;
-    }
-
     public Date getCreateTime() {
         return createTime;
     }
@@ -51,11 +43,19 @@ public class Group {
         this.createTime = createTime;
     }
 
-    public int getCreaterid() {
-        return createrid;
+    public String getGroupName() {
+        return groupName;
     }
 
-    public void setCreaterid(int createrid) {
-        this.createrid = createrid;
+    public void setGroupName(String groupName) {
+        groupName = groupName;
+    }
+
+    public int getCreatorId() {
+        return creatorId;
+    }
+
+    public void setCreatorId(int createrid) {
+        this.creatorId = createrid;
     }
 }

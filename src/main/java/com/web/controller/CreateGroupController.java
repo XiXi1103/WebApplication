@@ -38,9 +38,9 @@ public class CreateGroupController {
             return result;
         }
         Group group=new Group();
-        group.createrid=creatorId;
+        group.creatorId=creatorId;
         group.createTime=new Date();
-        group.Groupname=groupName;
+        group.groupName=groupName;
         group.information=groupInformation;
         groupRepository.save(group);
         result.success = true;

@@ -48,7 +48,9 @@ public class RegisterController {
         userRepository.save(tmp);
 //        System.out.println("1");
         RegisterResult registerResult = new RegisterResult();
-        registerResult.ID = userRepository.findByUsername(username).get(0).id;
+        registerResult.ID = tmp.id;
+//        System.out.println(tmp.id);
+//        registerResult.ID = userRepository.findByUsername(username).get(0).id;
         registerResult.success = true;
         registerResult.msg = "注册成功";
         return registerResult;
