@@ -56,7 +56,6 @@ public class SearchController {
     public SearchGrpResult searchGroup(@RequestParam Keyword_vue keyword) {
         List<Group> grpList = groupRepository.findByGroupName(keyword.key);
         SearchGrpResult searchGrpResult = new SearchGrpResult();
-
         if (!grpList.isEmpty()) {
             searchGrpResult.success = true;
             for (Group grp : grpList) {
