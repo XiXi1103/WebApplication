@@ -69,6 +69,7 @@ public class DocumentationController {
         else {
             documentation = documentationRepository.findDocumentationById(documentation_vue.docID);
         }
+
         saveDoc(documentation_vue, result, documentation);
 
         documentationRepository.save(documentation);
