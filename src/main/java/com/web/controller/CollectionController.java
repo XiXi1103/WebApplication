@@ -38,18 +38,31 @@ public class CollectionController {
         return result;
     }
 
-    @GetMapping(value = {"/collection/delete"})
+    @GetMapping(value = {"/collection"})
     @ResponseBody
-    public Result delete( @RequestParam("userId") int userId,
+    public Result collection( @RequestParam("userId") int userId,
                          @RequestParam("documentationId") int documentationId,
                          Model model, HttpSession session){
         Collection collection = collectionRepository.findCollectionByUserIdAndDocumentationId(userId,documentationId);
-        collectionRepository.delete(collection);
-        Result result = new Result();
-        result.success = true;
-        result.ID = collection.id ;
-        result.msg = "删除收藏成功!";
-        return result;
+        if(collection==null){
+            collection.collect_time=new Date();
+            collection.documentationId=documentationId;
+            collection.userId=userId;
+            collectionRepository.save(collection);
+            Result result = new Result();
+            result.success = true;
+            result.ID =collection.id ;
+            result.msg = "收藏成功!";
+            return result;
+        }
+        else{
+            collectionRepository.delete(collection);
+            Result result = new Result();
+            result.success = true;
+            result.ID = collection.id ;
+            result.msg = "删除收藏成功!";
+            return result;
+        }
     }
     @GetMapping(value = {"/getCollectionDoc"})
     @ResponseBody
