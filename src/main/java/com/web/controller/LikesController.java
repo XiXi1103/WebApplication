@@ -27,7 +27,7 @@ public class LikesController {
     LikesRepository likesRepository;
     @Autowired
     DocumentationRepository documentationRepository;
-    @PostMapping(value = {"/reply"})
+    @PostMapping(value = {"/likes"})
     @ResponseBody
     public Result likes(@RequestBody Likes_vue likes_vue,
                         Model model, HttpSession session){
@@ -74,20 +74,5 @@ public class LikesController {
         return result;
     }
 
-    @PostMapping(value = {"/reply/delete"})
-    @ResponseBody
-    public Result delete(@RequestBody Reply_vue reply_vue,
-                         Model model, HttpSession session){
-        Reply reply = replyRepository.findReplyById(reply_vue.id);
-        List<Reply> replyList = replyRepository.findByReplyId(reply.id);
-        replyRepository.delete(reply);
-        for(Reply reply1:replyList){
-            replyRepository.delete(reply1);
-        }
-        Result result = new Result();
-        result.success = true;
-        result.msg = "删除评论成功";
-        result.ID = reply.id;
-        return result;
-    }
+
 }

@@ -15,8 +15,8 @@ public class Documentation {
     public Date createTime;
     @Column(name = "creator_id")
     public int creatorId;
-    @Column(name = "content",length = 10240)
-    public String content;
+    @Column(name = "path",length = 100)
+    public String path;
     @Column(name = "group_id")
     public int groupId;
     @Column(name = "other_permission")
