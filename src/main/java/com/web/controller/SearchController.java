@@ -6,10 +6,7 @@ import com.web.repository.GroupRepository;
 import com.web.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -21,10 +18,10 @@ public class SearchController {
     DocumentationRepository documentationRepository;
     GroupRepository groupRepository;
 
-    @PostMapping(value={"/searchUser"})
+    @GetMapping(value={"/searchUser"})
     @ResponseBody
-    public SearchUsrResult searchUser(@RequestParam Keyword_vue keyword) {
-        List<User> userList = userRepository.findByUsername(keyword.key);
+    public SearchUsrResult searchUser(@RequestParam String username) {
+        List<User> userList = userRepository.findByUsername(username);
         SearchUsrResult searchUsrResult = new SearchUsrResult();
 
         if (!userList.isEmpty()) {
@@ -42,10 +39,10 @@ public class SearchController {
         return searchUsrResult;
     }
 
-    @PostMapping(value={"/searchDoc"})
+    @GetMapping(value={"/searchDoc"})
     @ResponseBody
-    public SearchDocResult searchDocumentation(@RequestParam Keyword_vue keyword) {
-        List<Documentation> docList = documentationRepository.findByTitle(keyword.key);
+    public SearchDocResult searchDocumentation(@RequestParam String docname) {
+        List<Documentation> docList = documentationRepository.findByTitle(docname);
         SearchDocResult searchDocResult = new SearchDocResult();
 
         return getSearchDocResult(docList, searchDocResult, true);
@@ -53,8 +50,8 @@ public class SearchController {
 
     @PostMapping(value={"/searchGrp"})
     @ResponseBody
-    public SearchGrpResult searchGroup(@RequestParam Keyword_vue keyword) {
-        List<Group> grpList = groupRepository.findByGroupName(keyword.key);
+    public SearchGrpResult searchGroup(@RequestParam String grpname) {
+        List<Group> grpList = groupRepository.findByGroupName(grpname);
         SearchGrpResult searchGrpResult = new SearchGrpResult();
         if (!grpList.isEmpty()) {
             searchGrpResult.success = true;
@@ -74,8 +71,8 @@ public class SearchController {
 
     @PostMapping(value={"/searchDocThroughUsr"})
     @ResponseBody
-    public SearchDocResult searchDocThroughUsr(@RequestParam Keyword_vue keyword) {
-        List<User> userList = userRepository.findByUsername(keyword.key);
+    public SearchDocResult searchDocThroughUsr(@RequestParam String usernsame) {
+        List<User> userList = userRepository.findByUsername(usernsame);
         SearchDocResult searchDocResult = new SearchDocResult();
 
         if (userList.isEmpty()) {
@@ -92,8 +89,8 @@ public class SearchController {
 
     @PostMapping(value={"/searchTrashThroughUsr"})
     @ResponseBody
-    public SearchDocResult searchTrashThroughUsr(@RequestParam Keyword_vue keyword) {
-        List<User> userList = userRepository.findByUsername(keyword.key);
+    public SearchDocResult searchTrashThroughUsr(@RequestParam String usernsme) {
+        List<User> userList = userRepository.findByUsername(usernsme);
         SearchDocResult searchDocResult = new SearchDocResult();
 
         if (userList.isEmpty()) {
