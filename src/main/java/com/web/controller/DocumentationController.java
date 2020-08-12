@@ -12,12 +12,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.*;
+import java.util.*;
 
 @CrossOrigin
 @Controller
@@ -169,56 +165,156 @@ public class DocumentationController {
         }
     }
 
-    @PostMapping(value = {"/documentation/update"})
+    @GetMapping(value = {"/editDoc"})
     @ResponseBody
-    public Documentation update(@RequestBody Documentation_vue documentation_vue,
+    public DocResult update(@RequestParam int userID,
+                                @RequestParam int docID,
                                 Model model, HttpSession session) {
-        Documentation documentation = documentationRepository.findDocumentationById(documentation_vue.docID);
+        DocResult docResult = new DocResult();
+        Documentation documentation = documentationRepository.findDocumentationById(docID);
+        if(documentation == null){
+            docResult.success = false;
+            docResult.msg = "文档不存在";
+            return docResult;
+        }
         if (documentation.groupId != 0) {
-            GroupMember groupMember = groupMemberRepository.findByUserIdAndGroupId(documentation_vue.authorID, documentation.groupId);
+            GroupMember groupMember = groupMemberRepository.findByUserIdAndGroupId(userID, documentation.groupId);
             if (groupMember.permission >= 4) {
-                return documentation;
+                docResult = getDocResult(docResult, documentation);
+                docResult.success = true;
+                docResult.msg = "修改成功";
             } else {
-                return null;
+                docResult.success = false;
+                docResult.msg = "权限不足，无法修改";
             }
         }
         else{
-            if(documentation_vue.authorID == documentation.creatorId){
-                return documentation;
-            }
-            else if(documentation.otherPermission >= 4){
-                return documentation;
-            }
-            else{
-                return null;
-            }
-        }
-    }
-//
-    @PostMapping(value = {"/documentation/show"})
-    @ResponseBody
-    public Documentation show(@RequestBody Documentation_vue documentation_vue,
-                              Model model, HttpSession session) {
-        Documentation documentation = documentationRepository.findDocumentationById(documentation_vue.docID);
-        if (documentation.groupId != 0) {
-            GroupMember groupMember = groupMemberRepository.findByUserIdAndGroupId(documentation_vue.authorID, documentation.groupId);
-            if (groupMember.permission >= 1) {
-                return documentation;
-            } else {
-                return null;
-            }
-        }
-        else{
-            if(documentation_vue.authorID == documentation.creatorId){
-                return documentation;
-            }
-            else if(documentation.otherPermission >= 1){
-                return documentation;
+            if(userID == documentation.creatorId || documentation.otherPermission >= 4){
+                docResult = getDocResult(docResult, documentation);
+                docResult.success = true;
+                docResult.msg = "修改成功";
             }
             else{
-                return null;
+                docResult.success = false;
+                docResult.msg = "权限不足，无法修改";
             }
         }
+        return docResult;
     }
 
+
+
+    @GetMapping(value = {"/viewDoc"})
+    @ResponseBody
+    public DocResult showDoc(@RequestParam int userID,
+                             @RequestParam int docID,
+                              Model model, HttpSession session) {
+        DocResult docResult = new DocResult();
+        Documentation documentation = documentationRepository.findDocumentationById(docID);
+        if(documentation == null){
+            docResult.success = false;
+            docResult.msg = "文档不存在";
+            return docResult;
+        }
+        if (documentation.groupId != 0) {
+            GroupMember groupMember = groupMemberRepository.findByUserIdAndGroupId(userID, documentation.groupId);
+            if (groupMember.permission >= 1) {
+                docResult = getDocResult(docResult,documentation);
+                docResult.success = true;
+                docResult.msg = "显示成功";
+            } else {
+                docResult.success = false;
+                docResult.msg = "权限不足，无法查看";
+            }
+        }
+        else{
+            if(userID == documentation.creatorId || documentation.otherPermission >= 1){
+                docResult = getDocResult(docResult,documentation);
+                docResult.success = true;
+                docResult.msg = "显示成功";
+            }
+            else{
+                docResult.success = false;
+                docResult.msg = "权限不足，无法查看";
+            }
+        }
+        return docResult;
+    }
+
+    private Map<String,String> getDoc(Documentation documentation){
+        String content = readFileByChars(documentation.path + "/content.txt");
+        String html = readFileByChars(documentation.path + "/html.txt");
+        Map<String,String> res = new HashMap<>();
+        res.put("content",content);
+        res.put("html",html);
+        return res;
+    }
+
+
+    private DocResult getDocResult(DocResult docResult, Documentation documentation) {
+        Map<String,String> docMap = getDoc(documentation);
+        docResult.content = docMap.get("content");
+        docResult.html = docMap.get("html");
+        return docResult;
+    }
+//
+
+    public static String readFileByChars(String fileName) {
+        File file = new File(fileName);
+        String res = new String();
+        Reader reader = null;
+//        try {
+//            System.out.println("以字符为单位读取文件内容，一次读一个字节：");
+//            // 一次读一个字符
+//            reader = new InputStreamReader(new FileInputStream(file));
+//            int tempchar;
+//            while ((tempchar = reader.read()) != -1) {
+//                // 对于windows下，\r\n这两个字符在一起时，表示一个换行。
+//                // 但如果这两个字符分开显示时，会换两次行。
+//                // 因此，屏蔽掉\r，或者屏蔽\n。否则，将会多出很多空行。
+//                if (((char) tempchar) != '\r') {
+//                    System.out.print((char) tempchar);
+//                }
+//            }
+//            reader.close();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+        try {
+            //System.out.println("以字符为单位读取文件内容，一次读多个字节：");
+            // 一次读多个字符
+            char[] tempChars = new char[30];
+            int charRead = 0;
+            reader = new InputStreamReader(new FileInputStream(fileName));
+            // 读入多个字符到字符数组中，charread为一次读取字符数
+            while ((charRead = reader.read(tempChars)) != -1) {
+                // 同样屏蔽掉\r不显示
+                if ((charRead == tempChars.length)
+                        && (tempChars[tempChars.length - 1] != '\r')) {
+//                    System.out.print(tempchars);
+                    res += tempChars;
+                } else {
+                    for (int i = 0; i < charRead; i++) {
+                        if (tempChars[i] == '\r') {
+                            continue;
+                        } else {
+//                            System.out.print(tempchars[i]);
+                            res += tempChars[i];
+                        }
+                    }
+                }
+            }
+
+        } catch (Exception e1) {
+            e1.printStackTrace();
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e1) {
+                }
+            }
+        }
+        return res;
+    }
 }
