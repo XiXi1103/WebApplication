@@ -48,20 +48,7 @@ public class SearchController {
         List<Documentation> docList = documentationRepository.findByTitle(keyword.key);
         SearchDocResult searchDocResult = new SearchDocResult();
 
-        if (!docList.isEmpty()) {
-            searchDocResult.success = true;
-            for (Documentation doc : docList) {
-                searchDocResult.docIdList.add(doc.id);
-            }
-            searchDocResult.msg = "搜索成功";
-        }
-        else  {
-            searchDocResult.success = false;
-            searchDocResult.docIdList = null;
-            searchDocResult.msg = "搜索失败";
-        }
-
-        return searchDocResult;
+        return getSearchDocResult(docList, searchDocResult, true);
     }
 
     @PostMapping(value={"/searchGrp"})
@@ -92,7 +79,7 @@ public class SearchController {
         List<User> userList = userRepository.findByUsername(keyword.key);
         SearchDocResult searchDocResult = new SearchDocResult();
 
-        if (!userList.isEmpty()) {
+        if (userList.isEmpty()) {
             searchDocResult.success = false;
             searchDocResult.docIdList = null;
             searchDocResult.msg = "搜索失败";
@@ -101,16 +88,52 @@ public class SearchController {
 
         List<Documentation> docList = documentationRepository.findByCreatorId(userList.get(0).id);
 
+        return getSearchDocResult(docList, searchDocResult, true);
+    }
+
+    @PostMapping(value={"/searchTrashThroughUsr"})
+    @ResponseBody
+    public SearchDocResult searchTrashThroughUsr(@RequestParam Keyword_vue keyword) {
+        List<User> userList = userRepository.findByUsername(keyword.key);
+        SearchDocResult searchDocResult = new SearchDocResult();
+
+        if (userList.isEmpty()) {
+            searchDocResult.success = false;
+            searchDocResult.docIdList = null;
+            searchDocResult.msg = "搜索失败";
+            return searchDocResult;
+        }
+
+        List<Documentation> docList = documentationRepository.findByCreatorId(userList.get(0).id);
+
+        return getSearchDocResult(docList, searchDocResult, false);
+    }
+
+    private SearchDocResult getSearchDocResult(List<Documentation> docList, SearchDocResult searchDocResult, boolean flag) {
         if (!docList.isEmpty()) {
             searchDocResult.success = true;
-            for (Documentation doc : docList) {
-                searchDocResult.docIdList.add(doc.id);
+            if (flag) {
+                for (Documentation doc : docList) {
+                    if (!doc.isTrash){
+                        searchDocResult.docIdList.add(doc.id);
+                        searchDocResult.titleList.add(doc.title);
+                    }
+                }
+            }
+            else {
+                for (Documentation doc : docList) {
+                    if (doc.isTrash){
+                        searchDocResult.docIdList.add(doc.id);
+                        searchDocResult.titleList.add(doc.title);
+                    }
+                }
             }
             searchDocResult.msg = "搜索成功";
         }
         else  {
             searchDocResult.success = false;
             searchDocResult.docIdList = null;
+            searchDocResult.titleList = null;
             searchDocResult.msg = "搜索失败";
         }
 
