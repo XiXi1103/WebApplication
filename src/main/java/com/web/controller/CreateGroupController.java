@@ -19,7 +19,7 @@ public class CreateGroupController {
     GroupRepository groupRepository;
     @Autowired
     GroupMemberRepository groupMemberRepository;
-    @PostMapping(value = {"/group/create"})
+    @PostMapping(value = {"/createGroup"})
     @ResponseBody
     public Result create(@RequestBody Group_vue group_vue,
                              Model model, HttpSession session){

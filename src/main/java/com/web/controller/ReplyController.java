@@ -7,10 +7,7 @@ import com.web.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
 import java.util.Date;
@@ -69,11 +66,11 @@ public class ReplyController {
         return result;
     }
 
-    @PostMapping(value = {"/reply/delete"})
+    @GetMapping(value = {"/deleteReply"})
     @ResponseBody
-    public Result delete(@RequestBody Reply_vue reply_vue,
+    public Result delete(@RequestParam int replyId,
                         Model model, HttpSession session){
-        Reply reply = replyRepository.findReplyById(reply_vue.id);
+        Reply reply = replyRepository.findReplyById(replyId);
         List<Reply> replyList = replyRepository.findByReplyId(reply.id);
         replyRepository.delete(reply);
         for(Reply reply1:replyList){

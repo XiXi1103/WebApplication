@@ -90,7 +90,7 @@ public class DocumentationController {
                          Model model, HttpSession session) {
         Documentation documentation = documentationRepository.findDocumentationById(documentation_vue.documentationId);
         if (documentation.creatorId == documentation_vue.userId) {
-            documentation.recycled = false;
+            documentation.isTrash = false;
             documentationRepository.save(documentation);
             Result result = new Result();
             result.success = true;
