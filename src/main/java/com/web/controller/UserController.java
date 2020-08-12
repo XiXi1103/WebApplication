@@ -14,27 +14,37 @@ import javax.servlet.http.HttpSession;
 public class UserController {
     @Autowired
     UserRepository userRepository;
-    @GetMapping(value = {"/personalInfo"})
+    @GetMapping(value = {"/changePerInfo"})
     @ResponseBody
-    public PersonalInfoResult changeInfo(@RequestBody String username,
+    public PersonalInfoResult changeInfo(@RequestParam String username,
                                          @RequestParam String password,
                                          @RequestParam String email,
-                                         @RequestParam String phone_num,
+                                         @RequestParam String phoneNum,
                                          Model model, HttpSession session){
         PersonalInfoResult result = new PersonalInfoResult();
         User user = userRepository.findByUsername(username).get(0);
         user.password = password;
         user.email = email;
-        user.phoneNumber = phone_num;
+        user.phoneNumber = phoneNum;
         userRepository.save(user);
 
-        result.username = username;
-        result.create_time = user.createTime.toString();
-        result.password = password;
-        result.email = email;
-        result.phone_num = phone_num;
         result.success = true;
 
+        return result;
+    }
+    @GetMapping(value = {"/personalInfo"})
+    @ResponseBody
+    public PersonalInfoResult personalInfo(@RequestParam int userID,
+                                         Model model, HttpSession session){
+        PersonalInfoResult result = new PersonalInfoResult();
+        User user = userRepository.findById(userID).get();
+
+        result.phone_num = user.phoneNumber;
+        result.password = user.password;
+        result.email = user.email;
+        result.create_time = user.createTime.toString();
+        result.username = user.username;
+        result.success = true;
         return result;
     }
 }
