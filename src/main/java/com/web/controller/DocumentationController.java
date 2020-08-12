@@ -65,54 +65,57 @@ public class DocumentationController {
 
             documentationRepository.save(documentation);
 
-            try {
-                File docFolder= new File("../doc");
-                File targetFile = new File(docFolder,String.valueOf(documentation.id));
-                if(!targetFile.getParentFile().exists()){
-                    targetFile.getParentFile().mkdirs();
-                }
-                File targetFile_1 = new File(targetFile,"content.txt");//保存内容
-                File targetFile_2 = new File(targetFile,"html.txt");//保存html
-
-                if(!targetFile_1.getParentFile().exists()){
-                    targetFile_1.getParentFile().mkdirs();
-                }
-
-                System.out.println(targetFile_1.getAbsolutePath());
-                System.out.println(targetFile_2.getAbsolutePath());
-
-                documentation.path = targetFile.getPath();
-
-                saveAsFileWriter(documentation_vue.content,targetFile_1.getPath());
-                saveAsFileWriter(documentation_vue.html,targetFile_2.getPath());
-
-                result.success = true;
-                result.msg = "创建成功";
-            } catch (Exception e) {
-                result.success = false;
-                result.msg = "创建失败";
-                documentationRepository.delete(documentation);
-                e.printStackTrace();
-            }
         }
         else {
-//            documentation = documentationRepository.findDocumentationById(documentation_vue.docID);
-//            documentation.content = documentation_vue.content;
-//            documentation.title = documentation_vue.title;
+            documentation = documentationRepository.findDocumentationById(documentation_vue.docID);
         }
+        saveDoc(documentation_vue, result, documentation);
 
         documentationRepository.save(documentation);
-
-        result.success = true;
+        if(documentation_vue.docID != 0){
+            result.msg = "替换成功";
+        }
         result.ID = documentation.id;
         return result;
+    }
+
+    private void saveDoc(@RequestBody Documentation_vue documentation_vue, Result result, Documentation documentation) {
+        try {
+            File docFolder= new File("../doc");
+            File targetFile = new File(docFolder,String.valueOf(documentation.id));
+            if(!targetFile.getParentFile().exists()){
+                targetFile.getParentFile().mkdirs();
+            }
+            File targetFile_1 = new File(targetFile,"content.txt");//保存内容
+            File targetFile_2 = new File(targetFile,"html.txt");//保存html
+
+            if(!targetFile_1.getParentFile().exists()){
+                targetFile_1.getParentFile().mkdirs();
+            }
+
+//            System.out.println(targetFile_1.getAbsolutePath());
+//            System.out.println(targetFile_2.getAbsolutePath());
+
+            documentation.path = targetFile.getPath();
+
+            saveAsFileWriter(documentation_vue.content,targetFile_1.getPath());
+            saveAsFileWriter(documentation_vue.html,targetFile_2.getPath());
+
+            result.success = true;
+            result.msg = "创建成功";
+        } catch (Exception e) {
+            result.success = false;
+            result.msg = "创建失败";
+            documentationRepository.delete(documentation);
+            e.printStackTrace();
+        }
     }
 
     private static void saveAsFileWriter(String content,String filePath) {
         FileWriter fileWriter = null;
         try {
             // true表示不覆盖原来的内容，而是加到文件的后面。若要覆盖原来的内容，直接省略这个参数就好
-            fileWriter = new FileWriter(filePath, true);
+            fileWriter = new FileWriter(filePath, false);
             fileWriter.write(content);
         } catch (IOException ex) {
             ex.printStackTrace();
