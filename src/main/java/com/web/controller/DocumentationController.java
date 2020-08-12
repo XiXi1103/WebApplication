@@ -216,6 +216,44 @@ public class DocumentationController {
         return docResult;
     }
 
+    @PostMapping(value = {"/recoverDoc"})
+    @ResponseBody
+    public Result recoverDoc(@RequestBody Documentation_vue documentation_vue,
+                         Model model, HttpSession session) {
+        Documentation documentation = documentationRepository.findDocumentationById(documentation_vue.docID);
+        Result result = new Result();
+        if (documentation.creatorId == documentation_vue.userID) {
+            if(!documentation.isTrash){
+                result.success = false;
+                result.msg = "恢复文档失败，该文档不在回收站中！";
+            }
+            else {
+                documentation.isTrash = false;
+                documentationRepository.save(documentation);
+                result.success = true;
+                result.msg = "恢复文档成功!";
+            }
+        }
+        else if(documentation.groupId != 0){
+            GroupMember groupMember = groupMemberRepository.findByUserIdAndGroupId(documentation_vue.userID,documentation.groupId);
+            if(groupMember.permission >= 4){
+                documentation.isTrash = true;
+                documentationRepository.save(documentation);
+                result.success = true;
+                result.msg = "恢复团队文档成功!";
+            }
+            else{
+                result.success = false;
+                result.msg = "恢复文档失败，权限不足!";
+            }
+        }
+        else {
+            result.success = false;
+            result.msg = "恢复文档失败，权限不足!";
+        }
+        return result;
+    }
+
 
 
     @GetMapping(value = {"/viewDoc"})
@@ -254,6 +292,8 @@ public class DocumentationController {
         }
         return docResult;
     }
+
+
 
     private Map<String,String> getDoc(Documentation documentation){
         String content = readFileByChars(documentation.path + "/content.txt");
