@@ -66,22 +66,26 @@ public class DocumentationController {
             documentationRepository.save(documentation);
 
             try {
-                File imageFolder= new File("./doc");
-                File targetFile = new File(imageFolder,String.valueOf(documentation.id));
+                File docFolder= new File("../doc");
+                File targetFile = new File(docFolder,String.valueOf(documentation.id));
                 if(!targetFile.getParentFile().exists()){
                     targetFile.getParentFile().mkdirs();
                 }
-                System.out.println(targetFile.getAbsolutePath());
+                File targetFile_1 = new File(targetFile,"content.txt");//保存内容
+                File targetFile_2 = new File(targetFile,"html.txt");//保存html
+
+                if(!targetFile_1.getParentFile().exists()){
+                    targetFile_1.getParentFile().mkdirs();
+                }
+
+                System.out.println(targetFile_1.getAbsolutePath());
+                System.out.println(targetFile_2.getAbsolutePath());
 
                 documentation.path = targetFile.getPath();
 
-                saveAsFileWriter(documentation_vue.content,documentation_vue.html,targetFile.getPath());
-//            BufferedImage img = ImageUtil.change2jpg(targetFile);
-//            ImageIO.write(img, "jpg", targetFile);
-                /*            file.transferTo(targetFile);*/
-//            byte[] bytes = file.getBytes();
-//            Path path = Paths.get(realPath + file.getOriginalFilename());
-//            Files.write(path, bytes);
+                saveAsFileWriter(documentation_vue.content,targetFile_1.getPath());
+                saveAsFileWriter(documentation_vue.html,targetFile_2.getPath());
+
                 result.success = true;
                 result.msg = "创建成功";
             } catch (Exception e) {
@@ -104,7 +108,7 @@ public class DocumentationController {
         return result;
     }
 
-    private static void saveAsFileWriter(String content,String html,String filePath) {
+    private static void saveAsFileWriter(String content,String filePath) {
         FileWriter fileWriter = null;
         try {
             // true表示不覆盖原来的内容，而是加到文件的后面。若要覆盖原来的内容，直接省略这个参数就好
