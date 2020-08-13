@@ -76,36 +76,7 @@ public class CollectionController {
         }
         return myCollectionResult;
     }
-    @GetMapping(value = {"/getRecentDoc"})
-    @ResponseBody
-    public MyCollectionResult getRecentDoc(@RequestParam("userName") String userName,
-                                           Model model, HttpSession session){
-        MyCollectionResult myCollectionResult=new MyCollectionResult();
-        User user=userRepository.findUserByUsername(userName);
-        int l=user.recently_usednum;
-        DocumentationResult documentationResult=new DocumentationResult();
-        if(l>0)
-            documentationResult.documentationId=user.recently_used5;
-            documentationResult.documentationTitle=documentationRepository.findDocumentationById(user.recently_used5).title;
-            myCollectionResult.documentationResults.add(documentationResult);
-        if(l>1)
-            documentationResult.documentationId=user.recently_used4;
-        documentationResult.documentationTitle=documentationRepository.findDocumentationById(user.recently_used4).title;
-        myCollectionResult.documentationResults.add(documentationResult);
-        if(l>2)
-            documentationResult.documentationId=user.recently_used3;
-        documentationResult.documentationTitle=documentationRepository.findDocumentationById(user.recently_used3).title;
-        myCollectionResult.documentationResults.add(documentationResult);
-        if(l>3)
-            documentationResult.documentationId=user.recently_used2;
-        documentationResult.documentationTitle=documentationRepository.findDocumentationById(user.recently_used2).title;
-        myCollectionResult.documentationResults.add(documentationResult);
-        if(l>4)
-            documentationResult.documentationId=user.recently_used1;
-        documentationResult.documentationTitle=documentationRepository.findDocumentationById(user.recently_used1).title;
-        myCollectionResult.documentationResults.add(documentationResult);
-        return myCollectionResult;
-    }
+
         @GetMapping(value = {"/getMyDoc"})
         @ResponseBody
         public MyCollectionResult getMyDoc(@RequestParam("userName") String userName,
