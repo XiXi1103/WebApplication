@@ -63,7 +63,7 @@ public class GroupMemberController {
             int category = 5;
             Notice notice;
             User actor = userRepository.findUserById(groupRepository.findGroupById(groupID).creatorId);
-            notice = NoticeController.addNotice(user.id,actor.id,category,groupID);
+            notice = new NoticeController().addNotice(user.id,actor.id,category,groupID);
             noticeRepository.save(notice);
 
 
@@ -93,7 +93,7 @@ public class GroupMemberController {
         int category = 6;
         Notice notice;
         User actor = userRepository.findUserById(groupRepository.findGroupById(group.id).creatorId);
-        notice = NoticeController.addNotice(user.id,actor.id,category,group.id);
+        notice = new NoticeController().addNotice(user.id,actor.id,category,group.id);
         noticeRepository.save(notice);
 
         return result;

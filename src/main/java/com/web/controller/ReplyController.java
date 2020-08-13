@@ -72,7 +72,7 @@ public class ReplyController {
         else category = 3;
         Notice notice;
         User author = userRepository.findUserById(documentationRepository.findDocumentationById(reply.docId).creatorId);
-        notice = NoticeController.addNotice(author.id,reply.userId,category,reply.docId);
+        notice = new NoticeController().addNotice(author.id,reply.userId,category,reply.docId);
         noticeRepository.save(notice);
 
         result.success = true;

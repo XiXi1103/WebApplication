@@ -78,7 +78,7 @@ public class LikesController {
             else category = 4;
             Notice notice;
             User author = userRepository.findUserById(documentationRepository.findDocumentationById(likes.docId).creatorId);
-            notice = NoticeController.addNotice(author.id,likes.userId,category,likes.docId);
+            notice = new NoticeController().addNotice(author.id,likes.userId,category,likes.docId);
             noticeRepository.save(notice);
 
             result.success = true;
