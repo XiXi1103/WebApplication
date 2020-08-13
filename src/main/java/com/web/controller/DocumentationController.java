@@ -195,7 +195,7 @@ public class DocumentationController {
         if (documentation.groupId != 0) {
             GroupMember groupMember = groupMemberRepository.findByUserIdAndGroupId(userID, documentation.groupId);
             if (groupMember.permission >= 4) {
-                docResult = getDocResult(docResult, documentation);
+                getDocResult(docResult, documentation);
                 docResult.success = true;
                 docResult.msg = "修改成功";
             } else {
@@ -272,7 +272,7 @@ public class DocumentationController {
         if (documentation.groupId != 0) {
             GroupMember groupMember = groupMemberRepository.findByUserIdAndGroupId(userID, documentation.groupId);
             if (groupMember.permission >= 1) {
-                docResult = getDocResult(docResult,documentation);
+                getDocResult(docResult, documentation);
                 docResult.success = true;
                 docResult.msg = "显示成功";
                 addRecentUse(userID,docID);
@@ -283,7 +283,7 @@ public class DocumentationController {
         }
         else{
             if(userID == documentation.creatorId || documentation.otherPermission >= 1){
-                docResult = getDocResult(docResult,documentation);
+                getDocResult(docResult, documentation);
                 docResult.success = true;
                 docResult.msg = "显示成功";
                 addRecentUse(userID,docID);
@@ -338,7 +338,7 @@ public class DocumentationController {
 
     public static String readFileByChars(String fileName) {
         File file = new File(fileName);
-        String res = new String();
+        StringBuilder res = new StringBuilder();
         Reader reader = null;
 //        try {
 //            System.out.println("以字符为单位读取文件内容，一次读一个字节：");
@@ -369,14 +369,14 @@ public class DocumentationController {
                 if ((charRead == tempChars.length)
                         && (tempChars[tempChars.length - 1] != '\r')) {
 //                    System.out.print(tempchars);
-                    res += tempChars;
+                    res.append(tempChars);
                 } else {
                     for (int i = 0; i < charRead; i++) {
                         if (tempChars[i] == '\r') {
                             continue;
                         } else {
 //                            System.out.print(tempchars[i]);
-                            res += tempChars[i];
+                            res.append(tempChars[i]);
                         }
                     }
                 }
@@ -388,11 +388,11 @@ public class DocumentationController {
             if (reader != null) {
                 try {
                     reader.close();
-                } catch (IOException e1) {
+                } catch (IOException ignored) {
                 }
             }
         }
-        return res;
+        return res.toString();
     }
 
 }
