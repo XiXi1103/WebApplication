@@ -76,9 +76,7 @@ public class SearchController {
         SearchDocResult searchDocResult = new SearchDocResult();
 
         if (userList.isEmpty()) {
-            searchDocResult.success = false;
-            searchDocResult.docIdList = null;
-            searchDocResult.msg = "搜索失败";
+            searchDocResult.docResultList = null;
             return searchDocResult;
         }
 
@@ -94,9 +92,7 @@ public class SearchController {
         SearchDocResult searchDocResult = new SearchDocResult();
 
         if (userList.isEmpty()) {
-            searchDocResult.success = false;
-            searchDocResult.docIdList = null;
-            searchDocResult.msg = "搜索失败";
+            searchDocResult.docResultList = null;
             return searchDocResult;
         }
 
@@ -107,31 +103,24 @@ public class SearchController {
 
     private SearchDocResult getSearchDocResult(List<Documentation> docList, SearchDocResult searchDocResult, boolean flag) {
         if (!docList.isEmpty()) {
-            searchDocResult.success = true;
             if (flag) {
                 for (Documentation doc : docList) {
                     if (!doc.isTrash){
-                        searchDocResult.docIdList.add(doc.id);
-                        searchDocResult.titleList.add(doc.title);
+                        DocSearch docSearch = new DocSearch(doc.title, doc.id);
+                        searchDocResult.docResultList.add(docSearch);
                     }
                 }
             }
             else {
                 for (Documentation doc : docList) {
                     if (doc.isTrash){
-                        searchDocResult.docIdList.add(doc.id);
-                        searchDocResult.titleList.add(doc.title);
+                        DocSearch docSearch = new DocSearch(doc.title, doc.id);
+                        searchDocResult.docResultList.add(docSearch);
                     }
                 }
             }
-            searchDocResult.msg = "搜索成功";
         }
-        else  {
-            searchDocResult.success = false;
-            searchDocResult.docIdList = null;
-            searchDocResult.titleList = null;
-            searchDocResult.msg = "搜索失败";
-        }
+        else searchDocResult.docResultList = null;
 
         return searchDocResult;
     }
