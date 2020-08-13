@@ -7,12 +7,10 @@ import com.web.repository.UserRepository;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
+import java.util.ArrayList;
 import java.util.Date;
 
 public class GroupMemberController {
@@ -83,4 +81,19 @@ public class GroupMemberController {
         return result;
     }
 //    0 都没有，1 查看，2 评论，3 分享，4 修改,5 创建者
+@GetMapping(value = {"/getGroup"})
+@ResponseBody
+public MyCollectionResult getGroup(@RequestParam("userID") int userId,
+                                      Model model, HttpSession session){
+    MyCollectionResult myCollectionResult=new MyCollectionResult();
+    ArrayList<GroupMember> groupMembers= (ArrayList<GroupMember>) groupMemberRepository.findGroupMemberByUserId(userId);
+    int l=groupMembers.size();
+    DocumentationResult documentationResult=new DocumentationResult();
+    for(int i=0;i<l;i++){
+        documentationResult.documentationId=groupMembers.get(i).groupId;
+        documentationResult.documentationTitle=groupRepository.findGroupById(groupMembers.get(i).groupId).groupName;
+        myCollectionResult.documentationResults.add(documentationResult);
+    }
+    return myCollectionResult;
+}
 }

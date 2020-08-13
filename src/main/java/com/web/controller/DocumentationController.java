@@ -1,6 +1,7 @@
 package com.web.controller;
 
 import com.web.entity.*;
+import com.web.entity.Collection;
 import com.web.repository.DocumentationRepository;
 import com.web.repository.GroupMemberRepository;
 import com.web.repository.GroupRepository;
@@ -393,4 +394,5 @@ public class DocumentationController {
         }
         return res;
     }
+
 }

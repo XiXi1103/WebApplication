@@ -93,4 +93,19 @@ public class CollectionController {
         }
         return myCollectionResult;
     }
+    @GetMapping(value = {"/getGroupDoc"})
+    @ResponseBody
+    public MyCollectionResult getGroupDoc(@RequestParam("groupID") int groupId,
+                                          Model model, HttpSession session){
+        MyCollectionResult myCollectionResult=new MyCollectionResult();
+        ArrayList<Documentation> documentations= (ArrayList<Documentation>) documentationRepository.findByGroupId(groupId);
+        int l=documentations.size();
+        DocumentationResult documentationResult=new DocumentationResult();
+        for(int i=0;i<l;i++){
+            documentationResult.documentationId=documentations.get(i).id;
+            documentationResult.documentationTitle=documentations.get(i).title;
+            myCollectionResult.documentationResults.add(documentationResult);
+        }
+        return myCollectionResult;
+    }
 }

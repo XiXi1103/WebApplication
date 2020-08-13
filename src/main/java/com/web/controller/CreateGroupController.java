@@ -19,14 +19,12 @@ public class CreateGroupController {
     GroupRepository groupRepository;
     @Autowired
     GroupMemberRepository groupMemberRepository;
-    @PostMapping(value = {"/createGroup"})
+    @GetMapping(value = {"/createGroup"})
     @ResponseBody
-    public Result create(@RequestBody Group_vue group_vue,
+    public Result create(@RequestParam("userId") int userId,@RequestParam("groupName") String groupName,
                              Model model, HttpSession session){
-        String groupName = group_vue.groupName;
         int creatorId = -1;
-        creatorId = group_vue.creatorId;
-        String groupContent = group_vue.groupContent;
+        creatorId = userId;
         Result result = new Result();
         if(groupName == null){
             result.success = false;
@@ -44,7 +42,6 @@ public class CreateGroupController {
         group.creatorId = creatorId;
         group.createTime = new Date();
         group.groupName = groupName;
-        group.content = groupContent;
         groupRepository.save(group);
 
         GroupMember groupMember = new GroupMember();
@@ -53,7 +50,6 @@ public class CreateGroupController {
         groupMember.permission = 5;
         groupMember.join_time = new Date();
         groupMemberRepository.save(groupMember);
-
         result.success = true;
         result.ID = group.id ;
         return result;
