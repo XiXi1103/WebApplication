@@ -22,7 +22,7 @@ public class CollaboratorController {
                                         @RequestParam("docID") int docId,
                                         @RequestParam("permission") int permission,
                                        Model model, HttpSession session){
-        Result result = new Result();
+        Result result = new  Result();
         result.success=false;
         result.msg="权限不足";
         if(collaboratorRepository.findCollaboratorByUserIdAndAndDocumentationId(userId1,docId).permission==4)
