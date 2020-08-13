@@ -6,4 +6,5 @@ public class Documentation_vue {
     public String html;
     public int authorID;
     public int docID;
+    public int userID;
 }

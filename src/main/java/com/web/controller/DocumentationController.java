@@ -126,43 +126,57 @@ public class DocumentationController {
         }
     }
 
-    @PostMapping(value = {"/recycle/delete"})
+    @PostMapping(value = {"/delDocCompletely"})
     @ResponseBody
-    public Result recycleDelete(@RequestBody Documentation_vue documentation_vue,
+    public Result delDocCompletely(@RequestBody Documentation_vue documentation_vue,
                          Model model, HttpSession session) {
         Documentation documentation = documentationRepository.findDocumentationById(documentation_vue.docID);
-        if (documentation.creatorId == documentation_vue.authorID) {
+        Result result = new Result();
+        if(!documentation.isTrash){
+            result.success = false;
+            result.msg = "该文档未在回收站内，无法彻底删除";
+        }
+        else if (documentation.creatorId == documentation_vue.userID) {
             documentationRepository.delete(documentation);
-            Result result = new Result();
             result.success = true;
             result.msg = "删除文档成功!";
-            return result;
         } else {
-            Result result = new Result();
             result.success = false;
             result.msg = "删除文档失败，权限不足!";
-            return result;
         }
+        return result;
     }
     
-    @PostMapping(value = {"/documentation/delete"})
+    @PostMapping(value = {"/delDoc"})
     @ResponseBody
-    public Result delete(@RequestBody Documentation_vue documentation_vue,
+    public Result delDoc(@RequestBody Documentation_vue documentation_vue,
                          Model model, HttpSession session) {
         Documentation documentation = documentationRepository.findDocumentationById(documentation_vue.docID);
-        if (documentation.creatorId == documentation_vue.authorID) {
-            documentation.isTrash = false;
+        Result result = new Result();
+        if (documentation.creatorId == documentation_vue.userID) {
+            documentation.isTrash = true;
             documentationRepository.save(documentation);
-            Result result = new Result();
             result.success = true;
             result.msg = "删除文档成功!";
-            return result;
-        } else {
-            Result result = new Result();
+        }
+        else if(documentation.groupId != 0){
+            GroupMember groupMember = groupMemberRepository.findByUserIdAndGroupId(documentation_vue.userID,documentation.groupId);
+            if(groupMember.permission >= 4){
+                documentation.isTrash = true;
+                documentationRepository.save(documentation);
+                result.success = true;
+                result.msg = "删除团队文档成功!";
+            }
+            else{
+                result.success = false;
+                result.msg = "删除文档失败，权限不足!";
+            }
+        }
+        else {
             result.success = false;
             result.msg = "删除文档失败，权限不足!";
-            return result;
         }
+        return result;
     }
 
     @GetMapping(value = {"/editDoc"})
@@ -200,6 +214,44 @@ public class DocumentationController {
             }
         }
         return docResult;
+    }
+
+    @PostMapping(value = {"/recoverDoc"})
+    @ResponseBody
+    public Result recoverDoc(@RequestBody Documentation_vue documentation_vue,
+                         Model model, HttpSession session) {
+        Documentation documentation = documentationRepository.findDocumentationById(documentation_vue.docID);
+        Result result = new Result();
+        if (documentation.creatorId == documentation_vue.userID) {
+            if(!documentation.isTrash){
+                result.success = false;
+                result.msg = "恢复文档失败，该文档不在回收站中！";
+            }
+            else {
+                documentation.isTrash = false;
+                documentationRepository.save(documentation);
+                result.success = true;
+                result.msg = "恢复文档成功!";
+            }
+        }
+        else if(documentation.groupId != 0){
+            GroupMember groupMember = groupMemberRepository.findByUserIdAndGroupId(documentation_vue.userID,documentation.groupId);
+            if(groupMember.permission >= 4){
+                documentation.isTrash = true;
+                documentationRepository.save(documentation);
+                result.success = true;
+                result.msg = "恢复团队文档成功!";
+            }
+            else{
+                result.success = false;
+                result.msg = "恢复文档失败，权限不足!";
+            }
+        }
+        else {
+            result.success = false;
+            result.msg = "恢复文档失败，权限不足!";
+        }
+        return result;
     }
 
 
@@ -242,6 +294,8 @@ public class DocumentationController {
         }
         return docResult;
     }
+
+
 
     private Map<String,String> getDoc(Documentation documentation){
         String content = readFileByChars(documentation.path + "/content.txt");

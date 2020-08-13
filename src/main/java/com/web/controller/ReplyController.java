@@ -68,9 +68,9 @@ public class ReplyController {
 
     @GetMapping(value = {"/deleteReply"})
     @ResponseBody
-    public Result delete(@RequestParam int replyId,
+    public Result delete(@RequestParam int replyID,
                         Model model, HttpSession session){
-        Reply reply = replyRepository.findReplyById(replyId);
+        Reply reply = replyRepository.findReplyById(replyID);
         List<Reply> replyList = replyRepository.findByReplyId(reply.id);
         replyRepository.delete(reply);
         for(Reply reply1:replyList){
@@ -78,7 +78,7 @@ public class ReplyController {
         }
         Result result = new Result();
         result.success = true;
-        result.msg = "删除评论成功";
+        result.msg = "删除成功";
         result.ID = reply.id;
         return result;
     }
