@@ -10,8 +10,8 @@ import java.util.List;
 
 public interface CollectionRepository extends JpaRepository<Collection,Integer> {
 
-    List<Documentation> findDocumentationById(Integer id);
-
+    List<Collection> findDocumentationById(Integer id);
+    List<Collection> findCollectionByUserId(Integer id);
     Collection findCollectionByUserIdAndDocumentationId(int userId,int documentationId);
 
 }

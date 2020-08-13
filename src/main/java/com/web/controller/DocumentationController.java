@@ -222,6 +222,7 @@ public class DocumentationController {
                 docResult = getDocResult(docResult,documentation);
                 docResult.success = true;
                 docResult.msg = "显示成功";
+                addRecentUse(userID,docID);
             } else {
                 docResult.success = false;
                 docResult.msg = "权限不足，无法查看";
@@ -232,6 +233,7 @@ public class DocumentationController {
                 docResult = getDocResult(docResult,documentation);
                 docResult.success = true;
                 docResult.msg = "显示成功";
+                addRecentUse(userID,docID);
             }
             else{
                 docResult.success = false;
@@ -249,7 +251,27 @@ public class DocumentationController {
         res.put("html",html);
         return res;
     }
-
+    public void addRecentUse(int userID,int docID){
+        User user=userRepository.findUserById(userID);
+        if(user.recently_usednum==5){
+            user.recently_used1=user.recently_used2;
+            user.recently_used2=user.recently_used3;
+            user.recently_used3=user.recently_used4;
+            user.recently_used4=user.recently_used5;
+            user.recently_used5=docID;
+        }
+        else if(user.recently_usednum==4)
+            user.recently_used5=docID;
+        else if(user.recently_usednum==3)
+            user.recently_used4=docID;
+        else if(user.recently_usednum==2)
+            user.recently_used3=docID;
+        else if(user.recently_usednum==1)
+            user.recently_used2=docID;
+        else if(user.recently_usednum==0)
+            user.recently_used1=docID;
+        return ;
+    }
 
     private DocResult getDocResult(DocResult docResult, Documentation documentation) {
         Map<String,String> docMap = getDoc(documentation);

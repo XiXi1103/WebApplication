@@ -12,5 +12,6 @@ public interface DocumentationRepository extends JpaRepository<Documentation,Int
     List<Documentation> findByTitle(String title);
     @Query(value="select * from documentation where isTrash == false ", nativeQuery=true)
     List<Documentation> findByCreatorId(Integer id);
+
     List<Documentation> findByGroupId(Integer id);
 }

@@ -17,4 +17,6 @@ public class Collection {
     public int documentationId;
     @Column(name = "collect_time")
     public Date collect_time;
+    @Column(name = "status")
+    public boolean status;
 }
