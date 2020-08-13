@@ -18,110 +18,103 @@ public class SearchController {
     DocumentationRepository documentationRepository;
     GroupRepository groupRepository;
 
-    @GetMapping(value={"/searchUser"})
+    @GetMapping(value={"/search"})
     @ResponseBody
-    public SearchUsrResult searchUser(@RequestParam String username) {
-        List<User> userList = userRepository.findByUsername(username);
-        SearchUsrResult searchUsrResult = new SearchUsrResult();
+    public SearchResult search(@RequestParam int userId, @RequestParam String keyword, @RequestParam int type) {
+        if (type == 0) return searchUser(keyword);
+        else if (type == 1) return searchGroup(keyword);
+        else if (type == 2) return searchDocumentation(keyword);
+        return null;
+    }
 
-        if (!userList.isEmpty()) {
-            User user = userList.get(0);
-            searchUsrResult.success = true;
-            searchUsrResult.usrId = user.id;
-            searchUsrResult.msg = "搜索成功";
+    public SearchResult searchUser(@RequestParam String username) {
+        User user = userRepository.findUserByUsername(username);
+        SearchResult searchResult = new SearchResult();
+
+        if (user != null) {
+            DocSearch docSearch = new DocSearch("搜索1", user.id);
+            searchResult.resultList.add(docSearch);
         }
-        else {
-            searchUsrResult.success = false;
-            searchUsrResult.usrId = -1;
-            searchUsrResult.msg = "搜索失败";
-        };
 
-        return searchUsrResult;
+        return searchResult;
     }
 
-    @GetMapping(value={"/searchDoc"})
-    @ResponseBody
-    public SearchDocResult searchDocumentation(@RequestParam String docname) {
-        List<Documentation> docList = documentationRepository.findByTitle(docname);
-        SearchDocResult searchDocResult = new SearchDocResult();
-
-        return getSearchDocResult(docList, searchDocResult, true);
-    }
-
-    @PostMapping(value={"/searchGrp"})
-    @ResponseBody
-    public SearchGrpResult searchGroup(@RequestParam String grpname) {
+    public SearchResult searchGroup(String grpname) {
         List<Group> grpList = groupRepository.findByGroupName(grpname);
-        SearchGrpResult searchGrpResult = new SearchGrpResult();
+        SearchResult searchResult = new SearchResult();
+
         if (!grpList.isEmpty()) {
-            searchGrpResult.success = true;
             for (Group grp : grpList) {
-                searchGrpResult.grpIdList.add(grp.id);
+                DocSearch docSearch = new DocSearch(grp.groupName, grp.id);
+                searchResult.resultList.add(docSearch);
             }
-            searchGrpResult.msg = "搜索成功";
-        }
-        else  {
-            searchGrpResult.success = false;
-            searchGrpResult.grpIdList = null;
-            searchGrpResult.msg = "搜索失败";
         }
 
-        return searchGrpResult;
+        return searchResult;
     }
 
-    @PostMapping(value={"/searchDocThroughUsr"})
-    @ResponseBody
-    public SearchDocResult searchDocThroughUsr(@RequestParam String usernsame) {
-        List<User> userList = userRepository.findByUsername(usernsame);
-        SearchDocResult searchDocResult = new SearchDocResult();
+    public SearchResult searchDocumentation(String docname) {
+        List<Documentation> docList = documentationRepository.findByTitle(docname);
+        SearchResult searchResult = new SearchResult();
 
-        if (userList.isEmpty()) {
-            searchDocResult.docResultList = null;
-            return searchDocResult;
-        }
-
-        List<Documentation> docList = documentationRepository.findByCreatorId(userList.get(0).id);
-
-        return getSearchDocResult(docList, searchDocResult, true);
-    }
-
-    @PostMapping(value={"/searchTrashThroughUsr"})
-    @ResponseBody
-    public SearchDocResult searchTrashThroughUsr(@RequestParam String usernsme) {
-        List<User> userList = userRepository.findByUsername(usernsme);
-        SearchDocResult searchDocResult = new SearchDocResult();
-
-        if (userList.isEmpty()) {
-            searchDocResult.docResultList = null;
-            return searchDocResult;
-        }
-
-        List<Documentation> docList = documentationRepository.findByCreatorId(userList.get(0).id);
-
-        return getSearchDocResult(docList, searchDocResult, false);
-    }
-
-    private SearchDocResult getSearchDocResult(List<Documentation> docList, SearchDocResult searchDocResult, boolean flag) {
         if (!docList.isEmpty()) {
-            if (flag) {
-                for (Documentation doc : docList) {
-                    if (!doc.isTrash){
-                        DocSearch docSearch = new DocSearch(doc.title, doc.id);
-                        searchDocResult.docResultList.add(docSearch);
-                    }
-                }
+            for (Documentation doc : docList) {
+                DocSearch docSearch = new DocSearch(doc.title, doc.id);
+                searchResult.resultList.add(docSearch);
             }
-            else {
-                for (Documentation doc : docList) {
-                    if (doc.isTrash){
-                        DocSearch docSearch = new DocSearch(doc.title, doc.id);
-                        searchDocResult.docResultList.add(docSearch);
-                    }
+        }
+
+        return searchResult;
+    }
+
+    @GetMapping(value={"/searchDocThroughUsr"})
+    @ResponseBody
+    public SearchResult searchDocThroughUsr(@RequestParam String username) {
+        User user = userRepository.findUserByUsername(username);
+        SearchResult searchResult = new SearchResult();
+
+        if (user == null) {
+            searchResult.resultList = null;
+            return searchResult;
+        }
+
+        List<Documentation> docList = documentationRepository.findByCreatorId(user.id);
+
+        if (!docList.isEmpty()) {
+            for (Documentation doc : docList) {
+                if (!doc.isTrash) {
+                    DocSearch docSearch = new DocSearch(doc.title, doc.id);
+                    searchResult.resultList.add(docSearch);
                 }
             }
         }
-        else searchDocResult.docResultList = null;
 
-        return searchDocResult;
+        return searchResult;
     }
+
+    @GetMapping(value={"/searchTrashThroughUsr"})
+    @ResponseBody
+    public SearchResult searchTrashThroughUsr(@RequestParam String username) {
+        User user = userRepository.findUserByUsername(username);
+        SearchResult searchResult = new SearchResult();
+
+        if (user == null) {
+            searchResult.resultList = null;
+            return searchResult;
+        }
+
+        List<Documentation> docList = documentationRepository.findByCreatorId(user.id);
+
+        if (!docList.isEmpty()) {
+            for (Documentation doc : docList) {
+                if (doc.isTrash) {
+                    DocSearch docSearch = new DocSearch(doc.title, doc.id);
+                    searchResult.resultList.add(docSearch);
+                }
+            }
+        }
+
+        return searchResult;
+    }
+
 }
