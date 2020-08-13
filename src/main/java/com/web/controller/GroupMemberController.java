@@ -55,7 +55,7 @@ public class GroupMemberController {
         return result;
     }
 
-    @PostMapping(value = {"/group/delete"})
+    @GetMapping(value = {"/group/delete"})
     @ResponseBody
     public Result delete(@RequestBody Group_vue group_vue,
                          @RequestBody User_vue user_vue,
@@ -71,7 +71,7 @@ public class GroupMemberController {
         return result;
     }
 
-    @PostMapping(value = {"/group/delete"})
+    @PostMapping(value = {"/modifyPermission"})
     @ResponseBody
     public Result modifyPermission(@RequestBody Group_vue group_vue,
                                @RequestBody User_vue user_vue,
