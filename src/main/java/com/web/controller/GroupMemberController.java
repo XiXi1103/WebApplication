@@ -1,9 +1,7 @@
 package com.web.controller;
 
 import com.web.entity.*;
-import com.web.repository.GroupMemberRepository;
-import com.web.repository.GroupRepository;
-import com.web.repository.UserRepository;
+import com.web.repository.*;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
@@ -20,42 +18,65 @@ public class GroupMemberController {
     UserRepository userRepository;
     @Autowired
     GroupMemberRepository groupMemberRepository;
-    @GetMapping(value = {"/addMember"})
+    @Autowired
+    ReplyRepository replyRepository;
+    @Autowired
+    LikesRepository likesRepository;
+    @Autowired
+    DocumentationRepository documentationRepository;
+    @Autowired
+    NoticeRepository noticeRepository;
+    @PostMapping(value = {"/addMember"})
     @ResponseBody
-    public Result invite(@RequestParam("groupID") int groupId,
-                         @RequestParam("userID") int userId,
-                         @RequestParam("username") String userName,
-                         @RequestParam("permission") int permission,
-                        Model model, HttpSession session){
-        User user1 = userRepository.findUserById(userId);
-        User user2 = userRepository.findUserByUsername(userName);
-        Group group = groupRepository.findGroupById(groupId);
-        if(groupMemberRepository.findByUserIdAndGroupId(user1.id,groupId).permission<5){
-            Result result = new Result();
+    public Result invite(@RequestParam int groupID,
+                         @RequestParam int userID,
+                         @RequestParam String username,
+                         @RequestParam int permission
+                        ){
+        User inviter = userRepository.findUserById(userID);
+        User user = userRepository.findUserByUsername(username);
+        Group group = groupRepository.findGroupById(groupID);
+        Result result = new Result();
+
+        if(inviter == null){
+            result.msg = "邀请者不存在或您是游客，无法邀请成员";
             result.success = false;
-            result.msg = "权限不足!";
             return result;
         }
-        if(groupMemberRepository.findByUserIdAndGroupId(user1.id,groupId).permission<permission){
-            Result result = new Result();
+        else if(user == null){
+            result.msg = "被邀请者不存在";
             result.success = false;
-            result.msg = "权限不能超过邀请者!";
+            return result;
+        }
+        else if(group == null){
+            result.msg = "该团队不存在";
+            result.success = false;
+            return result;
+        }
+        else{
+            GroupMember groupMember = new GroupMember();
+            groupMember.groupId = group.id;
+            groupMember.userId = user.id;
+            groupMember.permission = permission;
+            groupMemberRepository.save(groupMember);
+
+            int category = 5;
+            Notice notice;
+            User actor = userRepository.findUserById(groupRepository.findGroupById(groupID).creatorId);
+            notice = NoticeController.addNotice(user.id,actor.id,category,groupID);
+            noticeRepository.save(notice);
+
+
+            result.success = true;
+            result.ID = group.id ;
+            result.msg = "邀请成功!";
             return result;
         }
 
-        GroupMember groupMember = new GroupMember();
-        groupMember.groupId = group.id;
-        groupMember.userId = user2.id;
-        groupMember.permission = permission;
-        groupMemberRepository.save(groupMember);
-        Result result = new Result();
-        result.success = true;
-        result.ID = group.id ;
-        result.msg = "邀请成功!";
-        return result;
+
     }
 
-    @GetMapping(value = {"/group/delete"})
+    @PostMapping(value = {"/deleteMember"})
     @ResponseBody
     public Result delete(@RequestBody Group_vue group_vue,
                          @RequestBody User_vue user_vue,
@@ -68,10 +89,17 @@ public class GroupMemberController {
         result.success = true;
         result.ID = group.id ;
         result.msg = "删除成员成功!";
+
+        int category = 6;
+        Notice notice;
+        User actor = userRepository.findUserById(groupRepository.findGroupById(group.id).creatorId);
+        notice = NoticeController.addNotice(user.id,actor.id,category,group.id);
+        noticeRepository.save(notice);
+
         return result;
     }
 
-    @PostMapping(value = {"/modifyPermission"})
+    @PostMapping(value = {"/group/modify"})
     @ResponseBody
     public Result modifyPermission(@RequestBody Group_vue group_vue,
                                @RequestBody User_vue user_vue,
@@ -97,9 +125,9 @@ public class GroupMemberController {
         return result;
     }
 //    0 都没有，1 查看，2 评论，3 分享，4 修改,5 创建者
-@GetMapping(value = {"/getJoinGroup"})
+@GetMapping(value = {"/getGroup"})
 @ResponseBody
-public MyCollectionResult getJoinGroup(@RequestParam("userID") int userId,
+public MyCollectionResult getGroup(@RequestParam("userID") int userId,
                                       Model model, HttpSession session){
     MyCollectionResult myCollectionResult=new MyCollectionResult();
     ArrayList<GroupMember> groupMembers= (ArrayList<GroupMember>) groupMemberRepository.findGroupMemberByUserId(userId);

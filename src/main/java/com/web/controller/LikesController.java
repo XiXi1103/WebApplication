@@ -1,10 +1,7 @@
 package com.web.controller;
 
 import com.web.entity.*;
-import com.web.repository.DocumentationRepository;
-import com.web.repository.LikesRepository;
-import com.web.repository.ReplyRepository;
-import com.web.repository.UserRepository;
+import com.web.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -27,6 +24,10 @@ public class LikesController {
     LikesRepository likesRepository;
     @Autowired
     DocumentationRepository documentationRepository;
+    @Autowired
+    UserRepository userRepository;
+    @Autowired
+    NoticeRepository noticeRepository;
     @PostMapping(value = {"/likes"})
     @ResponseBody
     public Result likes(@RequestBody Likes_vue likes_vue,
@@ -66,6 +67,19 @@ public class LikesController {
             likes.isDoc = likes_vue.isDoc;
             likes.replyId = likes_vue.replyId;
             likesRepository.save(likes);
+
+
+            int category;
+            //文档被点赞
+            if(likes.isDoc){
+                category = 2;
+            }
+            //评论被点赞
+            else category = 4;
+            Notice notice;
+            User author = userRepository.findUserById(documentationRepository.findDocumentationById(likes.docId).creatorId);
+            notice = NoticeController.addNotice(author.id,likes.userId,category,likes.docId);
+            noticeRepository.save(notice);
 
             result.success = true;
             result.msg = "点赞成功";

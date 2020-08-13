@@ -23,5 +23,6 @@ public class Documentation {
     public int otherPermission;
     @Column(name = "isTrash")
     public boolean isTrash; //true表示在回收站里
-
+//    @Column(name = "abstract")
+//    public String abstract;
 }

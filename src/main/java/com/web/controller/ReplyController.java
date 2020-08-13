@@ -2,6 +2,7 @@ package com.web.controller;
 
 import com.web.entity.*;
 import com.web.repository.DocumentationRepository;
+import com.web.repository.NoticeRepository;
 import com.web.repository.ReplyRepository;
 import com.web.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,10 @@ public class ReplyController {
     ReplyRepository replyRepository;
     @Autowired
     DocumentationRepository documentationRepository;
+    @Autowired
+    UserRepository userRepository;
+    @Autowired
+    NoticeRepository noticeRepository;
     @PostMapping(value = {"/reply"})
     @ResponseBody
     public Result reply(@RequestBody Reply_vue reply_vue,
@@ -59,6 +64,16 @@ public class ReplyController {
         reply.isReply = reply_vue.isReply;
         reply.replyId = reply_vue.replyId;
         replyRepository.save(reply);
+
+        int category;
+        if(reply.isReply){
+            category = 1;
+        }
+        else category = 3;
+        Notice notice;
+        User author = userRepository.findUserById(documentationRepository.findDocumentationById(reply.docId).creatorId);
+        notice = NoticeController.addNotice(author.id,reply.userId,category,reply.docId);
+        noticeRepository.save(notice);
 
         result.success = true;
         result.msg = "评论成功";
