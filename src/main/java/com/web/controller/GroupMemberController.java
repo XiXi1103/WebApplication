@@ -20,17 +20,33 @@ public class GroupMemberController {
     UserRepository userRepository;
     @Autowired
     GroupMemberRepository groupMemberRepository;
-    @PostMapping(value = {"/group/invite"})
+    @GetMapping(value = {"/addMember"})
     @ResponseBody
-    public Result invite(@RequestBody Group_vue group_vue,
-                        @RequestBody User_vue user_vue,
+    public Result invite(@RequestParam("groupID") int groupId,
+                         @RequestParam("userID") int userId,
+                         @RequestParam("username") String userName,
+                         @RequestParam("permission") int permission,
                         Model model, HttpSession session){
-        User user = userRepository.findByUsername(user_vue.username).get(0);
-        Group group = groupRepository.findGroupById(group_vue.groupId);
+        User user1 = userRepository.findUserById(userId);
+        User user2 = userRepository.findUserByUsername(userName);
+        Group group = groupRepository.findGroupById(groupId);
+        if(groupMemberRepository.findByUserIdAndGroupId(user1.id,groupId).permission<5){
+            Result result = new Result();
+            result.success = false;
+            result.msg = "权限不足!";
+            return result;
+        }
+        if(groupMemberRepository.findByUserIdAndGroupId(user1.id,groupId).permission<permission){
+            Result result = new Result();
+            result.success = false;
+            result.msg = "权限不能超过邀请者!";
+            return result;
+        }
+
         GroupMember groupMember = new GroupMember();
         groupMember.groupId = group.id;
-        groupMember.userId = user.id;
-        groupMember.permission = 1;
+        groupMember.userId = user2.id;
+        groupMember.permission = permission;
         groupMemberRepository.save(groupMember);
         Result result = new Result();
         result.success = true;
@@ -44,7 +60,7 @@ public class GroupMemberController {
     public Result delete(@RequestBody Group_vue group_vue,
                          @RequestBody User_vue user_vue,
                          Model model, HttpSession session){
-        User user = userRepository.findByUsername(user_vue.username).get(0);
+        User user = userRepository.findUserByUsername(user_vue.username);
         Group group = groupRepository.findGroupById(group_vue.groupId);
         GroupMember groupMember = groupMemberRepository.findByUserIdAndGroupId(user.id,group.id);
         groupMemberRepository.delete(groupMember);
@@ -61,7 +77,7 @@ public class GroupMemberController {
                                @RequestBody User_vue user_vue,
                              @RequestParam int permission,
                              Model model, HttpSession session){
-        User user = userRepository.findByUsername(user_vue.username).get(0);
+        User user = userRepository.findUserByUsername(user_vue.username);
         Group group = groupRepository.findGroupById(group_vue.groupId);
         GroupMember groupMember = groupMemberRepository.findByUserIdAndGroupId(user.id,group.id);
 

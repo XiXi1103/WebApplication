@@ -2,10 +2,7 @@ package com.web.controller;
 
 import com.web.entity.*;
 import com.web.entity.Collection;
-import com.web.repository.DocumentationRepository;
-import com.web.repository.GroupMemberRepository;
-import com.web.repository.GroupRepository;
-import com.web.repository.UserRepository;
+import com.web.repository.*;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -27,7 +24,8 @@ public class DocumentationController {
     UserRepository userRepository;
     @Autowired
     GroupMemberRepository groupMemberRepository;
-
+    @Autowired
+    CollaboratorRepository collaboratorRepository;
     @PostMapping(value = {"/newDoc"})
     @ResponseBody
     public Result create(@RequestBody Documentation_vue documentation_vue,
@@ -267,6 +265,7 @@ public class DocumentationController {
         if(documentation == null){
             docResult.success = false;
             docResult.msg = "文档不存在";
+            docResult.permission=0;
             return docResult;
         }
         if (documentation.groupId != 0) {
@@ -275,22 +274,38 @@ public class DocumentationController {
                 docResult = getDocResult(docResult,documentation);
                 docResult.success = true;
                 docResult.msg = "显示成功";
+                docResult.permission=groupMember.permission;
                 addRecentUse(userID,docID);
             } else {
                 docResult.success = false;
                 docResult.msg = "权限不足，无法查看";
+                docResult.permission=0;
             }
         }
+        else if(collaboratorRepository.findCollaboratorByUserIdAndAndDocumentationId(userID,docID)!=null){
+            docResult.success = true;
+            docResult.msg = "显示成功";
+            docResult.permission=collaboratorRepository.findCollaboratorByUserIdAndAndDocumentationId(userID,docID).permission;
+        }
         else{
-            if(userID == documentation.creatorId || documentation.otherPermission >= 1){
+            if(userID == documentation.creatorId ){
                 docResult = getDocResult(docResult,documentation);
                 docResult.success = true;
                 docResult.msg = "显示成功";
+                docResult.permission=5;
+                addRecentUse(userID,docID);
+            }
+            else if(documentation.otherPermission >= 1){
+                docResult = getDocResult(docResult,documentation);
+                docResult.success = true;
+                docResult.msg = "显示成功";
+                docResult.permission=documentation.otherPermission;
                 addRecentUse(userID,docID);
             }
             else{
                 docResult.success = false;
                 docResult.msg = "权限不足，无法查看";
+                docResult.permission=0;
             }
         }
         return docResult;
