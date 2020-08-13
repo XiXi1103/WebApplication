@@ -81,9 +81,9 @@ public class GroupMemberController {
         return result;
     }
 //    0 都没有，1 查看，2 评论，3 分享，4 修改,5 创建者
-@GetMapping(value = {"/getGroup"})
+@GetMapping(value = {"/getJoinGroup"})
 @ResponseBody
-public MyCollectionResult getGroup(@RequestParam("userID") int userId,
+public MyCollectionResult getJoinGroup(@RequestParam("userID") int userId,
                                       Model model, HttpSession session){
     MyCollectionResult myCollectionResult=new MyCollectionResult();
     ArrayList<GroupMember> groupMembers= (ArrayList<GroupMember>) groupMemberRepository.findGroupMemberByUserId(userId);
