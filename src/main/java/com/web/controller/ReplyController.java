@@ -65,6 +65,7 @@ public class ReplyController {
         reply.replyId = reply_vue.replyId;
         replyRepository.save(reply);
 
+
         int category;
         if(reply.isReply){
             category = 1;
