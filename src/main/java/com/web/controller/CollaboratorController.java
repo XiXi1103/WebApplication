@@ -4,9 +4,7 @@ import com.web.entity.*;
 import com.web.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
@@ -55,6 +53,43 @@ public class CollaboratorController {
 
 
         result.msg="邀请成功";
+        return result;
+    }
+    @PostMapping(value = {"/kickCollaborator"})
+    @ResponseBody
+    public Result kickCollaborator(@RequestBody Collaborator_vue collaborator_vue,
+                             Model model, HttpSession session){
+        Result result=new Result();
+        if(collaboratorRepository.findCollaboratorByUserIdAndAndDocumentationId
+                (collaborator_vue.userId1,collaborator_vue.docId).permission==5){
+            Collaborator collaborator=collaboratorRepository.findCollaboratorByUserIdAndAndDocumentationId
+                    (collaborator_vue.userId2,collaborator_vue.docId);
+            collaboratorRepository.delete(collaborator);
+            result.msg="踢出成功";
+            result.success=true;
+        }
+        else{
+            result.msg="权限不足";
+            result.success=false;
+        }
+        return result;
+    }
+    @PostMapping(value = {"/kickCollaborator"})
+    @ResponseBody
+    public Result exitCollaborator(@RequestBody Collaborator_vue collaborator_vue,
+                                   Model model, HttpSession session){
+        Result result=new Result();
+        if(collaboratorRepository.findCollaboratorByUserIdAndAndDocumentationId
+                (collaborator_vue.userId1,collaborator_vue.docId)!=null){
+            collaboratorRepository.delete(collaboratorRepository.findCollaboratorByUserIdAndAndDocumentationId
+                    (collaborator_vue.userId1,collaborator_vue.docId));
+            result.msg="退出成功";
+            result.success=true;
+        }
+        else{
+            result.msg="未知错误";
+            result.success=false;
+        }
         return result;
     }
 }

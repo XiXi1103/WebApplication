@@ -8,4 +8,5 @@ import java.util.List;
 
 public interface CollaboratorRepository extends JpaRepository<Collaborator,Integer> {
     Collaborator findCollaboratorByUserIdAndAndDocumentationId(int userId,int docId);
+
 }

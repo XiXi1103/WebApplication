@@ -12,6 +12,6 @@ import java.util.List;
 
 public interface GroupMemberRepository extends JpaRepository<GroupMember,Integer> {
     List<GroupMember> findGroupMemberByUserId(Integer id);
-    List<Group> findGroupById(Integer id);
-    GroupMember findByUserIdAndGroupId(Integer userId,Integer groupId);
+    List<GroupMember> findGroupMemberByGroupId(Integer id);
+    GroupMember findGroupMemberByUserIdAndGroupId(Integer userId,Integer groupId);
 }

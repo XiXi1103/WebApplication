@@ -77,28 +77,37 @@ public class GroupMemberController {
 
     }
 
-    @PostMapping(value = {"/deleteMember"})
+    @GetMapping(value = {"/kickMember"})
     @ResponseBody
-    public Result delete(@RequestBody Group_vue group_vue,
-                         @RequestBody User_vue user_vue,
+    public Result delete(@RequestParam int userId1,
+                         @RequestParam int userId2,
+                         @RequestParam int groupId,
                          Model model, HttpSession session){
-        User user = userRepository.findUserByUsername(user_vue.username);
-        Group group = groupRepository.findGroupById(group_vue.groupId);
-        GroupMember groupMember = groupMemberRepository.findByUserIdAndGroupId(user.id,group.id);
-        groupMemberRepository.delete(groupMember);
-        Result result = new Result();
-        result.success = true;
-        result.ID = group.id ;
-        result.msg = "删除成员成功!";
-
-        int category = 6;
-        Notice notice;
-        User actor = userRepository.findUserById(groupRepository.findGroupById(group.id).creatorId);
-        notice = new NoticeController().addNotice(user.id,actor.id,category,group.id,
-                groupRepository,userRepository,documentationRepository,replyRepository);
-        noticeRepository.save(notice);
-
-        return result;
+        User user1 = userRepository.findUserById(userId1);
+        User user2 = userRepository.findUserById(userId2);
+        Group group = groupRepository.findGroupById(groupId);
+        GroupMember groupMember1 = groupMemberRepository.findGroupMemberByUserIdAndGroupId(userId1,groupId);
+        GroupMember groupMember2 = groupMemberRepository.findGroupMemberByUserIdAndGroupId(userId2,groupId);
+        if(groupMember1.permission==5){
+            groupMemberRepository.delete(groupMember2);
+            Result result = new Result();
+            result.success = true;
+            result.ID = group.id ;
+            result.msg = "删除成员成功!";
+            int category = 6;
+            Notice notice;
+            notice = new NoticeController().addNotice(userId2,userId1,category,group.id,
+                    groupRepository,userRepository,documentationRepository,replyRepository);
+            noticeRepository.save(notice);
+            return result;
+        }
+        else{
+            Result result = new Result();
+            result.success = false;
+            result.ID = group.id ;
+            result.msg = "权限不足!";
+            return result;
+        }
     }
 
     @PostMapping(value = {"/group/modify"})
@@ -109,7 +118,7 @@ public class GroupMemberController {
                              Model model, HttpSession session){
         User user = userRepository.findUserByUsername(user_vue.username);
         Group group = groupRepository.findGroupById(group_vue.groupId);
-        GroupMember groupMember = groupMemberRepository.findByUserIdAndGroupId(user.id,group.id);
+        GroupMember groupMember = groupMemberRepository.findGroupMemberByUserIdAndGroupId(user.id,group.id);
 
         Result result = new Result();
         if(permission < 0 || permission > 5){
