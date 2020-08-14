@@ -1,10 +1,7 @@
 package com.web.controller;
 
 import com.web.entity.*;
-import com.web.repository.DocumentationRepository;
-import com.web.repository.NoticeRepository;
-import com.web.repository.ReplyRepository;
-import com.web.repository.UserRepository;
+import com.web.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -26,6 +23,8 @@ public class ReplyController {
     UserRepository userRepository;
     @Autowired
     NoticeRepository noticeRepository;
+    @Autowired
+    GroupRepository groupRepository;
     @PostMapping(value = {"/reply"})
     @ResponseBody
     public Result reply(@RequestBody Reply_vue reply_vue,
@@ -73,7 +72,8 @@ public class ReplyController {
         else category = 3;
         Notice notice;
         User author = userRepository.findUserById(documentationRepository.findDocumentationById(reply.docId).creatorId);
-        notice = new NoticeController().addNotice(author.id,reply.userId,category,reply.docId);
+        notice = new NoticeController().addNotice(author.id,reply.userId,category,reply.docId,
+                groupRepository,userRepository,documentationRepository,replyRepository);
         noticeRepository.save(notice);
 
         result.success = true;

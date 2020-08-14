@@ -28,6 +28,8 @@ public class LikesController {
     UserRepository userRepository;
     @Autowired
     NoticeRepository noticeRepository;
+    @Autowired
+    GroupRepository groupRepository;
     @PostMapping(value = {"/likes"})
     @ResponseBody
     public Result likes(@RequestBody Likes_vue likes_vue,
@@ -78,7 +80,8 @@ public class LikesController {
             else category = 4;
             Notice notice;
             User author = userRepository.findUserById(documentationRepository.findDocumentationById(likes.docId).creatorId);
-            notice = new NoticeController().addNotice(author.id,likes.userId,category,likes.docId);
+            notice = new NoticeController().addNotice(author.id,likes.userId,category,likes.docId,
+                    groupRepository,userRepository,documentationRepository,replyRepository);
             noticeRepository.save(notice);
 
             result.success = true;

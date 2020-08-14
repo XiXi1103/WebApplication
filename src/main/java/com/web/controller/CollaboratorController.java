@@ -49,7 +49,8 @@ public class CollaboratorController {
 
         int category = 7;
         Notice notice;
-        notice = new NoticeController().addNotice(userId2,userId1,category,docId);
+        notice = new NoticeController().addNotice(userId2,userId1,category,docId,
+                groupRepository,userRepository,documentationRepository,replyRepository);
         noticeRepository.save(notice);
 
 

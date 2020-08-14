@@ -14,15 +14,10 @@ import java.util.Date;
 @CrossOrigin
 @Controller
 public class NoticeController {
-    @Autowired
-    GroupRepository groupRepository;
-    @Autowired
-    UserRepository userRepository;
-    @Autowired
-    DocumentationRepository documentationRepository;
-    @Autowired
-    ReplyRepository replyRepository;
-    public Notice addNotice(int userID,int informerID,int category,int ID){
+    public  Notice addNotice(int userID,int informerID,int category,int ID,
+                             GroupRepository groupRepository,UserRepository userRepository,
+                             DocumentationRepository documentationRepository,
+                             ReplyRepository replyRepository){
         Notice notice = new Notice();
         notice.date = new Date();
         notice.docID = 0;
