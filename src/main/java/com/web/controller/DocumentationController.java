@@ -57,7 +57,7 @@ public class DocumentationController {
             documentation.title = documentation_vue.title;
             documentation.createTime = new Date();
             documentation.creatorId = documentation_vue.authorID;
-
+            documentation.otherPermission=documentation_vue.otherPermission;
             documentationRepository.save(documentation);
 
         }

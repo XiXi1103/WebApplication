@@ -72,6 +72,10 @@ public class CollectionController {
         for(int i=0;i<l;i++){
             documentationResult.documentationId=collections.get(i).id;
             documentationResult.documentationTitle=documentationRepository.findDocumentationById(collections.get(i).id).title;
+            if(documentationRepository.findDocumentationById(documentationResult.documentationId).creatorId==user.id)
+                documentationResult.isCreator=true;
+            else
+                documentationResult.isCreator=false;
             myCollectionResult.documentationResults.add(documentationResult);
         }
         return myCollectionResult;
@@ -89,6 +93,7 @@ public class CollectionController {
         for(int i=0;i<l;i++){
             documentationResult.documentationId=documentations.get(i).id;
             documentationResult.documentationTitle=documentations.get(i).title;
+            documentationResult.isCreator=true;
             myCollectionResult.documentationResults.add(documentationResult);
         }
         return myCollectionResult;
@@ -96,6 +101,7 @@ public class CollectionController {
     @GetMapping(value = {"/getGroupDoc"})
     @ResponseBody
     public MyCollectionResult getGroupDoc(@RequestParam("groupID") int groupId,
+                                          @RequestParam("userId") int userId,
                                           Model model, HttpSession session){
         MyCollectionResult myCollectionResult=new MyCollectionResult();
         ArrayList<Documentation> documentations= (ArrayList<Documentation>) documentationRepository.findByGroupId(groupId);
@@ -104,6 +110,10 @@ public class CollectionController {
         for(int i=0;i<l;i++){
             documentationResult.documentationId=documentations.get(i).id;
             documentationResult.documentationTitle=documentations.get(i).title;
+            if(documentationRepository.findDocumentationById(documentationResult.documentationId).creatorId==userId)
+                documentationResult.isCreator=true;
+            else
+                documentationResult.isCreator=false;
             myCollectionResult.documentationResults.add(documentationResult);
         }
         return myCollectionResult;
