@@ -138,6 +138,10 @@ public MyCollectionResult getGroup(@RequestParam("userID") int userId,
     for(int i=0;i<l;i++){
         documentationResult.documentationId=groupMembers.get(i).groupId;
         documentationResult.documentationTitle=groupRepository.findGroupById(groupMembers.get(i).groupId).groupName;
+        if(documentationRepository.findDocumentationById(documentationResult.documentationId).creatorId==userId)
+            documentationResult.isCreator=true;
+        else
+            documentationResult.isCreator=false;
         myCollectionResult.documentationResults.add(documentationResult);
     }
     return myCollectionResult;
