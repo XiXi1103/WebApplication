@@ -70,12 +70,12 @@ public class ReplyController {
         if(reply.isReply){
             Reply reply1 = replyRepository.findReplyById(reply_vue.replyId);
             notice = new NoticeController().addNoticeAboutReply(author.id,reply.userId,category,reply.docId,reply.id,
-                    documentationRepository,userRepository,replyRepository);
+                    userRepository,documentationRepository,replyRepository);
         }
         else {
 
             notice = new NoticeController().addNoticeAboutDoc(author.id,reply.userId,category,reply.replyId,reply.id,
-                    documentationRepository,userRepository,replyRepository);
+                    userRepository,documentationRepository,replyRepository);
         }
         noticeRepository.save(notice);
 

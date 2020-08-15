@@ -8,4 +8,5 @@ public class Documentation_vue {
     public int docID;
     public int userID;
     public int otherPermission;
+    public int groupId;
 }

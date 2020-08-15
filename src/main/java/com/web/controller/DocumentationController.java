@@ -26,9 +26,11 @@ public class DocumentationController {
     GroupMemberRepository groupMemberRepository;
     @Autowired
     CollaboratorRepository collaboratorRepository;
+    @Autowired
+    NoticeRepository noticeRepository;
     @PostMapping(value = {"/newDoc"})
     @ResponseBody
-    public Result create(@RequestBody Documentation_vue documentation_vue,
+    public Result newDoc(@RequestBody Documentation_vue documentation_vue,
                          Model model, HttpSession session) {
         int creatorId = documentation_vue.authorID;
         String title = documentation_vue.title;
@@ -58,21 +60,41 @@ public class DocumentationController {
             documentation.createTime = new Date();
             documentation.creatorId = documentation_vue.authorID;
             documentation.otherPermission=documentation_vue.otherPermission;
+            documentation.groupId = documentation_vue.groupId;
             documentationRepository.save(documentation);
 
         }
         else {
             documentation = documentationRepository.findDocumentationById(documentation_vue.docID);
-        }
+            documentation.title = documentation_vue.title;
+            documentation.otherPermission=documentation_vue.otherPermission;
 
+            //团队文档被修改发送通知
+            if(documentation.groupId != 0){
+                int category = 1;
+                generateNoticeAboutGroupDoc(documentation_vue, documentation, category);
+            }
+        }
         saveDoc(documentation_vue, result, documentation);
 
         documentationRepository.save(documentation);
+
         if(documentation_vue.docID != 0){
-            result.msg = "替换成功";
+            result.msg = "修改成功";
         }
         result.ID = documentation.id;
         return result;
+    }
+
+    private void generateNoticeAboutGroupDoc(@RequestBody Documentation_vue documentation_vue, Documentation documentation, int category) {
+        List<GroupMember> groupMembers= groupMemberRepository.findGroupMemberByGroupId(documentation.groupId);
+        int l=groupMembers.size();
+        for(int i=0;i<l;i++){
+            Notice notice = new NoticeController().addNoticeAboutGroupDoc(groupMembers.get(i).userId,documentation_vue.authorID,
+                    category,documentation.groupId,documentation.id,
+                    userRepository,documentationRepository,groupRepository);
+            noticeRepository.save(notice);
+        }
     }
 
     private void saveDoc(@RequestBody Documentation_vue documentation_vue, Result result, Documentation documentation) {
@@ -165,6 +187,9 @@ public class DocumentationController {
                 documentationRepository.save(documentation);
                 result.success = true;
                 result.msg = "删除团队文档成功!";
+
+                int category = 2;
+                generateNoticeAboutGroupDoc(documentation_vue, documentation, category);
             }
             else{
                 result.success = false;
@@ -195,7 +220,7 @@ public class DocumentationController {
             if (groupMember.permission >= 4) {
                 docResult = getDocResult(docResult, documentation);
                 docResult.success = true;
-                docResult.msg = "修改成功";
+                docResult.msg = "返回成功";
             } else {
                 docResult.success = false;
                 docResult.msg = "权限不足，无法修改";
@@ -205,7 +230,7 @@ public class DocumentationController {
             if(userID == documentation.creatorId || documentation.otherPermission >= 4){
                 docResult = getDocResult(docResult, documentation);
                 docResult.success = true;
-                docResult.msg = "修改成功";
+                docResult.msg = "返回成功";
             }
             else{
                 docResult.success = false;

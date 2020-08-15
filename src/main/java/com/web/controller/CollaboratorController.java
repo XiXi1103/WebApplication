@@ -45,14 +45,15 @@ public class CollaboratorController {
 //        collaboratorRepository.save(collaborator);
 //        result.success=true;
 
-        int category = 7;
+        int category = 3;
         Notice notice;
-        notice = new NoticeController().addNotice(userId2,userId1,category,docId,
-                groupRepository,userRepository,documentationRepository,replyRepository);
+        notice = new NoticeController().addNoticeAboutDoc(userId2,userId1,category,docId,0,
+                userRepository,documentationRepository,replyRepository);
         noticeRepository.save(notice);
 
 
-        result.msg="邀请成功";
+        result.success = true;
+        result.msg="发送邀请成功";
         return result;
     }
     @PostMapping(value = {"/kickCollaborator"})
@@ -66,7 +67,15 @@ public class CollaboratorController {
                     (collaborator_vue.userId2,collaborator_vue.docId);
             collaboratorRepository.delete(collaborator);
             result.msg="踢出成功";
+
+            int category = 4;
+            Notice notice;
+            notice = new NoticeController().addNoticeAboutDoc(collaborator_vue.userId2,collaborator_vue.userId2,category,collaborator.documentationId,0,
+                    userRepository,documentationRepository,replyRepository);
+            noticeRepository.save(notice);
+
             result.success=true;
+
         }
         else{
             result.msg="权限不足";
@@ -74,7 +83,7 @@ public class CollaboratorController {
         }
         return result;
     }
-    @PostMapping(value = {"/kickCollaborator"})
+    @PostMapping(value = {"/exitCollaborator"})
     @ResponseBody
     public Result exitCollaborator(@RequestBody Collaborator_vue collaborator_vue,
                                    Model model, HttpSession session){
@@ -84,6 +93,13 @@ public class CollaboratorController {
             collaboratorRepository.delete(collaboratorRepository.findCollaboratorByUserIdAndAndDocumentationId
                     (collaborator_vue.userId1,collaborator_vue.docId));
             result.msg="退出成功";
+
+            int category = 5;
+            Notice notice;
+            notice = new NoticeController().addNoticeAboutDoc(collaborator_vue.userId2,collaborator_vue.userId2,category,collaborator_vue.docId,0,
+                    userRepository,documentationRepository,replyRepository);
+            noticeRepository.save(notice);
+
             result.success=true;
         }
         else{

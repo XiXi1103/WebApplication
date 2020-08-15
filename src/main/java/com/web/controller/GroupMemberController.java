@@ -60,11 +60,11 @@ public class GroupMemberController {
             groupMember.permission = permission;
             groupMemberRepository.save(groupMember);
 
-            int category = 5;
+            int category = 1;
             Notice notice;
             User actor = userRepository.findUserById(groupRepository.findGroupById(groupID).creatorId);
-            notice = new NoticeController().addNotice(user.id,actor.id,category,groupID,
-                    groupRepository,userRepository,documentationRepository,replyRepository);
+            notice = new NoticeController().addNoticeAboutGroup(user.id,actor.id,category,groupID,
+                    userRepository,groupRepository);
             noticeRepository.save(notice);
 
 
@@ -94,10 +94,10 @@ public class GroupMemberController {
             result.success = true;
             result.ID = group.id ;
             result.msg = "删除成员成功!";
-            int category = 6;
+            int category = 2;
             Notice notice;
-            notice = new NoticeController().addNotice(userId2,userId1,category,group.id,
-                    groupRepository,userRepository,documentationRepository,replyRepository);
+            notice = new NoticeController().addNoticeAboutGroup(userId2,userId1,category,group.id,
+                    userRepository,groupRepository);
             noticeRepository.save(notice);
             return result;
         }

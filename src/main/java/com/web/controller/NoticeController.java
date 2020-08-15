@@ -140,12 +140,12 @@ public class NoticeController {
 //    }
 
 
-//   1 文档被评论 , 2 文档被点赞 ,3 被邀请协作文档, 4 被踢出协作文档, 5 协作文档被修改, 6 协作文档被删除（查询不到就是被删除了），7 退出协作文档，
-//    finished 1,2
+//   1 文档被评论 , 2 文档被点赞 ,3 邀请协作文档, 4 踢出协作文档, 5 协作文档被修改, 6 协作文档被删除，7 退出协作文档，
+//    finished 1,2,3,4,7
     public Notice addNoticeAboutDoc(int userID,int informerID,int category,
                                     int docID,int replyID,
-                                    DocumentationRepository documentationRepository1,
                                     UserRepository userRepository1,
+                                    DocumentationRepository documentationRepository1,
                                     ReplyRepository replyRepository1){
         //初始化
         Notice notice = new Notice();
@@ -194,8 +194,8 @@ public class NoticeController {
     //    finished 1,2
     public Notice addNoticeAboutReply(int userID,int informerID,int category,
                                       int replyID1,int replyID2,
-                                      DocumentationRepository documentationRepository1,
                                       UserRepository userRepository1,
+                                      DocumentationRepository documentationRepository1,
                                       ReplyRepository replyRepository1){
         //初始化
         Notice notice = new Notice();
@@ -236,7 +236,7 @@ public class NoticeController {
     }
 
 //    1 邀请加入团队, 2 被踢出团队 , 3 成员退出团队,4 团队被解散
-//    finished 3,4
+//    finished 1,2,3,4
     public Notice addNoticeAboutGroup(int userID,int informerID,int category,
                                     int groupID,
                                     UserRepository userRepository1,
@@ -273,7 +273,7 @@ public class NoticeController {
     }
 
 //    1 团队文档被修改 2 被删除
-//    finished 1
+//    finished 1,2
     public Notice addNoticeAboutGroupDoc(int userID,int informerID,int category,
                                       int groupID,int docID,
                                       UserRepository userRepository1,

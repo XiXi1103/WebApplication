@@ -76,13 +76,13 @@ public class LikesController {
             //文档被点赞
             if(likes.isDoc){
                 notice = new NoticeController().addNoticeAboutDoc(author.id,likes.userId,category,likes.docId,likes.replyId,
-                        documentationRepository,userRepository,replyRepository);
+                        userRepository,documentationRepository,replyRepository);
             }
             //评论被点赞
             else
             {
                 notice = new NoticeController().addNoticeAboutReply(author.id,likes.userId,category,likes.replyId,0,
-                        documentationRepository,userRepository,replyRepository);
+                        userRepository,documentationRepository,replyRepository);
             }
 
 
