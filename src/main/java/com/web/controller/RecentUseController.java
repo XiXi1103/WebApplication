@@ -22,7 +22,6 @@ public class RecentUseController {
     DocumentationRepository documentationRepository;
     @Autowired
     GroupMemberRepository groupMemberRepository;
-
     @GetMapping(value = {"/getRecentDoc"})
     @ResponseBody
     public ArrayList<PageList> getRecentDoc(@RequestParam("userID") int userId, Model model, HttpSession session){
