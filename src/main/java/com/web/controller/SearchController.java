@@ -27,7 +27,7 @@ public class SearchController {
     @Autowired
     GroupMemberRepository groupMemberRepository;
 
-    @GetMapping(value={"/search"})
+    @GetMapping(value = {"/search"})
     @ResponseBody
     public SearchResult search(@RequestParam int userId, @RequestParam String keyword) {
         SearchResult searchResult = new SearchResult();
@@ -53,7 +53,7 @@ public class SearchController {
         return searchResult;
     }
 
-    @GetMapping(value={"/searchDocThroughUsr"})
+    @GetMapping(value = {"/searchDocThroughUsr"})
     @ResponseBody
     public MyDocResult searchDocThroughUsr(@RequestParam String username) {
         User user = userRepository.findUserByUsername(username);
@@ -78,7 +78,7 @@ public class SearchController {
         return myDocResult;
     }
 
-    @GetMapping(value={"/searchTrashThroughUsr"})
+    @GetMapping(value = {"/searchTrashThroughUsr"})
     @ResponseBody
     public MyDocResult searchTrashThroughUsr(@RequestParam String username) {
         User user = userRepository.findUserByUsername(username);
@@ -103,19 +103,19 @@ public class SearchController {
         return myDocResult;
     }
 
-    /*
-    public SearchResult searchUser(@RequestParam String username) {
+    @GetMapping(value = {"/searchUser"})
+    @ResponseBody
+    public UserResult searchUser(@RequestParam String username) {
         User user = userRepository.findUserByUsername(username);
-        SearchResult searchResult = new SearchResult();
+        UserResult userResult = new UserResult();
 
-        if (user != null) {
-            DocSearch docSearch = new DocSearch("搜索1", user.id);
-            searchResult.resultList.add(docSearch);
-        }
+        UsrSearch usrSearch = new UsrSearch(user.id, user.username);
+        userResult.userList.add(usrSearch);
 
-        return searchResult;
+        return userResult;
     }
 
+    /*
     public SearchResult searchGroup(String grpname) {
         List<Group> grpList = groupRepository.findByGroupName(grpname);
         SearchResult searchResult = new SearchResult();
