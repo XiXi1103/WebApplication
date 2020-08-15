@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -27,42 +28,56 @@ public class SearchController {
     @Autowired
     GroupMemberRepository groupMemberRepository;
 
-    @GetMapping(value = {"/search"})
+    @GetMapping(value = {"/searchUser"})
     @ResponseBody
-    public SearchResult search(@RequestParam int userId, @RequestParam String keyword) {
-        SearchResult searchResult = new SearchResult();
+    public List<UsrSearch> searchUser(@RequestParam String username) {
+        User user = userRepository.findUserByUsername(username);
+        List<UsrSearch> usrSearchList = new ArrayList<>();
+
+        UsrSearch usrSearch = new UsrSearch(user.id, user.username);
+        usrSearchList.add(usrSearch);
+
+        return usrSearchList;
+    }
+
+    @GetMapping(value = {"/searchDoc"})
+    @ResponseBody
+    public List<DocSearch> searchDoc(@RequestParam int userId, @RequestParam String keyword) {
         List<Documentation> docList = documentationRepository.findByCreatorId(userId);
+        List<DocSearch> docSearchList = new ArrayList<>();
 
         for (Documentation doc : docList) {
             if (doc.title.contains(keyword)) {
                 DocSearch docSearch = new DocSearch(doc.title, doc.id);
-                searchResult.docResultList.add(docSearch);
+                docSearchList.add(docSearch);
             }
         }
 
+        return docSearchList;
+    }
+
+    @GetMapping(value = {"/searchGrp"})
+    @ResponseBody
+    public List<GrpSearch> searchGrp(@RequestParam int userId, @RequestParam String keyword) {
         List<GroupMember> grpMemberList = groupMemberRepository.findGroupMemberByUserId(userId);
+        List<GrpSearch> grpSearchList = new ArrayList<>();
 
         for (GroupMember grpMember : grpMemberList) {
             Group grp = groupRepository.findGroupById(grpMember.groupId);
             if (grp.groupName.contains(keyword)) {
                 GrpSearch grpSearch = new GrpSearch(grp.groupName, grp.id);
-                searchResult.grpResultList.add(grpSearch);
+                grpSearchList.add(grpSearch);
             }
         }
 
-        return searchResult;
+        return grpSearchList;
     }
 
     @GetMapping(value = {"/searchDocThroughUsr"})
     @ResponseBody
-    public MyDocResult searchDocThroughUsr(@RequestParam String username) {
+    public List<DocSearch> searchDocThroughUsr(@RequestParam String username) {
         User user = userRepository.findUserByUsername(username);
-        MyDocResult myDocResult = new MyDocResult();
-
-        if (user == null) {
-            myDocResult.docResultList = null;
-            return myDocResult;
-        }
+        List<DocSearch> docSearchList = new ArrayList<>();
 
         List<Documentation> docList = documentationRepository.findByCreatorId(user.id);
 
@@ -70,24 +85,19 @@ public class SearchController {
             for (Documentation doc : docList) {
                 if (!doc.isTrash) {
                     DocSearch docSearch = new DocSearch(doc.title, doc.id);
-                    myDocResult.docResultList.add(docSearch);
+                    docSearchList.add(docSearch);
                 }
             }
         }
 
-        return myDocResult;
+        return docSearchList;
     }
 
     @GetMapping(value = {"/searchTrashThroughUsr"})
     @ResponseBody
-    public MyDocResult searchTrashThroughUsr(@RequestParam String username) {
+    public List<DocSearch> searchTrashThroughUsr(@RequestParam String username) {
         User user = userRepository.findUserByUsername(username);
-        MyDocResult myDocResult = new MyDocResult();
-
-        if (user == null) {
-            myDocResult.docResultList = null;
-            return myDocResult;
-        }
+        List<DocSearch> docSearchList = new ArrayList<>();
 
         List<Documentation> docList = documentationRepository.findByCreatorId(user.id);
 
@@ -95,54 +105,12 @@ public class SearchController {
             for (Documentation doc : docList) {
                 if (doc.isTrash) {
                     DocSearch docSearch = new DocSearch(doc.title, doc.id);
-                    myDocResult.docResultList.add(docSearch);
+                    docSearchList.add(docSearch);
                 }
             }
         }
 
-        return myDocResult;
+        return docSearchList;
     }
 
-    @GetMapping(value = {"/searchUser"})
-    @ResponseBody
-    public UserResult searchUser(@RequestParam String username) {
-        User user = userRepository.findUserByUsername(username);
-        UserResult userResult = new UserResult();
-
-        UsrSearch usrSearch = new UsrSearch(user.id, user.username);
-        userResult.userList.add(usrSearch);
-
-        return userResult;
-    }
-
-    /*
-    public SearchResult searchGroup(String grpname) {
-        List<Group> grpList = groupRepository.findByGroupName(grpname);
-        SearchResult searchResult = new SearchResult();
-
-        if (!grpList.isEmpty()) {
-            for (Group grp : grpList) {
-                DocSearch docSearch = new DocSearch(grp.groupName, grp.id);
-                searchResult.resultList.add(docSearch);
-            }
-        }
-
-        return searchResult;
-    }
-
-    public SearchResult searchDocumentation(String docname) {
-        List<Documentation> docList = documentationRepository.findByTitle(docname);
-        SearchResult searchResult = new SearchResult();
-
-        if (!docList.isEmpty()) {
-            for (Documentation doc : docList) {
-                DocSearch docSearch = new DocSearch(doc.title, doc.id);
-                searchResult.resultList.add(docSearch);
-            }
-        }
-
-        return searchResult;
-    }
-
-     */
 }
