@@ -159,7 +159,7 @@ public class DocumentationController {
             result.msg = "删除文档成功!";
         }
         else if(documentation.groupId != 0){
-            GroupMember groupMember = groupMemberRepository.findByUserIdAndGroupId(documentation_vue.userID,documentation.groupId);
+            GroupMember groupMember = groupMemberRepository.findGroupMemberByUserIdAndGroupId(documentation_vue.userID,documentation.groupId);
             if(groupMember.permission >= 4){
                 documentation.isTrash = true;
                 documentationRepository.save(documentation);
@@ -191,7 +191,7 @@ public class DocumentationController {
             return docResult;
         }
         if (documentation.groupId != 0) {
-            GroupMember groupMember = groupMemberRepository.findByUserIdAndGroupId(userID, documentation.groupId);
+            GroupMember groupMember = groupMemberRepository.findGroupMemberByUserIdAndGroupId(userID, documentation.groupId);
             if (groupMember.permission >= 4) {
                 docResult = getDocResult(docResult, documentation);
                 docResult.success = true;
@@ -234,7 +234,7 @@ public class DocumentationController {
             }
         }
         else if(documentation.groupId != 0){
-            GroupMember groupMember = groupMemberRepository.findByUserIdAndGroupId(documentation_vue.userID,documentation.groupId);
+            GroupMember groupMember = groupMemberRepository.findGroupMemberByUserIdAndGroupId(documentation_vue.userID,documentation.groupId);
             if(groupMember.permission >= 4){
                 documentation.isTrash = true;
                 documentationRepository.save(documentation);
@@ -269,7 +269,7 @@ public class DocumentationController {
             return docResult;
         }
         if (documentation.groupId != 0) {
-            GroupMember groupMember = groupMemberRepository.findByUserIdAndGroupId(userID, documentation.groupId);
+            GroupMember groupMember = groupMemberRepository.findGroupMemberByUserIdAndGroupId(userID, documentation.groupId);
             if (groupMember.permission >= 1) {
                 docResult = getDocResult(docResult,documentation);
                 docResult.success = true;
