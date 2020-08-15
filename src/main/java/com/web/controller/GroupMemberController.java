@@ -138,21 +138,21 @@ public class GroupMemberController {
 //    0 都没有，1 查看，2 评论，3 分享，4 修改,5 创建者
 @GetMapping(value = {"/getGroup"})
 @ResponseBody
-public MyCollectionResult getGroup(@RequestParam("userID") int userId,
+public ArrayList<GroupList> getGroup(@RequestParam("userID") int userId,
                                       Model model, HttpSession session){
-    MyCollectionResult myCollectionResult=new MyCollectionResult();
+    ArrayList<GroupList> groupLists=new ArrayList<>();
+    GroupList groupList=new GroupList();
     ArrayList<GroupMember> groupMembers= (ArrayList<GroupMember>) groupMemberRepository.findGroupMemberByUserId(userId);
     int l=groupMembers.size();
-    DocumentationResult documentationResult=new DocumentationResult();
     for(int i=0;i<l;i++){
-        documentationResult.documentationId=groupMembers.get(i).groupId;
-        documentationResult.documentationTitle=groupRepository.findGroupById(groupMembers.get(i).groupId).groupName;
-        if(documentationRepository.findDocumentationById(documentationResult.documentationId).creatorId==userId)
-            documentationResult.isCreator=true;
+        groupList.id=groupMembers.get(i).groupId;
+        groupList.name=groupRepository.findGroupById(groupMembers.get(i).groupId).groupName;
+        if(groupRepository.findGroupById(groupMembers.get(i).groupId).creatorId==userId)
+            groupList.isCreator=true;
         else
-            documentationResult.isCreator=false;
-        myCollectionResult.documentationResults.add(documentationResult);
+            groupList.isCreator=false;
+        groupLists.add(groupList);
     }
-    return myCollectionResult;
+    return groupLists;
 }
 }

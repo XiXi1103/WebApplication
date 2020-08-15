@@ -28,6 +28,8 @@ public class DocumentationController {
     CollaboratorRepository collaboratorRepository;
     @Autowired
     NoticeRepository noticeRepository;
+    @Autowired
+    ReplyRepository replyRepository;
     @PostMapping(value = {"/newDoc"})
     @ResponseBody
     public Result newDoc(@RequestBody Documentation_vue documentation_vue,
@@ -227,10 +229,42 @@ public class DocumentationController {
             }
         }
         else{
-            if(userID == documentation.creatorId || documentation.otherPermission >= 4){
+            if(userID == documentation.creatorId){
                 docResult = getDocResult(docResult, documentation);
                 docResult.success = true;
                 docResult.msg = "返回成功";
+                int category=5;
+                Notice notice;
+                ArrayList<Collaborator> collaborators=collaboratorRepository.findCollaboratorByDocumentationId(docID);
+                int l=collaborators.size();
+                for(int i=0;i<l;i++){
+                    notice = new NoticeController().addNoticeAboutDoc(
+                            collaborators.get(i).userId, userID,category,docID,0,
+                            userRepository,documentationRepository,replyRepository);
+                    noticeRepository.save(notice);
+                }
+
+            }
+            else if(documentation.otherPermission >= 4){
+                docResult = getDocResult(docResult, documentation);
+                docResult.success = true;
+                docResult.msg = "返回成功";
+                int category=5;
+                Notice notice;
+                ArrayList<Collaborator> collaborators=collaboratorRepository.findCollaboratorByDocumentationId(docID);
+                int l=collaborators.size();
+                notice = new NoticeController().addNoticeAboutDoc(
+                        documentation.creatorId, userID,category,docID,0,
+                        userRepository,documentationRepository,replyRepository);
+                noticeRepository.save(notice);
+                for(int i=0;i<l;i++){
+                    if(collaborators.get(i).userId==userID)
+                        continue;
+                    notice = new NoticeController().addNoticeAboutDoc(
+                            collaborators.get(i).userId, userID,category,docID,0,
+                            userRepository,documentationRepository,replyRepository);
+                    noticeRepository.save(notice);
+                }
             }
             else{
                 docResult.success = false;

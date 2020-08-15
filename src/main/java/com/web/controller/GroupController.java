@@ -6,6 +6,7 @@ import com.web.repository.GroupRepository;
 import com.web.repository.UserRepository;
 import org.aspectj.weaver.ast.Not;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -102,18 +103,16 @@ public class GroupController {
     }
     @GetMapping(value = {"/catMember"})
     @ResponseBody
-    public MyCollectionResult catMember(@RequestParam("groupId") int groupId,
+    public ArrayList<MemberList> catMember(@RequestParam("groupID") int groupId,
                                Model model, HttpSession session){
-        MyCollectionResult myCollectionResult=new MyCollectionResult();
+        ArrayList<MemberList> memberLists=new ManagedList<>();
+        MemberList memberList=new MemberList();
         List<GroupMember> groupMembers=  groupMemberRepository.findGroupMemberByGroupId(groupId);
         int l=groupMembers.size();
-        DocumentationResult documentationResult=new DocumentationResult();
         for(int i=0;i<l;i++){
-            documentationResult.documentationId=groupMembers.get(i).userId;
-            documentationResult.documentationTitle= userRepository.findUserById(groupMembers.get(i).userId).username;
-            documentationResult.isCreator=true;
-            myCollectionResult.documentationResults.add(documentationResult);
+            memberList.id=groupMembers.get(i).userId;
+            memberList.name=userRepository.findUserById(groupMembers.get(i).userId).username;
         }
-        return myCollectionResult;
+        return memberLists;
     }
 }

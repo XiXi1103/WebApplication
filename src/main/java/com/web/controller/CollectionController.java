@@ -21,7 +21,8 @@ public class CollectionController {
     DocumentationRepository documentationRepository;
     @Autowired
     GroupMemberRepository groupMemberRepository;
-
+    @Autowired
+    CollaboratorRepository collaboratorRepository;
     @GetMapping(value = {"/collection"})
     @ResponseBody
     public Result collection( @RequestParam("userId") int userId,
@@ -62,60 +63,68 @@ public class CollectionController {
     }
     @GetMapping(value = {"/getCollectionDoc"})
     @ResponseBody
-    public MyCollectionResult getCollectionDoc(@RequestParam("userName") String userName,
-                                               Model model, HttpSession session){
-        MyCollectionResult myCollectionResult=new MyCollectionResult();
-        User user=userRepository.findUserByUsername(userName);
-        ArrayList<Collection> collections= (ArrayList<Collection>) collectionRepository.findCollectionByUserId(user.id);
+    public ArrayList<PageList> getCollectionDoc(@RequestParam("userID") int userId,
+                                                  Model model, HttpSession session){
+        ArrayList<Collection> collections= (ArrayList<Collection>) collectionRepository.findCollectionByUserId(userId);
         int l=collections.size();
-        DocumentationResult documentationResult=new DocumentationResult();
+        ArrayList<PageList> pageLists=new ArrayList<>();
+        PageList pageList=new PageList();
+        Documentation documentation=new Documentation();
         for(int i=0;i<l;i++){
-            documentationResult.documentationId=collections.get(i).id;
-            documentationResult.documentationTitle=documentationRepository.findDocumentationById(collections.get(i).id).title;
-            if(documentationRepository.findDocumentationById(documentationResult.documentationId).creatorId==user.id)
-                documentationResult.isCreator=true;
+            documentation=documentationRepository.findDocumentationById(collections.get(i).id);
+            pageList.id=collections.get(i).id;
+            pageList.title=documentation.title;
+            if(documentation.creatorId==userId)
+                pageList.isCreator=true;
             else
-                documentationResult.isCreator=false;
-            myCollectionResult.documentationResults.add(documentationResult);
+                pageList.isCreator=false;
+            pageLists.add(pageList);
         }
-        return myCollectionResult;
+        return pageLists;
     }
 
-        @GetMapping(value = {"/getMyDoc"})
-        @ResponseBody
-        public MyCollectionResult getMyDoc(@RequestParam("userName") String userName,
+    @GetMapping(value = {"/getMyDoc"})
+    @ResponseBody
+    public ArrayList<PageList> getMyDoc(@RequestParam("userID") int userId,
                                                Model model, HttpSession session){
-        MyCollectionResult myCollectionResult=new MyCollectionResult();
-        User user=userRepository.findUserByUsername(userName);
-        ArrayList<Documentation> documentations= (ArrayList<Documentation>) documentationRepository.findByCreatorId(user.id);
-        int l=documentations.size();
-        DocumentationResult documentationResult=new DocumentationResult();
-        for(int i=0;i<l;i++){
-            documentationResult.documentationId=documentations.get(i).id;
-            documentationResult.documentationTitle=documentations.get(i).title;
-            documentationResult.isCreator=true;
-            myCollectionResult.documentationResults.add(documentationResult);
+        ArrayList<Documentation> documentations= (ArrayList<Documentation>) documentationRepository.findByCreatorId(userId);
+        ArrayList<Collaborator> collaborators= collaboratorRepository.findCollaboratorByUserId(userId);
+        int l1=documentations.size();
+        int l2=collaborators.size();
+        ArrayList<PageList> pageLists=new ArrayList<>();
+        PageList pageList=new PageList();
+        for(int i=0;i<l1;i++){
+            pageList.id=documentations.get(i).id;
+            pageList.title=documentations.get(i).title;
+            pageList.isCreator=true;
+            pageLists.add(pageList);
         }
-        return myCollectionResult;
+        for(int i=0;i<l2;i++){
+                pageList.id=collaborators.get(i).id;
+                pageList.title=documentationRepository.findDocumentationById(collaborators.get(i).id).title;
+                pageList.isCreator=false;
+                pageLists.add(pageList);
+        }
+        return pageLists;
     }
     @GetMapping(value = {"/getGroupDoc"})
     @ResponseBody
-    public MyCollectionResult getGroupDoc(@RequestParam("groupID") int groupId,
+    public ArrayList<PageList> getGroupDoc(@RequestParam("groupID") int groupId,
                                           @RequestParam("userId") int userId,
                                           Model model, HttpSession session){
-        MyCollectionResult myCollectionResult=new MyCollectionResult();
         ArrayList<Documentation> documentations= (ArrayList<Documentation>) documentationRepository.findByGroupId(groupId);
-        int l=documentations.size();
-        DocumentationResult documentationResult=new DocumentationResult();
-        for(int i=0;i<l;i++){
-            documentationResult.documentationId=documentations.get(i).id;
-            documentationResult.documentationTitle=documentations.get(i).title;
-            if(documentationRepository.findDocumentationById(documentationResult.documentationId).creatorId==userId)
-                documentationResult.isCreator=true;
+        int l1=documentations.size();
+        ArrayList<PageList> pageLists=new ArrayList<>();
+        PageList pageList=new PageList();
+        for(int i=0;i<l1;i++){
+            pageList.id=documentations.get(i).id;
+            pageList.title=documentations.get(i).title;
+            if(documentations.get(i).creatorId==userId)
+                pageList.isCreator=true;
             else
-                documentationResult.isCreator=false;
-            myCollectionResult.documentationResults.add(documentationResult);
+                pageList.isCreator=false;
+            pageLists.add(pageList);
         }
-        return myCollectionResult;
+        return pageLists;
     }
 }

@@ -29,7 +29,7 @@ public class CollaboratorController {
     @GetMapping(value = {"/addWriter"})
     @ResponseBody
     public Result addWriter(@RequestParam("userID1") int userId1,
-                                        @RequestParam("userID2") int userId2,
+                                        @RequestParam("username") String userName,
                                         @RequestParam("docID") int docId,
                                         @RequestParam("permission") int permission,
                                        Model model, HttpSession session){
@@ -44,14 +44,12 @@ public class CollaboratorController {
 //        collaborator.userId=userId2;
 //        collaboratorRepository.save(collaborator);
 //        result.success=true;
-
+        User user = userRepository.findUserByUsername(userName);
         int category = 3;
         Notice notice;
-        notice = new NoticeController().addNoticeAboutDoc(userId2,userId1,category,docId,0,
+        notice = new NoticeController().addNoticeAboutDoc(user.id,userId1,category,docId,0,
                 userRepository,documentationRepository,replyRepository);
         noticeRepository.save(notice);
-
-
         result.success = true;
         result.msg="发送邀请成功";
         return result;
@@ -70,7 +68,8 @@ public class CollaboratorController {
 
             int category = 4;
             Notice notice;
-            notice = new NoticeController().addNoticeAboutDoc(collaborator_vue.userId2,collaborator_vue.userId2,category,collaborator.documentationId,0,
+            notice = new NoticeController().addNoticeAboutDoc(collaborator_vue.userId2,
+                    collaborator_vue.userId1,category,collaborator.documentationId,0,
                     userRepository,documentationRepository,replyRepository);
             noticeRepository.save(notice);
 
@@ -107,5 +106,21 @@ public class CollaboratorController {
             result.success=false;
         }
         return result;
+    }
+    @GetMapping(value = {"/catWriter"})
+    @ResponseBody
+    public ArrayList<WriterList> catWriter(@RequestParam("docID") int docId,
+                                           Model model, HttpSession session){
+        ArrayList<Collaborator> collaborators= (ArrayList<Collaborator>) collaboratorRepository.
+                findCollaboratorByDocumentationId(docId);
+        int l=collaborators.size();
+        ArrayList<WriterList> writerLists=new ArrayList<>();
+        WriterList writerList=new WriterList();
+        for(int i=0;i<l;i++){
+            writerList.id=collaborators.get(i).userId;
+            writerList.name=userRepository.findUserById(writerList.id).username;
+            writerLists.add(writerList);
+        }
+        return writerLists;
     }
 }

@@ -1,8 +1,6 @@
 package com.web.controller;
 
 import com.web.entity.Documentation;
-import com.web.entity.DocumentationResult;
-import com.web.entity.MyCollectionResult;
 import com.web.entity.PathResult;
 import com.web.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpSession;
-import java.util.ArrayList;
 
 public class ShareController {
     @Autowired
