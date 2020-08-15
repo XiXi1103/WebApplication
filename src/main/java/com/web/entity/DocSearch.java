@@ -6,8 +6,8 @@ public class DocSearch {
 
     public DocSearch() {}
 
-    public DocSearch(String tle, int ID) {
-        title = tle;
-        id = ID;
+    public DocSearch(String title, int id) {
+        this.title = title;
+        this.id = id;
     }
 }
