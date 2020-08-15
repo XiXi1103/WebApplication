@@ -4,6 +4,7 @@ import com.web.entity.*;
 import com.web.repository.GroupMemberRepository;
 import com.web.repository.GroupRepository;
 import com.web.repository.UserRepository;
+import org.aspectj.weaver.ast.Not;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -58,10 +59,22 @@ public class GroupController {
         result.ID = group.id ;
         return result;
     }
+
     @GetMapping(value = {"/delGroup"})
     @ResponseBody
     public Result deleteOrExit(@RequestParam("userId") int userId,@RequestParam("groupId") int groupId,
                          Model model, HttpSession session){
+
+        User user = userRepository.findUserById(userId);
+        Group group = groupRepository.findGroupById(groupId);
+
+        if(user == null || group == null){
+            Result result=new Result();
+            result.success = false;
+            result.msg="Unknown error happen!";
+            return result;
+        }
+
         if(groupRepository.findGroupById(groupId).creatorId==userId){
             Result result=new Result();
             result.success = true;
@@ -71,6 +84,7 @@ public class GroupController {
             int l=groupMembers.size();
             for(int i=0;i<l;i++){
                 groupMemberRepository.delete(groupMembers.get(i));
+                Notice notice = new NoticeController().addNoticeAboutGroup(groupMembers.get(i).userId,user.id,4,groupId,userRepository,groupRepository);
             }
             return result;
         }
@@ -80,6 +94,7 @@ public class GroupController {
             result.ID = groupId ;
             result.msg="退出成功";
             GroupMember groupMember=  groupMemberRepository.findGroupMemberByUserIdAndGroupId(userId,groupId);
+            Notice notice = new NoticeController().addNoticeAboutGroup(groupMember.userId,user.id,2,groupId,userRepository,groupRepository);
             groupMemberRepository.delete(groupMember);
             return result;
         }

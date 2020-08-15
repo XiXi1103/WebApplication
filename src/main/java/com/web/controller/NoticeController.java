@@ -27,85 +27,285 @@ public class NoticeController {
     CollaboratorRepository collaboratorRepository;
     @Autowired
     NoticeRepository noticeRepository;
-    public  Notice addNotice(int userID,int informerID,int category,int ID,
-                             GroupRepository groupRepository1,UserRepository userRepository1,
-                             DocumentationRepository documentationRepository1,
-                             ReplyRepository replyRepository1){
+    //1 文档被评论 , 2 文档被点赞 ,3 被邀请协作文档, 4 被踢出协作文档, 5 协作文档被修改/被删除（查询不到就是被删除了），6 退出协作文档，
+    // 7 评论被回复, 8 评论被点赞，9 被邀请加入团队, 10 被踢出团队
+    //11 团队文档被修改/被删除（查询不到就是被删除了），12 成员退出团队
+//    public  Notice addNotice(int userID,int informerID,int category,
+//                             int docID,int replyID,int groupID,int specialID,//前三个ID是受体，specialID是主体
+//                             GroupRepository groupRepository1,UserRepository userRepository1,
+//                             DocumentationRepository documentationRepository1,
+//                             ReplyRepository replyRepository1){
+//        String[] inform = {"评论了您的文档:",
+//                "点赞了您的文档:",
+//                "被邀请协作文档:",
+//                "被踢出协作文档:",
+//                "协作文档被",
+//                "退出协作文档:",
+//                "评论被回复:",
+//                "评论被点赞:",
+//                "被邀请加入团队:",
+//                "被踢出团队:",
+//                "团队文档被:",
+//                "成员退出团队:"
+//        };
+//        Notice notice = new Notice();
+//        notice.date = new Date();
+//        notice.docID = docID;
+//        notice.groupID = groupID;
+//        notice.replyID = replyID;
+//        notice.userID = userID;
+//        notice.specialID = specialID;
+//        notice.informerID = informerID;
+//        notice.status = false;
+//        notice.success = false;
+//        User informer = userRepository1.findUserById(informerID);
+//        if(informer == null){
+//            return null;
+//        }
+////        User user = userRepository.findUserById(userID);
+//        notice.category = category;
+//        //1 文档被评论 , 2 文档被点赞 ,3 被邀请协作文档, 4 被踢出协作文档, 5 协作文档被修改/被删除（查询不到就是被删除了），6 退出协作文档，
+//        // 7 评论被回复, 8 评论被点赞，9 被邀请加入团队, 10 被踢出团队
+//        //11 团队文档被修改/被删除（查询不到就是被删除了），12 成员退出团队
+//        switch(category){
+//            case 1:{
+//                Documentation documentation = documentationRepository1.findDocumentationById(docID);
+//                Reply reply = replyRepository1.findReplyById(specialID);
+//                if(documentation == null || reply == null){
+//                    notice.msg = "文档或回复已被删除";
+//                }
+//                else {
+//                    notice.msg = informer.username + inform[category - 1] + documentation.title;
+//                    notice.success = true;
+//                }
+//                break;
+//            }
+//            case 2:{
+//                Documentation documentation = documentationRepository1.findDocumentationById(docID);
+//                if(documentation == null){
+//                    notice.msg = "文档已被删除";
+//                }
+//                else {
+//                    notice.msg = informer.username + inform[category - 1] + documentation.title;
+//                }
+//                break;
+//            }
+//            case 3:{
+//                Reply reply = replyRepository1.findReplyById(ID);
+//                notice.msg = informer.username + inform[category-1] + reply.content.substring(0,Math.min(reply.content.length(),10));
+//                break;
+//            }
+//            case 4:{
+//                Reply reply = replyRepository1.findReplyById(ID);
+//                notice.msg = informer.username + inform[category-1] + reply.content.substring(0,Math.min(reply.content.length(),10));
+//                break;
+//            }
+//
+//            case 3:{
+//                Reply reply = replyRepository1.findReplyById(ID);
+//                notice.msg = informer.username + inform[category-1] + reply.content.substring(0,Math.min(reply.content.length(),10));
+//                break;
+//            }
+//            case 4:{
+//                Reply reply = replyRepository1.findReplyById(ID);
+//                notice.msg = informer.username + inform[category-1] + reply.content.substring(0,Math.min(reply.content.length(),10));
+//                break;
+//            }
+//            case 5:{
+//                Group group = groupRepository1.findGroupById(ID);
+//                notice.msg = informer.username + "邀请您加入团队——" + group.groupName;
+//                break;
+//            }
+//            case 6:{
+//                Group group = groupRepository1.findGroupById(ID);
+//                notice.msg = informer.username + "将您踢出了团队——" + group.groupName;
+//                break;
+//            }
+//            case 7:{
+//                Documentation documentation = documentationRepository1.findDocumentationById(ID);
+//                notice.msg = informer.username + "邀请您加入协作文档——" + documentation.title;
+//                break;
+//            }
+//            case 8:{
+//                Documentation documentation = documentationRepository1.findDocumentationById(ID);
+//                notice.msg = informer.username + "将您踢出了协作文档——" + documentation.title;
+//                break;
+//            }
+//            default:{
+//                notice.msg = "未知错误！";
+//                notice.status = false;
+//            }
+//        }
+//        return notice;
+//    }
+
+
+//   1 文档被评论 , 2 文档被点赞 ,3 被邀请协作文档, 4 被踢出协作文档, 5 协作文档被修改, 6 协作文档被删除（查询不到就是被删除了），7 退出协作文档，
+//    finished 1,2
+    public Notice addNoticeAboutDoc(int userID,int informerID,int category,
+                                    int docID,int replyID,
+                                    DocumentationRepository documentationRepository1,
+                                    UserRepository userRepository1,
+                                    ReplyRepository replyRepository1){
+        //初始化
+        Notice notice = new Notice();
+        notice.date = new Date();
+        notice.docID = docID;
+        notice.groupID = 0;
+        notice.replyID = replyID;
+        notice.replyID_add = 0;
+        notice.userID = userID;
+        notice.informerID = informerID;
+        notice.status = false;
+        notice.success = false;
+        notice.about = 1;
+
+        String[] inform = {"",
+                "评论了您的文档:",
+                "点赞了您的文档:",
+                "邀请您协作文档:",
+                "将您踢出协作文档:",
+                "修改了协作文档:",
+                "删除了协作文档:",
+                "退出了协作文档:"
+        };
+        User informer = userRepository1.findUserById(informerID);
+        Documentation documentation = documentationRepository1.findDocumentationById(docID);
+        Reply reply = replyRepository1.findReplyById(replyID);
+        if(informer == null || documentation == null || category <= 0 || category >= 8){
+            notice.msg = "Unknown error happen!";
+            return notice;
+        }
+        notice.msg = informer.username + inform[category] + documentation.title;
+        if(category == 1){
+            if(reply == null){
+                notice.msg = "Unknown error happen!";
+                return notice;
+            }
+            else{
+                notice.msg += "——" + reply.content.substring(Math.min(10,reply.content.length()));
+            }
+        }
+        notice.success = true;
+        return notice;
+    }
+
+    //1 回复评论，2 点赞评论
+    //    finished 1,2
+    public Notice addNoticeAboutReply(int userID,int informerID,int category,
+                                      int replyID1,int replyID2,
+                                      DocumentationRepository documentationRepository1,
+                                      UserRepository userRepository1,
+                                      ReplyRepository replyRepository1){
+        //初始化
         Notice notice = new Notice();
         notice.date = new Date();
         notice.docID = 0;
         notice.groupID = 0;
-        notice.replyID = 0;
+        notice.replyID = replyID1;
+        notice.replyID_add = replyID2;
         notice.userID = userID;
         notice.informerID = informerID;
+        notice.status = false;
+        notice.success = false;
+        notice.about = 2;
+
+        String[] inform = {"",
+                "回复了您的评论:",
+                "点赞了您的评论:",
+        };
         User informer = userRepository1.findUserById(informerID);
-        if(informer == null){
-            return null;
+        Reply reply1 = replyRepository1.findReplyById(replyID1);
+        Reply reply2 = replyRepository1.findReplyById(replyID2);
+        if(informer == null || reply1 == null ||category <= 0 || category >= 3){
+            notice.msg = "Unknown error happen!";
+            return notice;
         }
-//        User user = userRepository.findUserById(userID);
-        notice.category = category;//1 文档被评论 , 2 文档被点赞 , 3 评论被回复, 4 评论被点赞, 5 被邀请加入团队, 6 被踢出团队 , 7 被邀请协作文档, 8 被踢出协作文档
-        switch(category){
-            case 1:{
-                Documentation documentation = documentationRepository1.findDocumentationById(ID);
-                notice.msg = informer.username + "评论了您的文档——" + documentation.title;
-                notice.status = false;
-                notice.docID = ID;
-                break;
+        notice.msg = informer.username + inform[category] + reply1.content.substring(Math.min(10,reply1.content.length()));
+        if(category == 1){
+            if(reply2 == null){
+                notice.msg = "Unknown error happen!";
+                return notice;
             }
-            case 2:{
-                Documentation documentation = documentationRepository1.findDocumentationById(ID);
-                notice.msg = informer.username + "点赞了您的文档——" + documentation.title;
-                notice.status = false;
-                notice.docID = ID;
-                break;
-            }
-            case 3:{
-                Reply reply = replyRepository1.findReplyById(ID);
-                notice.msg = informer.username + "回复了您的评论——" + reply.content.substring(0,Math.min(reply.content.length(),10));
-                notice.status = false;
-                notice.replyID = ID;
-                break;
-            }
-            case 4:{
-                Reply reply = replyRepository1.findReplyById(ID);
-                notice.msg = informer.username + "点赞了您的评论——" + reply.content.substring(0,Math.min(reply.content.length(),10));
-                notice.status = false;
-                notice.replyID = ID;
-                break;
-            }
-            case 5:{
-                Group group = groupRepository1.findGroupById(ID);
-                notice.msg = informer.username + "邀请您加入团队——" + group.groupName;
-                notice.status = false;
-                notice.groupID = ID;
-                break;
-            }
-            case 6:{
-                Group group = groupRepository1.findGroupById(ID);
-                notice.msg = informer.username + "将您踢出了团队——" + group.groupName;
-                notice.status = false;
-                notice.groupID = ID;
-                break;
-            }
-            case 7:{
-                Documentation documentation = documentationRepository1.findDocumentationById(ID);
-                notice.msg = informer.username + "邀请您加入协作文档——" + documentation.title;
-                notice.status = false;
-                notice.docID = ID;
-                break;
-            }
-            case 8:{
-                Documentation documentation = documentationRepository1.findDocumentationById(ID);
-                notice.msg = informer.username + "将您踢出了协作文档——" + documentation.title;
-                notice.status = false;
-                notice.docID = ID;
-                break;
-            }
-            default:{
-                notice.msg = "未知错误！";
-                notice.status = false;
+            else{
+                notice.msg += "——" + reply2.content.substring(Math.min(10,reply2.content.length()));
             }
         }
+        notice.success = true;
+        return notice;
+    }
+
+//    1 邀请加入团队, 2 被踢出团队 , 3 成员退出团队,4 团队被解散
+//    finished 3,4
+    public Notice addNoticeAboutGroup(int userID,int informerID,int category,
+                                    int groupID,
+                                    UserRepository userRepository1,
+                                      GroupRepository groupRepository1
+                                    ){
+        //初始化
+        Notice notice = new Notice();
+        notice.date = new Date();
+        notice.docID = 0;
+        notice.groupID = groupID;
+        notice.replyID = 0;
+        notice.replyID_add = 0;
+        notice.userID = userID;
+        notice.informerID = informerID;
+        notice.status = false;
+        notice.success = false;
+        notice.about = 3;
+
+        String[] inform = {"",
+                "邀请您加入团队:",
+                "将您踢出团队:",
+                "退出了团队:",
+                "解散了团队:",
+        };
+        User informer = userRepository1.findUserById(informerID);
+        Group group = groupRepository1.findGroupById(groupID);
+        if(informer == null || group == null || category <= 0 || category >= 5){
+            notice.msg = "Unknown error happen!";
+            return notice;
+        }
+        notice.msg = informer.username + inform[category] + group.groupName;
+        notice.success = true;
+        return notice;
+    }
+
+//    1 团队文档被修改 2 被删除
+//    finished 1
+    public Notice addNoticeAboutGroupDoc(int userID,int informerID,int category,
+                                      int groupID,int docID,
+                                      UserRepository userRepository1,
+                                      DocumentationRepository documentationRepository1,
+                                      GroupRepository groupRepository1
+    ){
+        //初始化
+        Notice notice = new Notice();
+        notice.date = new Date();
+        notice.docID = 0;
+        notice.groupID = groupID;
+        notice.replyID = 0;
+        notice.replyID_add = 0;
+        notice.userID = userID;
+        notice.informerID = informerID;
+        notice.status = false;
+        notice.success = false;
+        notice.about = 4;
+
+        String[] inform = {"",
+                "修改了团队文档:",
+                "删除了团队文档:",
+        };
+        User informer = userRepository1.findUserById(informerID);
+        Group group = groupRepository1.findGroupById(groupID);
+        Documentation documentation = documentationRepository1.findDocumentationById(docID);
+        if(informer == null || group == null || documentation == null || category <= 0 || category >= 4){
+            notice.msg = "Unknown error happen!";
+            return notice;
+        }
+        notice.msg = informer.username + inform[category] + documentation.title;
+        notice.success = true;
         return notice;
     }
 

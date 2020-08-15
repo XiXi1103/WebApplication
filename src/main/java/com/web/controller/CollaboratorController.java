@@ -38,12 +38,12 @@ public class CollaboratorController {
         result.msg="权限不足";
         if(collaboratorRepository.findCollaboratorByUserIdAndAndDocumentationId(userId1,docId).permission <= 4)
             return result;
-        Collaborator collaborator=new Collaborator();
-        collaborator.documentationId=docId;
-        collaborator.permission=permission;
-        collaborator.userId=userId2;
-        collaboratorRepository.save(collaborator);
-        result.success=true;
+//        Collaborator collaborator=new Collaborator();
+//        collaborator.documentationId=docId;
+//        collaborator.permission=permission;
+//        collaborator.userId=userId2;
+//        collaboratorRepository.save(collaborator);
+//        result.success=true;
 
         int category = 7;
         Notice notice;

@@ -70,18 +70,22 @@ public class LikesController {
             likes.replyId = likes_vue.replyId;
             likesRepository.save(likes);
 
-
-            int category;
-            //文档被点赞
-            if(likes.isDoc){
-                category = 2;
-            }
-            //评论被点赞
-            else category = 4;
             Notice notice;
             User author = userRepository.findUserById(documentationRepository.findDocumentationById(likes.docId).creatorId);
-            notice = new NoticeController().addNotice(author.id,likes.userId,category,likes.docId,
-                    groupRepository,userRepository,documentationRepository,replyRepository);
+            int category = 2;
+            //文档被点赞
+            if(likes.isDoc){
+                notice = new NoticeController().addNoticeAboutDoc(author.id,likes.userId,category,likes.docId,likes.replyId,
+                        documentationRepository,userRepository,replyRepository);
+            }
+            //评论被点赞
+            else
+            {
+                notice = new NoticeController().addNoticeAboutReply(author.id,likes.userId,category,likes.replyId,0,
+                        documentationRepository,userRepository,replyRepository);
+            }
+
+
             noticeRepository.save(notice);
 
             result.success = true;

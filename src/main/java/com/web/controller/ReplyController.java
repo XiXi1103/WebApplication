@@ -64,16 +64,19 @@ public class ReplyController {
         reply.replyId = reply_vue.replyId;
         replyRepository.save(reply);
 
-
-        int category;
-        if(reply.isReply){
-            category = 1;
-        }
-        else category = 3;
+        int category = 1;
         Notice notice;
         User author = userRepository.findUserById(documentationRepository.findDocumentationById(reply.docId).creatorId);
-        notice = new NoticeController().addNotice(author.id,reply.userId,category,reply.docId,
-                groupRepository,userRepository,documentationRepository,replyRepository);
+        if(reply.isReply){
+            Reply reply1 = replyRepository.findReplyById(reply_vue.replyId);
+            notice = new NoticeController().addNoticeAboutReply(author.id,reply.userId,category,reply.docId,reply.id,
+                    documentationRepository,userRepository,replyRepository);
+        }
+        else {
+
+            notice = new NoticeController().addNoticeAboutDoc(author.id,reply.userId,category,reply.replyId,reply.id,
+                    documentationRepository,userRepository,replyRepository);
+        }
         noticeRepository.save(notice);
 
         result.success = true;
