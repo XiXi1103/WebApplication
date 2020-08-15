@@ -4,11 +4,9 @@ import com.web.entity.*;
 import com.web.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -200,7 +198,7 @@ public class NoticeController {
         //初始化
         Notice notice = new Notice();
         notice.date = new Date();
-        notice.docID = 0;
+        notice.docID = replyRepository1.findReplyById(replyID1).docId;
         notice.groupID = 0;
         notice.replyID = replyID1;
         notice.replyID_add = replyID2;
@@ -283,7 +281,7 @@ public class NoticeController {
         //初始化
         Notice notice = new Notice();
         notice.date = new Date();
-        notice.docID = 0;
+        notice.docID = docID;
         notice.groupID = groupID;
         notice.replyID = 0;
         notice.replyID_add = 0;
@@ -311,9 +309,40 @@ public class NoticeController {
 
     @PostMapping(value = "/getNotification")
     @ResponseBody
-    public List<Notice> getNotification(@RequestParam int userID){
-        return noticeRepository.findByUserID(userID);
+    public List<NoticeResult> getNotification(@RequestParam int userID){
+        List<Notice> noticeList = noticeRepository.findByUserID(userID);
+        List<NoticeResult> noticeResultList = new ArrayList<>();
+        for(Notice notice : noticeList){
+            NoticeResult noticeResult = new NoticeResult();
+            noticeResult.id = notice.id;
+            noticeResult.category = notice.category + ( notice.about - 1 ) * 10;
+            noticeResult.date = notice.date.toString();
+            noticeResult.msg = notice.msg;
+            if(notice.about == 3){
+                noticeResult.name = groupRepository.findGroupById(notice.groupID).groupName;
+                noticeResult.objectID = notice.groupID;
+            }
+            else{
+                noticeResult.name = documentationRepository.findDocumentationById(notice.docID).title;
+                if(notice.about == 2){
+                    noticeResult.objectID = notice.replyID;
+                }
+                else{
+                    noticeResult.objectID = notice.docID;
+                }
+            }
+            noticeResultList.add(noticeResult);
+        }
+        return noticeResultList;
     }
 
+
+    @GetMapping(value = "/readNotifications")
+    @ResponseBody
+    public void readNotifications(@RequestParam int userID,@RequestParam int notificationID){
+        Notice notice = noticeRepository.findNoticeById(notificationID);
+        notice.status = true;
+        noticeRepository.save(notice);
+    }
 
 }

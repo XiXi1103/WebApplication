@@ -3,6 +3,7 @@ package com.web.controller;
 import com.web.entity.*;
 import com.web.repository.GroupMemberRepository;
 import com.web.repository.GroupRepository;
+import com.web.repository.NoticeRepository;
 import com.web.repository.UserRepository;
 import org.aspectj.weaver.ast.Not;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,8 @@ public class GroupController {
     UserRepository userRepository;
     @Autowired
     GroupMemberRepository groupMemberRepository;
+    @Autowired
+    NoticeRepository noticeRepository;
     @GetMapping(value = {"/createGroup"})
     @ResponseBody
     public Result create(@RequestParam("userId") int userId,@RequestParam("groupName") String groupName,
@@ -95,7 +98,7 @@ public class GroupController {
             result.ID = groupId ;
             result.msg="退出成功";
             GroupMember groupMember=  groupMemberRepository.findGroupMemberByUserIdAndGroupId(userId,groupId);
-            Notice notice = new NoticeController().addNoticeAboutGroup(groupMember.userId,user.id,2,groupId,userRepository,groupRepository);
+            Notice notice = new NoticeController().addNoticeAboutGroup(groupMember.userId,user.id,3,groupId,userRepository,groupRepository);
             groupMemberRepository.delete(groupMember);
             return result;
         }
@@ -114,5 +117,34 @@ public class GroupController {
             memberList.name=userRepository.findUserById(groupMembers.get(i).userId).username;
         }
         return memberLists;
+    }
+
+    //少了加入时的权限
+    @GetMapping(value = {"/confirmGroupInvitation"})
+    @ResponseBody
+    public Result confirmGroupInvitation(@RequestParam("userID") int userID,
+            @RequestParam("groupID") int groupID,
+            @RequestParam("noticeID") int noticeID,
+            @RequestParam("userResponse") boolean userResponse,
+            Model model, HttpSession session){
+        Result result = new Result();
+        Group group = groupRepository.findGroupById(groupID);
+        User user = userRepository.findUserById(userID);
+        Notice notice = noticeRepository.findNoticeById(noticeID);
+        if(userResponse == false){
+            notice.status = true;
+            noticeRepository.save(notice);
+            result.success = true;
+        }
+        else{
+            notice.status = true;
+            noticeRepository.save(notice);
+            GroupMember groupMember = new GroupMember();
+            groupMember.join_time = new Date();
+            groupMember.userId = userID;
+            groupMember.groupId = groupID;
+            groupMemberRepository.save(groupMember);
+        }
+        return result;
     }
 }
