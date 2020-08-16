@@ -32,6 +32,8 @@ public class GroupMemberController {
     DocumentationRepository documentationRepository;
     @Autowired
     NoticeRepository noticeRepository;
+    @Autowired
+    CollaboratorRepository collaboratorRepository;
     @PostMapping(value = {"/addMember"})
     @ResponseBody
     public Result invite(@RequestParam int groupID,
@@ -123,14 +125,15 @@ public class GroupMemberController {
         GroupMember groupMember2 = groupMemberRepository.findGroupMemberByUserIdAndGroupId(userID2,groupID);
         if(groupMember1.permission==5){
             groupMember2.permission=permission;
+            groupMemberRepository.save(groupMember2);
             Result result = new Result();
             result.success = true;
             result.ID = group.id ;
             result.msg = "修改权限成功!";
-            int category = 2;
+            int category = 1;
             Notice notice;
-            notice = new NoticeController().addNoticeAboutGroup(userID2,userID1,category,group.id,
-                    userRepository,groupRepository);
+            notice = new NoticeController().addNoticeAboutPermission(userID2,userID1,category,group.id,0,permission,
+                    userRepository,documentationRepository,groupRepository,groupMemberRepository,collaboratorRepository);
             noticeRepository.save(notice);
             return result;
         }

@@ -125,6 +125,7 @@ public class CollaboratorController {
             WriterList writerList=new WriterList();
             writerList.id=collaborators.get(i).userId;
             writerList.name=userRepository.findUserById(writerList.id).username;
+            writerList.permission=collaborators.get(i).permission;
             writerLists.add(writerList);
         }
         return writerLists;
@@ -156,5 +157,39 @@ public class CollaboratorController {
             collaboratorRepository.save(collaborator);
         }
         return result;
+    }
+    @GetMapping(value = {"/writerPermission"})
+    @ResponseBody
+    public Result writerPermission(@RequestParam int userID,
+                                   @RequestParam String username,
+                                   @RequestParam int docID,
+                                   @RequestParam int permission,
+                                   Model model, HttpSession session){
+        Documentation documentation=documentationRepository.findDocumentationById(docID);
+        User user=userRepository.findUserByUsername(username);
+        Collaborator collaborator=collaboratorRepository.findCollaboratorByUserIdAndAndDocumentationId(userID,docID);
+
+        if(userID==documentation.creatorId||collaborator.permission==5){
+            Collaborator collaborator1=collaboratorRepository.findCollaboratorByUserIdAndAndDocumentationId(user.id,docID);
+            collaborator1.permission=permission;
+            collaboratorRepository.save(collaborator1);
+            Result result = new Result();
+            result.success = true;
+            result.ID = docID ;
+            result.msg = "修改权限成功!";
+            int category = 2;
+            Notice notice;
+            notice = new NoticeController().addNoticeAboutPermission(user.id,userID,category,0,docID,permission,
+                    userRepository,documentationRepository,groupRepository,groupMemberRepository,collaboratorRepository);
+            noticeRepository.save(notice);
+            return result;
+        }
+        else{
+            Result result = new Result();
+            result.success = false;
+            result.ID = docID ;
+            result.msg = "权限不足!";
+            return result;
+        }
     }
 }
