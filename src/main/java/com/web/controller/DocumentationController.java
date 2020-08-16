@@ -42,12 +42,12 @@ public class DocumentationController {
         int creatorId = documentation_vue.authorID;
         String title = documentation_vue.title;
         Result result = new Result();
-//        if (title == null) {
-//            result.success = false;
-//            result.ID = 0;
-//            result.msg = "请填写标题";
-//            return result;
-//        }
+        if (title == null) {
+            result.success = false;
+            result.ID = 0;
+            result.msg = "请填写标题";
+            return result;
+        }
         if (documentation_vue.content == null) {
             result.success = false;
             result.ID = 0;
