@@ -43,7 +43,7 @@ public class SearchController {
     @GetMapping(value = {"/searchDoc"})
     @ResponseBody
     public List<DocSearch> searchDoc(@RequestParam int userId, @RequestParam String keyword) {
-        List<Documentation> docList = documentationRepository.findByCreatorId(userId);
+        List<Documentation> docList = documentationRepository.findDocumentationByCreatorId(userId);
         List<DocSearch> docSearchList = new ArrayList<>();
 
         for (Documentation doc : docList) {
@@ -79,7 +79,7 @@ public class SearchController {
         User user = userRepository.findUserByUsername(username);
         List<DocSearch> docSearchList = new ArrayList<>();
 
-        List<Documentation> docList = documentationRepository.findByCreatorId(user.id);
+        List<Documentation> docList = documentationRepository.findDocumentationByCreatorId(user.id);
 
         if (!docList.isEmpty()) {
             for (Documentation doc : docList) {
@@ -99,7 +99,7 @@ public class SearchController {
         User user = userRepository.findUserByUsername(username);
         List<DocSearch> docSearchList = new ArrayList<>();
 
-        List<Documentation> docList = documentationRepository.findByCreatorId(user.id);
+        List<Documentation> docList = documentationRepository.findDocumentationByCreatorId(user.id);
 
         if (!docList.isEmpty()) {
             for (Documentation doc : docList) {

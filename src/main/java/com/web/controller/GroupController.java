@@ -114,6 +114,8 @@ public class GroupController {
         for (GroupMember groupMember : groupMembers) {
             memberList.id = groupMember.userId;
             memberList.name = userRepository.findUserById(groupMember.userId).username;
+            memberList.permission=groupMemberRepository.findGroupMemberByUserIdAndGroupId(memberList.id,groupId).permission;
+            memberLists.add(memberList);
         }
         return memberLists;
     }

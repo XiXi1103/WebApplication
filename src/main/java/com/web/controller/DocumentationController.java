@@ -69,19 +69,21 @@ public class DocumentationController {
             documentation.lastTime=documentation.createTime;
             documentation.isEdit=false;
             documentation.editorId=0;
-
             documentationRepository.save(documentation);
 
         }
         else {
-            if(documentation.lastTime.compareTo(new Date())<0)
             documentation = documentationRepository.findDocumentationById(documentation_vue.docID);
             documentation.title = documentation_vue.title;
             documentation.otherPermission=documentation_vue.otherPermission;
             documentation.lastTime=new Date();
             documentation.isEdit=false;
-            documentation.editorId=0;
             documentation.editorNum++;
+            DocumentModificationRecord documentModificationRecord =new DocumentModificationRecord();
+            documentModificationRecord.docId=documentation_vue.docID;
+            documentModificationRecord.userId=documentation.editorId;
+            documentModificationRecord.time=documentation.lastTime;
+            documentation.editorId=0;
             //团队文档被修改发送通知
             if(documentation.groupId != 0){
                 int category = 1;

@@ -90,7 +90,7 @@ public class CollectionController {
     @ResponseBody
     public ArrayList<PageList> getMyDoc(@RequestParam("userID") int userId,
                                                Model model, HttpSession session){
-        ArrayList<Documentation> documentations= (ArrayList<Documentation>) documentationRepository.findByCreatorId(userId);
+        ArrayList<Documentation> documentations= (ArrayList<Documentation>) documentationRepository.findDocumentationByCreatorId(userId);
         ArrayList<Collaborator> collaborators= collaboratorRepository.findCollaboratorByUserId(userId);
         int l1=documentations.size();
         int l2=collaborators.size();
@@ -115,7 +115,7 @@ public class CollectionController {
     public ArrayList<PageList> getGroupDoc(@RequestParam("groupID") int groupId,
                                           @RequestParam("userId") int userId,
                                           Model model, HttpSession session){
-        ArrayList<Documentation> documentations= (ArrayList<Documentation>) documentationRepository.findByGroupId(groupId);
+        ArrayList<Documentation> documentations= (ArrayList<Documentation>) documentationRepository.findDocumentationByGroupId(groupId);
         int l1=documentations.size();
         ArrayList<PageList> pageLists=new ArrayList<>();
         PageList pageList=new PageList();

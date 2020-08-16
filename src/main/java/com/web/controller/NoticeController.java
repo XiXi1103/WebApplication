@@ -270,13 +270,13 @@ public class NoticeController {
         return notice;
     }
 
-//    1 团队文档被修改 2 被删除
+    //    1 团队文档被修改 2 被删除
 //    finished 1,2
     public Notice addNoticeAboutGroupDoc(int userID,int informerID,int category,
-                                      int groupID,int docID,
-                                      UserRepository userRepository1,
-                                      DocumentationRepository documentationRepository1,
-                                      GroupRepository groupRepository1
+                                         int groupID,int docID,
+                                         UserRepository userRepository1,
+                                         DocumentationRepository documentationRepository1,
+                                         GroupRepository groupRepository1
     ){
         //初始化
         Notice notice = new Notice();
@@ -306,7 +306,44 @@ public class NoticeController {
         notice.success = true;
         return notice;
     }
-
+    //    1 团队权限被修改 2写作文档权限被修改
+    //    finished 1,2
+    public Notice addNoticeAboutPermission(int userID,int informerID,int category,
+                                           int groupID,int docID,int permission,
+                                           UserRepository userRepository1,
+                                           DocumentationRepository documentationRepository1,
+                                           GroupRepository groupRepository1,
+                                           GroupMemberRepository groupMemberRepository1,
+                                           CollaboratorRepository collaboratorRepository1
+    ){
+        //初始化
+        Notice notice = new Notice();
+        notice.date = new Date();
+        notice.docID = docID;
+        notice.groupID = groupID;
+        notice.replyID = 0;
+        notice.replyID_add = 0;
+        notice.userID = userID;
+        notice.informerID = informerID;
+        notice.status = false;
+        notice.success = false;
+        notice.about = 5;
+        User informer = userRepository1.findUserById(informerID);
+        Group group = groupRepository1.findGroupById(groupID);
+        Documentation documentation = documentationRepository1.findDocumentationById(docID);
+        if(informer == null  || category <= 0 || category >= 3){
+            notice.msg = "Unknown error happen!";
+            return notice;
+        }
+        if(category==1)
+            notice.msg = "你在团队"+groupRepository1.findGroupById(groupID).groupName+"中的权限被"+
+                    userRepository1.findUserById(informerID).username+"调整为"+permission;
+        else
+            notice.msg = "你在文章"+documentationRepository1.findDocumentationById(docID).title+"中的权限被"+
+                    userRepository1.findUserById(informerID).username+"调整为"+permission;
+        notice.success = true;
+        return notice;
+    }
     @PostMapping(value = "/getNotification")
     @ResponseBody
     public List<NoticeResult> getNotification(@RequestParam int userID){

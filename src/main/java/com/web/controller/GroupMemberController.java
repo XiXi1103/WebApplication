@@ -83,8 +83,6 @@ public class GroupMemberController {
                          @RequestParam int userId2,
                          @RequestParam int groupId,
                          Model model, HttpSession session){
-        User user1 = userRepository.findUserById(userId1);
-        User user2 = userRepository.findUserById(userId2);
         Group group = groupRepository.findGroupById(groupId);
         GroupMember groupMember1 = groupMemberRepository.findGroupMemberByUserIdAndGroupId(userId1,groupId);
         GroupMember groupMember2 = groupMemberRepository.findGroupMemberByUserIdAndGroupId(userId2,groupId);
@@ -109,7 +107,37 @@ public class GroupMemberController {
             return result;
         }
     }
-
+    @GetMapping(value = {"/changePermission"})
+    @ResponseBody
+    public Result changePermission(@RequestParam int userID1,
+                                   @RequestParam int permission,
+                                   @RequestParam int groupID,
+                                   @RequestParam int userID2,
+                         Model model, HttpSession session){
+        Group group = groupRepository.findGroupById(groupID);
+        GroupMember groupMember1 = groupMemberRepository.findGroupMemberByUserIdAndGroupId(userID1,groupID);
+        GroupMember groupMember2 = groupMemberRepository.findGroupMemberByUserIdAndGroupId(userID2,groupID);
+        if(groupMember1.permission==5){
+            groupMember2.permission=permission;
+            Result result = new Result();
+            result.success = true;
+            result.ID = group.id ;
+            result.msg = "修改权限成功!";
+            int category = 2;
+            Notice notice;
+            notice = new NoticeController().addNoticeAboutGroup(userID2,userID1,category,group.id,
+                    userRepository,groupRepository);
+            noticeRepository.save(notice);
+            return result;
+        }
+        else{
+            Result result = new Result();
+            result.success = false;
+            result.ID = group.id ;
+            result.msg = "权限不足!";
+            return result;
+        }
+    }
     @PostMapping(value = {"/group/modify"})
     @ResponseBody
     public Result modifyPermission(@RequestBody Group_vue group_vue,
@@ -155,4 +183,5 @@ public ArrayList<GroupList> getGroup(@RequestParam("userID") int userId,
     }
     return groupLists;
 }
+
 }
