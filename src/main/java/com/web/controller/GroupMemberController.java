@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
+import java.util.List;
 
 @CrossOrigin
 @Controller
@@ -109,6 +110,7 @@ public class GroupMemberController {
             return result;
         }
     }
+
     @GetMapping(value = {"/changePermission"})
     @ResponseBody
     public Result changePermission(@RequestParam int userID1,
@@ -166,22 +168,20 @@ public class GroupMemberController {
         return result;
     }
 //    0 都没有，1 查看，2 评论，3 分享，4 修改,5 创建者
-@GetMapping(value = {"/getGroup"})
+@GetMapping(value = {"/getJoinGroup"})
 @ResponseBody
-public ArrayList<GroupList> getGroup(@RequestParam("userID") int userId,
+public List<GroupList> getGroup(@RequestParam("userID") int userId,
                                      Model model, HttpSession session){
-    ArrayList<GroupList> groupLists=new ArrayList<>();
-    GroupList groupList=new GroupList();
-    ArrayList<GroupMember> groupMembers= (ArrayList<GroupMember>) groupMemberRepository.findGroupMemberByUserId(userId);
-    int l=groupMembers.size();
-    for(int i=0;i<l;i++){
-        groupList.id=groupMembers.get(i).groupId;
-        groupList.name=groupRepository.findGroupById(groupMembers.get(i).groupId).groupName;
-        if(groupRepository.findGroupById(groupMembers.get(i).groupId).creatorId==userId)
-            groupList.isCreator=true;
-        else
-            groupList.isCreator=false;
-        groupLists.add(groupList);
+        System.out.println(userId);
+    List<GroupList> groupLists=new ArrayList<>();
+    List<GroupMember> groupMembers= groupMemberRepository.findGroupMemberByUserId(userId);
+    int l = groupMembers.size();
+    for(int i = 0 ; i < l; i++){
+        GroupList groupList=new GroupList();
+        groupList.id = groupMembers.get(i).groupId;
+        groupList.name = groupRepository.findGroupById(groupMembers.get(i).groupId).groupName;
+        groupList.isCreator = groupRepository.findGroupById(groupMembers.get(i).groupId).creatorId == userId;
+        groupLists.add(i,groupList);
     }
     return groupLists;
 }

@@ -31,10 +31,11 @@ public class GroupController {
     NoticeRepository noticeRepository;
     @GetMapping(value = {"/createGroup"})
     @ResponseBody
-    public Result create(@RequestParam("userId") int userId, @RequestParam("groupName") String groupName,
+    public Result create(@RequestParam int userID, @RequestParam String groupName,
                          Model model, HttpSession session){
+//        System.out.println("2");
         int creatorId = -1;
-        creatorId = userId;
+        creatorId = userID;
         Result result = new Result();
         if(groupName == null){
             result.success = false;
