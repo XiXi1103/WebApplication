@@ -90,11 +90,10 @@ public class DocumentationController {
 
     private void generateNoticeAboutGroupDoc(@RequestBody Documentation_vue documentation_vue, Documentation documentation, int category) {
         List<GroupMember> groupMembers= groupMemberRepository.findGroupMemberByGroupId(documentation.groupId);
-        int l=groupMembers.size();
-        for(int i=0;i<l;i++){
-            Notice notice = new NoticeController().addNoticeAboutGroupDoc(groupMembers.get(i).userId,documentation_vue.authorID,
-                    category,documentation.groupId,documentation.id,
-                    userRepository,documentationRepository,groupRepository);
+        for (GroupMember groupMember : groupMembers) {
+            Notice notice = new NoticeController().addNoticeAboutGroupDoc(groupMember.userId, documentation_vue.authorID,
+                    category, documentation.groupId, documentation.id,
+                    userRepository, documentationRepository, groupRepository);
             noticeRepository.save(notice);
         }
     }
@@ -220,7 +219,7 @@ public class DocumentationController {
         if (documentation.groupId != 0) {
             GroupMember groupMember = groupMemberRepository.findGroupMemberByUserIdAndGroupId(userID, documentation.groupId);
             if (groupMember.permission >= 4) {
-                docResult = getDocResult(docResult, documentation);
+                getDocResult(docResult, documentation);
                 docResult.success = true;
                 docResult.msg = "返回成功";
             } else {
@@ -257,12 +256,12 @@ public class DocumentationController {
                         documentation.creatorId, userID,category,docID,0,
                         userRepository,documentationRepository,replyRepository);
                 noticeRepository.save(notice);
-                for(int i=0;i<l;i++){
-                    if(collaborators.get(i).userId==userID)
+                for (Collaborator collaborator : collaborators) {
+                    if (collaborator.userId == userID)
                         continue;
                     notice = new NoticeController().addNoticeAboutDoc(
-                            collaborators.get(i).userId, userID,category,docID,0,
-                            userRepository,documentationRepository,replyRepository);
+                            collaborator.userId, userID, category, docID, 0,
+                            userRepository, documentationRepository, replyRepository);
                     noticeRepository.save(notice);
                 }
             }
@@ -330,7 +329,7 @@ public class DocumentationController {
         if (documentation.groupId != 0) {
             GroupMember groupMember = groupMemberRepository.findGroupMemberByUserIdAndGroupId(userID, documentation.groupId);
             if (groupMember.permission >= 1) {
-                docResult = getDocResult(docResult,documentation);
+                getDocResult(docResult, documentation);
                 docResult.success = true;
                 docResult.msg = "显示成功";
                 docResult.permission=groupMember.permission;
@@ -348,14 +347,14 @@ public class DocumentationController {
         }
         else{
             if(userID == documentation.creatorId ){
-                docResult = getDocResult(docResult,documentation);
+                getDocResult(docResult, documentation);
                 docResult.success = true;
                 docResult.msg = "显示成功";
                 docResult.permission=5;
                 addRecentUse(userID,docID);
             }
             else if(documentation.otherPermission >= 1){
-                docResult = getDocResult(docResult,documentation);
+                getDocResult(docResult, documentation);
                 docResult.success = true;
                 docResult.msg = "显示成功";
                 docResult.permission=documentation.otherPermission;
@@ -380,6 +379,7 @@ public class DocumentationController {
         res.put("html",html);
         return res;
     }
+
     public void addRecentUse(int userID,int docID){
         User user=userRepository.findUserById(userID);
         if(user.recently_usednum==5){
@@ -399,7 +399,6 @@ public class DocumentationController {
             user.recently_used2=docID;
         else if(user.recently_usednum==0)
             user.recently_used1=docID;
-        return ;
     }
 
     private DocResult getDocResult(DocResult docResult, Documentation documentation) {
@@ -412,7 +411,7 @@ public class DocumentationController {
 
     public static String readFileByChars(String fileName) {
         File file = new File(fileName);
-        String res = new String();
+        StringBuilder res = new StringBuilder();
         Reader reader = null;
 //        try {
 //            System.out.println("以字符为单位读取文件内容，一次读一个字节：");
@@ -443,14 +442,13 @@ public class DocumentationController {
                 if ((charRead == tempChars.length)
                         && (tempChars[tempChars.length - 1] != '\r')) {
 //                    System.out.print(tempchars);
-                    res += tempChars;
+                    res.append(tempChars);
                 } else {
                     for (int i = 0; i < charRead; i++) {
                         if (tempChars[i] == '\r') {
-                            continue;
                         } else {
 //                            System.out.print(tempchars[i]);
-                            res += tempChars[i];
+                            res.append(tempChars[i]);
                         }
                     }
                 }
@@ -462,11 +460,11 @@ public class DocumentationController {
             if (reader != null) {
                 try {
                     reader.close();
-                } catch (IOException e1) {
+                } catch (IOException ignored) {
                 }
             }
         }
-        return res;
+        return res.toString();
     }
 
 }

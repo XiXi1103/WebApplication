@@ -49,11 +49,11 @@ public class LoginController {
         return loginResult;
     }
 
-    @GetMapping(value = {"/tourist_login"})
-    public String tourist_login(Model model, HttpSession session){
-        session.setAttribute("loginUser",null);
-        session.setAttribute("userId", null);
-        model.addAttribute("msg","欢迎游客！");
-        return "redirect:/main";
-    }
+//    @GetMapping(value = {"/tourist_login"})
+//    public String tourist_login(Model model, HttpSession session){
+//        session.setAttribute("loginUser",null);
+//        session.setAttribute("userId", null);
+//        model.addAttribute("msg","欢迎游客！");
+//        return "redirect:/main";
+//    }
 }

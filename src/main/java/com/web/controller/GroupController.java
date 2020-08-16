@@ -86,9 +86,10 @@ public class GroupController {
             result.msg="删除成功";
             List<GroupMember> groupMembers=  groupMemberRepository.findGroupMemberByGroupId(groupId);
             int l=groupMembers.size();
-            for(int i=0;i<l;i++){
-                groupMemberRepository.delete(groupMembers.get(i));
-                Notice notice = new NoticeController().addNoticeAboutGroup(groupMembers.get(i).userId,user.id,4,groupId,userRepository,groupRepository);
+            for (GroupMember groupMember : groupMembers) {
+                groupMemberRepository.delete(groupMember);
+                Notice notice = new NoticeController().addNoticeAboutGroup(groupMember.userId, user.id, 4, groupId, userRepository, groupRepository);
+                noticeRepository.save(notice);
             }
             return result;
         }
@@ -112,9 +113,9 @@ public class GroupController {
         MemberList memberList=new MemberList();
         List<GroupMember> groupMembers=  groupMemberRepository.findGroupMemberByGroupId(groupId);
         int l=groupMembers.size();
-        for(int i=0;i<l;i++){
-            memberList.id=groupMembers.get(i).userId;
-            memberList.name=userRepository.findUserById(groupMembers.get(i).userId).username;
+        for (GroupMember groupMember : groupMembers) {
+            memberList.id = groupMember.userId;
+            memberList.name = userRepository.findUserById(groupMember.userId).username;
         }
         return memberLists;
     }
@@ -131,7 +132,7 @@ public class GroupController {
         Group group = groupRepository.findGroupById(groupID);
         User user = userRepository.findUserById(userID);
         Notice notice = noticeRepository.findNoticeById(noticeID);
-        if(userResponse == false){
+        if(!userResponse){
             notice.status = true;
             noticeRepository.save(notice);
             result.success = true;

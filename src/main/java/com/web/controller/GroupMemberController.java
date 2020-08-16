@@ -4,6 +4,7 @@ import com.web.entity.*;
 import com.web.repository.*;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,6 +12,8 @@ import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
 import java.util.Date;
 
+@CrossOrigin
+@Controller
 public class GroupMemberController {
     @Autowired
     GroupRepository groupRepository;
@@ -30,8 +33,7 @@ public class GroupMemberController {
     @ResponseBody
     public Result invite(@RequestParam int groupID,
                          @RequestParam int userID,
-                         @RequestParam String username,
-                         @RequestParam int permission
+                         @RequestParam String username
                         ){
         User inviter = userRepository.findUserById(userID);
         User user = userRepository.findUserByUsername(username);
@@ -54,11 +56,11 @@ public class GroupMemberController {
             return result;
         }
         else{
-            GroupMember groupMember = new GroupMember();
-            groupMember.groupId = group.id;
-            groupMember.userId = user.id;
-            groupMember.permission = permission;
-            groupMemberRepository.save(groupMember);
+//            GroupMember groupMember = new GroupMember();
+//            groupMember.groupId = group.id;
+//            groupMember.userId = user.id;
+//            groupMember.permission = permission;
+//            groupMemberRepository.save(groupMember);
 
             int category = 1;
             Notice notice;
