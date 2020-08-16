@@ -108,7 +108,7 @@ public class GroupController {
     @ResponseBody
     public ArrayList<MemberList> catMember(@RequestParam("groupID") int groupId,
                                            Model model, HttpSession session){
-        ArrayList<MemberList> memberLists=new ManagedList<>();
+        ArrayList<MemberList> memberLists=new ArrayList();
         MemberList memberList=new MemberList();
         List<GroupMember> groupMembers=  groupMemberRepository.findGroupMemberByGroupId(groupId);
         int l=groupMembers.size();

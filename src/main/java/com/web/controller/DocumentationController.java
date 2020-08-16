@@ -1,10 +1,13 @@
 package com.web.controller;
 
 import com.web.entity.*;
+import com.web.entity.ReturnResult.DocResult;
+import com.web.entity.ReturnResult.MemberList;
 import com.web.entity.ReturnResult.Result;
 import com.web.entity.vue.Documentation_vue;
 import com.web.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -30,6 +33,8 @@ public class DocumentationController {
     NoticeRepository noticeRepository;
     @Autowired
     ReplyRepository replyRepository;
+    @Autowired
+    DocumentModificationRecordRepository documentModificationRecordRepository;
     @PostMapping(value = {"/newDoc"})
     @ResponseBody
     public Result newDoc(@RequestBody Documentation_vue documentation_vue,
@@ -214,7 +219,22 @@ public class DocumentationController {
         }
         return result;
     }
-    
+    @GetMapping(value = {"/modifyRecord"})
+    @ResponseBody
+    public ArrayList<MemberList> modifyRecord(@RequestParam("docId") int docId,
+                                           Model model, HttpSession session){
+        ArrayList<MemberList> memberLists=new ArrayList<>();
+        MemberList memberList=new MemberList();
+        List<DocumentModificationRecord> documentModificationRecords=
+                documentModificationRecordRepository.findDocumentModificationRecordsByDocId(docId);
+        for (DocumentModificationRecord documentModificationRecord : documentModificationRecords) {
+            memberList.id = documentModificationRecord.userId;
+            memberList.name = userRepository.findUserById(documentModificationRecord.userId).username;
+            memberList.time=documentModificationRecord.time.toString();
+            memberLists.add(memberList);
+        }
+        return memberLists;
+    }
     @PostMapping(value = {"/delDoc"})
     @ResponseBody
     public Result delDoc(@RequestBody Documentation_vue documentation_vue,
