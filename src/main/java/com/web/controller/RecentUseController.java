@@ -33,47 +33,32 @@ public class RecentUseController {
         if(l>0){
             pageList.id=user.recently_used5;
             pageList.title=documentationRepository.findDocumentationById(user.recently_used5).title;
-            if(documentationRepository.findDocumentationById(user.recently_used5).creatorId==userId)
-                pageList.isCreator=true;
-            else
-                pageList.isCreator=false;
+            pageList.isCreator= documentationRepository.findDocumentationById(user.recently_used5).creatorId == userId;
             pageLists.add(pageList);
         }
 
         if(l>1){
             pageList.id=user.recently_used4;
             pageList.title=documentationRepository.findDocumentationById(user.recently_used4).title;
-            if(documentationRepository.findDocumentationById(user.recently_used4).creatorId==userId)
-                pageList.isCreator=true;
-            else
-                pageList.isCreator=false;
+            pageList.isCreator= documentationRepository.findDocumentationById(user.recently_used4).creatorId == userId;
             pageLists.add(pageList);
         }
         if(l>2){
             pageList.id=user.recently_used3;
             pageList.title=documentationRepository.findDocumentationById(user.recently_used3).title;
-            if(documentationRepository.findDocumentationById(user.recently_used3).creatorId==userId)
-                pageList.isCreator=true;
-            else
-                pageList.isCreator=false;
+            pageList.isCreator= documentationRepository.findDocumentationById(user.recently_used3).creatorId == userId;
             pageLists.add(pageList);
         }
         if(l>3){
             pageList.id=user.recently_used2;
             pageList.title=documentationRepository.findDocumentationById(user.recently_used2).title;
-            if(documentationRepository.findDocumentationById(user.recently_used2).creatorId==userId)
-                pageList.isCreator=true;
-            else
-                pageList.isCreator=false;
+            pageList.isCreator= documentationRepository.findDocumentationById(user.recently_used2).creatorId == userId;
             pageLists.add(pageList);
         }
         if(l>4){
             pageList.id=user.recently_used1;
             pageList.title=documentationRepository.findDocumentationById(user.recently_used1).title;
-            if(documentationRepository.findDocumentationById(user.recently_used1).creatorId==userId)
-                pageList.isCreator=true;
-            else
-                pageList.isCreator=false;
+            pageList.isCreator= documentationRepository.findDocumentationById(user.recently_used1).creatorId == userId;
             pageLists.add(pageList);
         }
         return pageLists;

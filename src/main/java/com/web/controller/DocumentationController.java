@@ -8,7 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.io.*;
 import java.util.*;
@@ -37,12 +39,12 @@ public class DocumentationController {
         int creatorId = documentation_vue.authorID;
         String title = documentation_vue.title;
         Result result = new Result();
-        if (title == null) {
-            result.success = false;
-            result.ID = 0;
-            result.msg = "请填写标题";
-            return result;
-        }
+//        if (title == null) {
+//            result.success = false;
+//            result.ID = 0;
+//            result.msg = "请填写标题";
+//            return result;
+//        }
         if (documentation_vue.content == null) {
             result.success = false;
             result.ID = 0;
@@ -60,8 +62,9 @@ public class DocumentationController {
             documentation = new Documentation();
             documentation.title = documentation_vue.title;
             documentation.createTime = new Date();
+            documentation.summary = documentation_vue.summary;
             documentation.creatorId = documentation_vue.authorID;
-            documentation.otherPermission=documentation_vue.otherPermission;
+            documentation.otherPermission=documentation_vue.permission;
             documentation.groupId = documentation_vue.groupId;
             documentation.lastTime=documentation.createTime;
             documentation.isEdit=false;
@@ -155,6 +158,41 @@ public class DocumentationController {
             }
         }
     }
+
+//    @RequestMapping(value="/imgAdd")
+//    public @ResponseBody Map<String,Object> demo(@RequestParam(value = "file", required = false) MultipartFile file, HttpServletRequest request) {
+//        Result result = new Result();
+//        //保存
+//        try {
+//            File imageFolder= new File("/home/yzx/web/uploadImg");
+//            File targetFile = new File(imageFolder,limitLength(file.getOriginalFilename(),10));
+//            if(!targetFile.getParentFile().exists()){
+//                targetFile.getParentFile().mkdirs();
+//
+//            }
+//            System.out.println(targetFile.getAbsolutePath());
+//            FileUtils.copyInputStreamToFile(file.getInputStream(), targetFile);
+////            BufferedImage img = ImageUtil.change2jpg(targetFile);
+////            ImageIO.write(img, "jpg", targetFile);
+//            /*            file.transferTo(targetFile);*/
+////            byte[] bytes = file.getBytes();
+////            Path path = Paths.get(realPath + file.getOriginalFilename());
+////            Files.write(path, bytes);
+//            resultMap.put("success", 1);
+//            resultMap.put("message", "上传成功！");
+//            resultMap.put("url","/UploadImages/"+file.getOriginalFilename());
+//        } catch (Exception e) {
+//            resultMap.put("success", 0);
+//            resultMap.put("message", "上传失败！");
+//            e.printStackTrace();
+//        }
+//
+//    }
+
+    public static String limitLength(String name,int length){
+        return name.substring(0,Math.min(name.length(),length));
+    }
+
 
     @PostMapping(value = {"/delDocCompletely"})
     @ResponseBody

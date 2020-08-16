@@ -3,6 +3,7 @@ package com.web.controller;
 import com.web.entity.*;
 import com.web.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,6 +11,8 @@ import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
 import java.util.Date;
 
+@CrossOrigin
+@Controller
 public class CollectionController {
     @Autowired
     GroupRepository groupRepository;
@@ -93,17 +96,17 @@ public class CollectionController {
         int l2=collaborators.size();
         ArrayList<PageList> pageLists=new ArrayList<>();
         PageList pageList=new PageList();
-        for(int i=0;i<l1;i++){
-            pageList.id=documentations.get(i).id;
-            pageList.title=documentations.get(i).title;
-            pageList.isCreator=true;
+        for (Documentation documentation : documentations) {
+            pageList.id = documentation.id;
+            pageList.title = documentation.title;
+            pageList.isCreator = true;
             pageLists.add(pageList);
         }
-        for(int i=0;i<l2;i++){
-                pageList.id=collaborators.get(i).id;
-                pageList.title=documentationRepository.findDocumentationById(collaborators.get(i).id).title;
-                pageList.isCreator=false;
-                pageLists.add(pageList);
+        for (Collaborator collaborator : collaborators) {
+            pageList.id = collaborator.id;
+            pageList.title = documentationRepository.findDocumentationById(collaborator.id).title;
+            pageList.isCreator = false;
+            pageLists.add(pageList);
         }
         return pageLists;
     }

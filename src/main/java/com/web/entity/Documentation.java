@@ -33,6 +33,6 @@ public class Documentation {
     public int editorNum; //修改次数
     @Column(name = "isTemplate")
     public boolean isTemplate; //是否是模板
-//    @Column(name = "abstract")
-//    public String abstract;
+    @Column(name = "summary")
+    public String summary;
 }
