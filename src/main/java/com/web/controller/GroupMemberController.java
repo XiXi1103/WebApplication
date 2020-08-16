@@ -1,8 +1,11 @@
 package com.web.controller;
 
 import com.web.entity.*;
+import com.web.entity.ReturnResult.GroupList;
+import com.web.entity.ReturnResult.Result;
+import com.web.entity.vue.Group_vue;
+import com.web.entity.vue.User_vue;
 import com.web.repository.*;
-import org.apache.maven.plugins.annotations.Parameter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -10,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
-import java.util.Date;
 
 @CrossOrigin
 @Controller
@@ -167,7 +169,7 @@ public class GroupMemberController {
 @GetMapping(value = {"/getGroup"})
 @ResponseBody
 public ArrayList<GroupList> getGroup(@RequestParam("userID") int userId,
-                                      Model model, HttpSession session){
+                                     Model model, HttpSession session){
     ArrayList<GroupList> groupLists=new ArrayList<>();
     GroupList groupList=new GroupList();
     ArrayList<GroupMember> groupMembers= (ArrayList<GroupMember>) groupMemberRepository.findGroupMemberByUserId(userId);

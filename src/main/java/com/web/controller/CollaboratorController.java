@@ -1,6 +1,9 @@
 package com.web.controller;
 
 import com.web.entity.*;
+import com.web.entity.ReturnResult.Result;
+import com.web.entity.ReturnResult.WriterList;
+import com.web.entity.vue.Collaborator_vue;
 import com.web.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -9,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
-import java.util.Date;
 
 @CrossOrigin
 @Controller
@@ -33,10 +35,10 @@ public class CollaboratorController {
     @GetMapping(value = {"/addWriter"})
     @ResponseBody
     public Result addWriter(@RequestParam("userID1") int userId1,
-                                        @RequestParam("username") String userName,
-                                        @RequestParam("docID") int docId,
-                                        @RequestParam("permission") int permission,
-                                       Model model, HttpSession session){
+                            @RequestParam("username") String userName,
+                            @RequestParam("docID") int docId,
+                            @RequestParam("permission") int permission,
+                            Model model, HttpSession session){
         Result result = new  Result();
         result.success=false;
         result.msg="权限不足";

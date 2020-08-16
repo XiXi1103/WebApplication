@@ -1,7 +1,7 @@
 package com.web.controller;
 
 import com.web.entity.Documentation;
-import com.web.entity.PathResult;
+import com.web.entity.ReturnResult.PathResult;
 import com.web.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;

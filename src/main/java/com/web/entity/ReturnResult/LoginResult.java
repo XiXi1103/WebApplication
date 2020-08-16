@@ -1,6 +1,6 @@
-package com.web.entity;
+package com.web.entity.ReturnResult;
 
-public class RegisterResult {
+public class LoginResult {
     public boolean success;
     public int ID;
     public String msg;

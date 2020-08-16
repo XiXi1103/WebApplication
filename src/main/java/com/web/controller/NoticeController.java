@@ -1,6 +1,7 @@
 package com.web.controller;
 
 import com.web.entity.*;
+import com.web.entity.ReturnResult.NoticeResult;
 import com.web.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;

@@ -1,4 +1,4 @@
-package com.web.entity;
+package com.web.entity.ReturnResult;
 
 import java.util.ArrayList;
 

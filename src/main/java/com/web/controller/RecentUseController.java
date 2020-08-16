@@ -1,6 +1,9 @@
 package com.web.controller;
 
 import com.web.entity.*;
+import com.web.entity.ReturnResult.DocumentationResult;
+import com.web.entity.ReturnResult.PageList;
+import com.web.entity.ReturnResult.RemoveRecentBrowsingResult;
 import com.web.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -69,7 +72,7 @@ public class RecentUseController {
     }
     @GetMapping(value = {"/removeRecentBrowsing"})
     @ResponseBody
-    public RemoveRecentBrowsingResult removeRecentBrowsing(@RequestParam("userID") int userId, @RequestParam("docID") int docId,Model model, HttpSession session){
+    public RemoveRecentBrowsingResult removeRecentBrowsing(@RequestParam("userID") int userId, @RequestParam("docID") int docId, Model model, HttpSession session){
         User user=userRepository.findUserById(userId);
         int l=user.recently_usednum;
         DocumentationResult documentationResult=new DocumentationResult();

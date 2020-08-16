@@ -30,14 +30,14 @@ public class SearchController {
 
     @GetMapping(value = {"/searchUser"})
     @ResponseBody
-    public List<UsrSearch> searchUser(@RequestParam String username) {
+    public List<UserSearch> searchUser(@RequestParam String username) {
         User user = userRepository.findUserByUsername(username);
-        List<UsrSearch> usrSearchList = new ArrayList<>();
+        List<UserSearch> userSearchList = new ArrayList<>();
 
-        UsrSearch usrSearch = new UsrSearch(user.id, user.username);
-        usrSearchList.add(usrSearch);
+        UserSearch userSearch = new UserSearch(user.id, user.username);
+        userSearchList.add(userSearch);
 
-        return usrSearchList;
+        return userSearchList;
     }
 
     @GetMapping(value = {"/searchDoc"})

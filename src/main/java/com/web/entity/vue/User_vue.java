@@ -1,4 +1,4 @@
-package com.web.entity;
+package com.web.entity.vue;
 
 public class User_vue {
     public String username;

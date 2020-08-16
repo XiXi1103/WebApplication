@@ -1,6 +1,8 @@
 package com.web.controller;
 
 import com.web.entity.*;
+import com.web.entity.ReturnResult.PageList;
+import com.web.entity.ReturnResult.Result;
 import com.web.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -28,9 +30,9 @@ public class CollectionController {
     CollaboratorRepository collaboratorRepository;
     @GetMapping(value = {"/collection"})
     @ResponseBody
-    public Result collection( @RequestParam("userId") int userId,
-                         @RequestParam("documentationId") int documentationId,
-                         Model model, HttpSession session){
+    public Result collection(@RequestParam("userId") int userId,
+                             @RequestParam("documentationId") int documentationId,
+                             Model model, HttpSession session){
         Collection collection = collectionRepository.findCollectionByUserIdAndDocumentationId(userId,documentationId);
         if(collection==null){
             collection.collect_time=new Date();
@@ -67,7 +69,7 @@ public class CollectionController {
     @GetMapping(value = {"/getCollectionDoc"})
     @ResponseBody
     public ArrayList<PageList> getCollectionDoc(@RequestParam("userID") int userId,
-                                                  Model model, HttpSession session){
+                                                Model model, HttpSession session){
         ArrayList<Collection> collections= (ArrayList<Collection>) collectionRepository.findCollectionByUserId(userId);
         int l=collections.size();
         ArrayList<PageList> pageLists=new ArrayList<>();

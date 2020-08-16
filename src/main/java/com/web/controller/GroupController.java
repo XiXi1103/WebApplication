@@ -1,11 +1,12 @@
 package com.web.controller;
 
 import com.web.entity.*;
+import com.web.entity.ReturnResult.MemberList;
+import com.web.entity.ReturnResult.Result;
 import com.web.repository.GroupMemberRepository;
 import com.web.repository.GroupRepository;
 import com.web.repository.NoticeRepository;
 import com.web.repository.UserRepository;
-import org.aspectj.weaver.ast.Not;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.stereotype.Controller;
@@ -30,8 +31,8 @@ public class GroupController {
     NoticeRepository noticeRepository;
     @GetMapping(value = {"/createGroup"})
     @ResponseBody
-    public Result create(@RequestParam("userId") int userId,@RequestParam("groupName") String groupName,
-                             Model model, HttpSession session){
+    public Result create(@RequestParam("userId") int userId, @RequestParam("groupName") String groupName,
+                         Model model, HttpSession session){
         int creatorId = -1;
         creatorId = userId;
         Result result = new Result();
@@ -106,7 +107,7 @@ public class GroupController {
     @GetMapping(value = {"/catMember"})
     @ResponseBody
     public ArrayList<MemberList> catMember(@RequestParam("groupID") int groupId,
-                               Model model, HttpSession session){
+                                           Model model, HttpSession session){
         ArrayList<MemberList> memberLists=new ManagedList<>();
         MemberList memberList=new MemberList();
         List<GroupMember> groupMembers=  groupMemberRepository.findGroupMemberByGroupId(groupId);

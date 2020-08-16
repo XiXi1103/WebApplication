@@ -1,4 +1,4 @@
-package com.web.entity;
+package com.web.entity.ReturnResult;
 
 public class DocResult {
     public String msg;

@@ -1,16 +1,14 @@
 package com.web.controller;
 
 import com.web.entity.*;
-import com.web.entity.Collection;
+import com.web.entity.ReturnResult.Result;
+import com.web.entity.vue.Documentation_vue;
 import com.web.repository.*;
-import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.io.*;
 import java.util.*;
@@ -255,8 +253,8 @@ public class DocumentationController {
     @GetMapping(value = {"/editDoc"})
     @ResponseBody
     public DocResult update(@RequestParam int userID,
-                                @RequestParam int docID,
-                                Model model, HttpSession session) {
+                            @RequestParam int docID,
+                            Model model, HttpSession session) {
         DocResult docResult = new DocResult();
         Documentation documentation = documentationRepository.findDocumentationById(docID);
         if(documentation == null){
@@ -376,7 +374,7 @@ public class DocumentationController {
     @ResponseBody
     public DocResult showDoc(@RequestParam int userID,
                              @RequestParam int docID,
-                              Model model, HttpSession session) {
+                             Model model, HttpSession session) {
         DocResult docResult = new DocResult();
         Documentation documentation = documentationRepository.findDocumentationById(docID);
         if(documentation == null){
