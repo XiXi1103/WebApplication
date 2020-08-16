@@ -37,7 +37,6 @@ public class CollaboratorController {
     public Result addWriter(@RequestParam("userID1") int userId1,
                             @RequestParam("username") String userName,
                             @RequestParam("docID") int docId,
-                            @RequestParam("permission") int permission,
                             Model model, HttpSession session){
         Result result = new  Result();
         result.success=false;
