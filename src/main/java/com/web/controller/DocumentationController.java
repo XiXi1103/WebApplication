@@ -63,14 +63,22 @@ public class DocumentationController {
             documentation.creatorId = documentation_vue.authorID;
             documentation.otherPermission=documentation_vue.otherPermission;
             documentation.groupId = documentation_vue.groupId;
+            documentation.lastTime=documentation.createTime;
+            documentation.isEdit=false;
+            documentation.editorId=0;
+
             documentationRepository.save(documentation);
 
         }
         else {
+            if(documentation.lastTime.compareTo(new Date())<0)
             documentation = documentationRepository.findDocumentationById(documentation_vue.docID);
             documentation.title = documentation_vue.title;
             documentation.otherPermission=documentation_vue.otherPermission;
-
+            documentation.lastTime=new Date();
+            documentation.isEdit=false;
+            documentation.editorId=0;
+            documentation.editorNum++;
             //团队文档被修改发送通知
             if(documentation.groupId != 0){
                 int category = 1;
@@ -78,9 +86,7 @@ public class DocumentationController {
             }
         }
         saveDoc(documentation_vue, result, documentation);
-
         documentationRepository.save(documentation);
-
         if(documentation_vue.docID != 0){
             result.msg = "修改成功";
         }
@@ -91,6 +97,8 @@ public class DocumentationController {
     private void generateNoticeAboutGroupDoc(@RequestBody Documentation_vue documentation_vue, Documentation documentation, int category) {
         List<GroupMember> groupMembers= groupMemberRepository.findGroupMemberByGroupId(documentation.groupId);
         for (GroupMember groupMember : groupMembers) {
+            if(documentation_vue.authorID==groupMember.userId)
+                continue;
             Notice notice = new NoticeController().addNoticeAboutGroupDoc(groupMember.userId, documentation_vue.authorID,
                     category, documentation.groupId, documentation.id,
                     userRepository, documentationRepository, groupRepository);
@@ -216,12 +224,19 @@ public class DocumentationController {
             docResult.msg = "文档不存在";
             return docResult;
         }
+        if(documentation.isEdit){
+            docResult.success = false;
+            docResult.msg = "文档正在被"+userRepository.findUserById(documentation.editorId).username+"编辑";
+            return docResult;
+        }
         if (documentation.groupId != 0) {
             GroupMember groupMember = groupMemberRepository.findGroupMemberByUserIdAndGroupId(userID, documentation.groupId);
             if (groupMember.permission >= 4) {
                 getDocResult(docResult, documentation);
                 docResult.success = true;
                 docResult.msg = "返回成功";
+                documentation.isEdit=true;
+                documentation.editorId=userID;
             } else {
                 docResult.success = false;
                 docResult.msg = "权限不足，无法修改";
@@ -232,6 +247,8 @@ public class DocumentationController {
                 docResult = getDocResult(docResult, documentation);
                 docResult.success = true;
                 docResult.msg = "返回成功";
+                documentation.isEdit=true;
+                documentation.editorId=userID;
                 int category=5;
                 Notice notice;
                 ArrayList<Collaborator> collaborators=collaboratorRepository.findCollaboratorByDocumentationId(docID);
@@ -248,6 +265,8 @@ public class DocumentationController {
                 docResult = getDocResult(docResult, documentation);
                 docResult.success = true;
                 docResult.msg = "返回成功";
+                documentation.isEdit=true;
+                documentation.editorId=userID;
                 int category=5;
                 Notice notice;
                 ArrayList<Collaborator> collaborators=collaboratorRepository.findCollaboratorByDocumentationId(docID);

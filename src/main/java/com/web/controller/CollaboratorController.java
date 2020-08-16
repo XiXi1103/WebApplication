@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class CollaboratorController {
     @Autowired
@@ -122,5 +123,33 @@ public class CollaboratorController {
             writerLists.add(writerList);
         }
         return writerLists;
+    }
+    @GetMapping(value = {"/confirmDocInvitation"})
+    @ResponseBody
+    public Result confirmDocInvitation(@RequestParam("userID") int userId,
+                                       @RequestParam("docID") int docId,
+                                       @RequestParam("userResponse") boolean userResponse,
+                                       @RequestParam("noticeID") int noticeId,
+                                         Model model, HttpSession session){
+        Result result = new Result();
+        Documentation documentation=documentationRepository.findDocumentationById(docId);
+        User user = userRepository.findUserById(userId);
+        Notice notice = noticeRepository.findNoticeById(noticeId);
+
+        if(userResponse == false){
+            notice.status = true;
+            noticeRepository.save(notice);
+            result.success = true;
+        }
+        else{
+            notice.status = true;
+            noticeRepository.save(notice);
+            Collaborator collaborator=new Collaborator();
+            collaborator.permission=4;
+            collaborator.userId=userId;
+            collaborator.documentationId=docId;
+            collaboratorRepository.save(collaborator);
+        }
+        return result;
     }
 }

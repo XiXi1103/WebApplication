@@ -63,7 +63,6 @@ public class GroupController {
         result.ID = group.id ;
         return result;
     }
-
     @GetMapping(value = {"/delGroup"})
     @ResponseBody
     public Result deleteOrExit(@RequestParam("userId") int userId,@RequestParam("groupId") int groupId,
@@ -78,7 +77,6 @@ public class GroupController {
             result.msg="Unknown error happen!";
             return result;
         }
-
         if(groupRepository.findGroupById(groupId).creatorId==userId){
             Result result=new Result();
             result.success = true;
@@ -119,7 +117,6 @@ public class GroupController {
         }
         return memberLists;
     }
-
     //少了加入时的权限
     @GetMapping(value = {"/confirmGroupInvitation"})
     @ResponseBody

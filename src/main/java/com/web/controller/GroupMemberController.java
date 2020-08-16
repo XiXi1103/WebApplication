@@ -68,8 +68,6 @@ public class GroupMemberController {
             notice = new NoticeController().addNoticeAboutGroup(user.id,actor.id,category,groupID,
                     userRepository,groupRepository);
             noticeRepository.save(notice);
-
-
             result.success = true;
             result.ID = group.id ;
             result.msg = "邀请成功!";

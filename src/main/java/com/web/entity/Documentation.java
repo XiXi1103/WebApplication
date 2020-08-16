@@ -25,6 +25,14 @@ public class Documentation {
     public boolean isTrash; //true表示在回收站里
     @Column(name = "last_time")
     public Date lastTime;
+    @Column(name = "isEdit")
+    public boolean isEdit; //是否在修改
+    @Column(name = "editorId")
+    public int editorId; //修改者id
+    @Column(name = "editorNum")
+    public int editorNum; //修改次数
+    @Column(name = "isTemplate")
+    public boolean isTemplate; //是否是模板
 //    @Column(name = "abstract")
 //    public String abstract;
 }
