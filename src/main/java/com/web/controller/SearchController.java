@@ -56,9 +56,9 @@ public class SearchController {
         return docSearchList;
     }
 
-    @GetMapping(value = {"/searchGrp"})
+    @GetMapping(value = {"/searchGroup"})
     @ResponseBody
-    public List<GrpSearch> searchGrp(@RequestParam int userId, @RequestParam String keyword) {
+    public List<GrpSearch> searchGroup(@RequestParam int userId, @RequestParam String keyword) {
         List<GroupMember> grpMemberList = groupMemberRepository.findGroupMemberByUserId(userId);
         List<GrpSearch> grpSearchList = new ArrayList<>();
 
@@ -73,6 +73,7 @@ public class SearchController {
         return grpSearchList;
     }
 
+    /*
     @GetMapping(value = {"/searchDocThroughUsr"})
     @ResponseBody
     public List<DocSearch> searchDocThroughUsr(@RequestParam String username) {
@@ -92,11 +93,12 @@ public class SearchController {
 
         return docSearchList;
     }
+    */
 
-    @GetMapping(value = {"/searchTrashThroughUsr"})
+    @GetMapping(value = {"/getDelDoc"})
     @ResponseBody
-    public List<DocSearch> searchTrashThroughUsr(@RequestParam String username) {
-        User user = userRepository.findUserByUsername(username);
+    public List<DocSearch> getDelDoc(@RequestParam int userId) {
+        User user = userRepository.findUserById(userId);
         List<DocSearch> docSearchList = new ArrayList<>();
 
         List<Documentation> docList = documentationRepository.findByCreatorId(user.id);

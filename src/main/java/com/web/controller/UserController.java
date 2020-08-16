@@ -16,13 +16,13 @@ public class UserController {
     UserRepository userRepository;
     @GetMapping(value = {"/changePerInfo"})
     @ResponseBody
-    public PersonalInfoResult changeInfo(@RequestParam String username,
+    public PersonalInfoResult changeInfo(@RequestParam int userId,
                                          @RequestParam String password,
                                          @RequestParam String email,
                                          @RequestParam String phoneNum,
                                          Model model, HttpSession session){
         PersonalInfoResult result = new PersonalInfoResult();
-        User user = userRepository.findByUsername(username).get(0);
+        User user = userRepository.findUserById(userId);
         user.password = password;
         user.email = email;
         user.phoneNumber = phoneNum;
