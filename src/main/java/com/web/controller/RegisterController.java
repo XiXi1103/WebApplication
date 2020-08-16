@@ -1,18 +1,13 @@
 package com.web.controller;
 
-import com.web.entity.Group;
-import com.web.entity.RegisterResult;
+import com.web.entity.ReturnResult.RegisterResult;
 import com.web.entity.User;
-import com.web.entity.User_vue;
-import com.web.repository.GroupRepository;
+import com.web.entity.vue.User_vue;
 import com.web.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.Date;
 import java.util.Map;
 

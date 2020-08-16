@@ -1,4 +1,4 @@
-package com.web.entity;
+package com.web.entity.vue;
 
 public class Collaborator_vue {
     public int userId1;

@@ -1,8 +1,11 @@
 package com.web.controller;
 
 import com.web.entity.*;
+import com.web.entity.ReturnResult.GroupList;
+import com.web.entity.ReturnResult.Result;
+import com.web.entity.vue.Group_vue;
+import com.web.entity.vue.User_vue;
 import com.web.repository.*;
-import org.apache.maven.plugins.annotations.Parameter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -10,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.List;
 
 @CrossOrigin
 @Controller
@@ -68,8 +71,6 @@ public class GroupMemberController {
             notice = new NoticeController().addNoticeAboutGroup(user.id,actor.id,category,groupID,
                     userRepository,groupRepository);
             noticeRepository.save(notice);
-
-
             result.success = true;
             result.ID = group.id ;
             result.msg = "邀请成功!";
@@ -85,8 +86,6 @@ public class GroupMemberController {
                          @RequestParam int userId2,
                          @RequestParam int groupId,
                          Model model, HttpSession session){
-        User user1 = userRepository.findUserById(userId1);
-        User user2 = userRepository.findUserById(userId2);
         Group group = groupRepository.findGroupById(groupId);
         GroupMember groupMember1 = groupMemberRepository.findGroupMemberByUserIdAndGroupId(userId1,groupId);
         GroupMember groupMember2 = groupMemberRepository.findGroupMemberByUserIdAndGroupId(userId2,groupId);
@@ -112,6 +111,37 @@ public class GroupMemberController {
         }
     }
 
+    @GetMapping(value = {"/changePermission"})
+    @ResponseBody
+    public Result changePermission(@RequestParam int userID1,
+                                   @RequestParam int permission,
+                                   @RequestParam int groupID,
+                                   @RequestParam int userID2,
+                         Model model, HttpSession session){
+        Group group = groupRepository.findGroupById(groupID);
+        GroupMember groupMember1 = groupMemberRepository.findGroupMemberByUserIdAndGroupId(userID1,groupID);
+        GroupMember groupMember2 = groupMemberRepository.findGroupMemberByUserIdAndGroupId(userID2,groupID);
+        if(groupMember1.permission==5){
+            groupMember2.permission=permission;
+            Result result = new Result();
+            result.success = true;
+            result.ID = group.id ;
+            result.msg = "修改权限成功!";
+            int category = 2;
+            Notice notice;
+            notice = new NoticeController().addNoticeAboutGroup(userID2,userID1,category,group.id,
+                    userRepository,groupRepository);
+            noticeRepository.save(notice);
+            return result;
+        }
+        else{
+            Result result = new Result();
+            result.success = false;
+            result.ID = group.id ;
+            result.msg = "权限不足!";
+            return result;
+        }
+    }
     @PostMapping(value = {"/group/modify"})
     @ResponseBody
     public Result modifyPermission(@RequestBody Group_vue group_vue,
@@ -138,23 +168,22 @@ public class GroupMemberController {
         return result;
     }
 //    0 都没有，1 查看，2 评论，3 分享，4 修改,5 创建者
-@GetMapping(value = {"/getGroup"})
+@GetMapping(value = {"/getJoinGroup"})
 @ResponseBody
-public ArrayList<GroupList> getGroup(@RequestParam("userID") int userId,
-                                      Model model, HttpSession session){
-    ArrayList<GroupList> groupLists=new ArrayList<>();
-    GroupList groupList=new GroupList();
-    ArrayList<GroupMember> groupMembers= (ArrayList<GroupMember>) groupMemberRepository.findGroupMemberByUserId(userId);
-    int l=groupMembers.size();
-    for(int i=0;i<l;i++){
-        groupList.id=groupMembers.get(i).groupId;
-        groupList.name=groupRepository.findGroupById(groupMembers.get(i).groupId).groupName;
-        if(groupRepository.findGroupById(groupMembers.get(i).groupId).creatorId==userId)
-            groupList.isCreator=true;
-        else
-            groupList.isCreator=false;
-        groupLists.add(groupList);
+public List<GroupList> getGroup(@RequestParam("userID") int userId,
+                                     Model model, HttpSession session){
+        System.out.println(userId);
+    List<GroupList> groupLists=new ArrayList<>();
+    List<GroupMember> groupMembers= groupMemberRepository.findGroupMemberByUserId(userId);
+    int l = groupMembers.size();
+    for(int i = 0 ; i < l; i++){
+        GroupList groupList=new GroupList();
+        groupList.id = groupMembers.get(i).groupId;
+        groupList.name = groupRepository.findGroupById(groupMembers.get(i).groupId).groupName;
+        groupList.isCreator = groupRepository.findGroupById(groupMembers.get(i).groupId).creatorId == userId;
+        groupLists.add(i,groupList);
     }
     return groupLists;
 }
+
 }

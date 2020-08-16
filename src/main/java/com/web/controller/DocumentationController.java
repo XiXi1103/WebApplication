@@ -1,10 +1,13 @@
 package com.web.controller;
 
 import com.web.entity.*;
-import com.web.entity.Collection;
+import com.web.entity.ReturnResult.DocResult;
+import com.web.entity.ReturnResult.MemberList;
+import com.web.entity.ReturnResult.Result;
+import com.web.entity.vue.Documentation_vue;
 import com.web.repository.*;
-import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -30,6 +33,8 @@ public class DocumentationController {
     NoticeRepository noticeRepository;
     @Autowired
     ReplyRepository replyRepository;
+    @Autowired
+    DocumentModificationRecordRepository documentModificationRecordRepository;
     @PostMapping(value = {"/newDoc"})
     @ResponseBody
     public Result newDoc(@RequestBody Documentation_vue documentation_vue,
@@ -60,9 +65,13 @@ public class DocumentationController {
             documentation = new Documentation();
             documentation.title = documentation_vue.title;
             documentation.createTime = new Date();
+            documentation.summary = documentation_vue.summary;
             documentation.creatorId = documentation_vue.authorID;
-            documentation.otherPermission=documentation_vue.otherPermission;
+            documentation.otherPermission=documentation_vue.permission;
             documentation.groupId = documentation_vue.groupId;
+            documentation.lastTime=documentation.createTime;
+            documentation.isEdit=false;
+            documentation.editorId=0;
             documentationRepository.save(documentation);
 
         }
@@ -70,7 +79,14 @@ public class DocumentationController {
             documentation = documentationRepository.findDocumentationById(documentation_vue.docID);
             documentation.title = documentation_vue.title;
             documentation.otherPermission=documentation_vue.otherPermission;
-
+            documentation.lastTime=new Date();
+            documentation.isEdit=false;
+            documentation.editorNum++;
+            DocumentModificationRecord documentModificationRecord =new DocumentModificationRecord();
+            documentModificationRecord.docId=documentation_vue.docID;
+            documentModificationRecord.userId=documentation.editorId;
+            documentModificationRecord.time=documentation.lastTime;
+            documentation.editorId=0;
             //团队文档被修改发送通知
             if(documentation.groupId != 0){
                 int category = 1;
@@ -78,9 +94,7 @@ public class DocumentationController {
             }
         }
         saveDoc(documentation_vue, result, documentation);
-
         documentationRepository.save(documentation);
-
         if(documentation_vue.docID != 0){
             result.msg = "修改成功";
         }
@@ -91,6 +105,8 @@ public class DocumentationController {
     private void generateNoticeAboutGroupDoc(@RequestBody Documentation_vue documentation_vue, Documentation documentation, int category) {
         List<GroupMember> groupMembers= groupMemberRepository.findGroupMemberByGroupId(documentation.groupId);
         for (GroupMember groupMember : groupMembers) {
+            if(documentation_vue.authorID==groupMember.userId)
+                continue;
             Notice notice = new NoticeController().addNoticeAboutGroupDoc(groupMember.userId, documentation_vue.authorID,
                     category, documentation.groupId, documentation.id,
                     userRepository, documentationRepository, groupRepository);
@@ -148,6 +164,41 @@ public class DocumentationController {
         }
     }
 
+//    @RequestMapping(value="/imgAdd")
+//    public @ResponseBody Map<String,Object> demo(@RequestParam(value = "file", required = false) MultipartFile file, HttpServletRequest request) {
+//        Result result = new Result();
+//        //保存
+//        try {
+//            File imageFolder= new File("/home/yzx/web/uploadImg");
+//            File targetFile = new File(imageFolder,limitLength(file.getOriginalFilename(),10));
+//            if(!targetFile.getParentFile().exists()){
+//                targetFile.getParentFile().mkdirs();
+//
+//            }
+//            System.out.println(targetFile.getAbsolutePath());
+//            FileUtils.copyInputStreamToFile(file.getInputStream(), targetFile);
+////            BufferedImage img = ImageUtil.change2jpg(targetFile);
+////            ImageIO.write(img, "jpg", targetFile);
+//            /*            file.transferTo(targetFile);*/
+////            byte[] bytes = file.getBytes();
+////            Path path = Paths.get(realPath + file.getOriginalFilename());
+////            Files.write(path, bytes);
+//            resultMap.put("success", 1);
+//            resultMap.put("message", "上传成功！");
+//            resultMap.put("url","/UploadImages/"+file.getOriginalFilename());
+//        } catch (Exception e) {
+//            resultMap.put("success", 0);
+//            resultMap.put("message", "上传失败！");
+//            e.printStackTrace();
+//        }
+//
+//    }
+
+    public static String limitLength(String name,int length){
+        return name.substring(0,Math.min(name.length(),length));
+    }
+
+
     @PostMapping(value = {"/delDocCompletely"})
     @ResponseBody
     public Result delDocCompletely(@RequestBody Documentation_vue documentation_vue,
@@ -168,7 +219,23 @@ public class DocumentationController {
         }
         return result;
     }
-    
+    @GetMapping(value = {"/modifyRecord"})
+    @ResponseBody
+    public ArrayList<MemberList> modifyRecord(@RequestParam("docId") int docId,
+                                           Model model, HttpSession session){
+        ArrayList<MemberList> memberLists=new ArrayList<>();
+
+        List<DocumentModificationRecord> documentModificationRecords=
+                documentModificationRecordRepository.findDocumentModificationRecordsByDocId(docId);
+        for (DocumentModificationRecord documentModificationRecord : documentModificationRecords) {
+            MemberList memberList=new MemberList();
+            memberList.id = documentModificationRecord.userId;
+            memberList.name = userRepository.findUserById(documentModificationRecord.userId).username;
+            memberList.time=documentModificationRecord.time.toString();
+            memberLists.add(memberList);
+        }
+        return memberLists;
+    }
     @PostMapping(value = {"/delDoc"})
     @ResponseBody
     public Result delDoc(@RequestBody Documentation_vue documentation_vue,
@@ -207,13 +274,18 @@ public class DocumentationController {
     @GetMapping(value = {"/editDoc"})
     @ResponseBody
     public DocResult update(@RequestParam int userID,
-                                @RequestParam int docID,
-                                Model model, HttpSession session) {
+                            @RequestParam int docID,
+                            Model model, HttpSession session) {
         DocResult docResult = new DocResult();
         Documentation documentation = documentationRepository.findDocumentationById(docID);
         if(documentation == null){
             docResult.success = false;
             docResult.msg = "文档不存在";
+            return docResult;
+        }
+        if(documentation.isEdit){
+            docResult.success = false;
+            docResult.msg = "文档正在被"+userRepository.findUserById(documentation.editorId).username+"编辑";
             return docResult;
         }
         if (documentation.groupId != 0) {
@@ -222,6 +294,8 @@ public class DocumentationController {
                 getDocResult(docResult, documentation);
                 docResult.success = true;
                 docResult.msg = "返回成功";
+                documentation.isEdit=true;
+                documentation.editorId=userID;
             } else {
                 docResult.success = false;
                 docResult.msg = "权限不足，无法修改";
@@ -232,6 +306,8 @@ public class DocumentationController {
                 docResult = getDocResult(docResult, documentation);
                 docResult.success = true;
                 docResult.msg = "返回成功";
+                documentation.isEdit=true;
+                documentation.editorId=userID;
                 int category=5;
                 Notice notice;
                 ArrayList<Collaborator> collaborators=collaboratorRepository.findCollaboratorByDocumentationId(docID);
@@ -248,6 +324,8 @@ public class DocumentationController {
                 docResult = getDocResult(docResult, documentation);
                 docResult.success = true;
                 docResult.msg = "返回成功";
+                documentation.isEdit=true;
+                documentation.editorId=userID;
                 int category=5;
                 Notice notice;
                 ArrayList<Collaborator> collaborators=collaboratorRepository.findCollaboratorByDocumentationId(docID);
@@ -317,7 +395,7 @@ public class DocumentationController {
     @ResponseBody
     public DocResult showDoc(@RequestParam int userID,
                              @RequestParam int docID,
-                              Model model, HttpSession session) {
+                             Model model, HttpSession session) {
         DocResult docResult = new DocResult();
         Documentation documentation = documentationRepository.findDocumentationById(docID);
         if(documentation == null){

@@ -1,6 +1,8 @@
 package com.web.controller;
 
 import com.web.entity.*;
+import com.web.entity.ReturnResult.Result;
+import com.web.entity.vue.Reply_vue;
 import com.web.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -28,7 +30,7 @@ public class ReplyController {
     @PostMapping(value = {"/reply"})
     @ResponseBody
     public Result reply(@RequestBody Reply_vue reply_vue,
-                             Model model, HttpSession session){
+                        Model model, HttpSession session){
         Reply reply = new Reply();
         Result result = new Result();
         if(documentationRepository.findDocumentationById(reply_vue.docId) == null){

@@ -1,9 +1,14 @@
 package com.web.controller;
 
 import com.web.entity.*;
+import com.web.entity.ReturnResult.DocumentationResult;
+import com.web.entity.ReturnResult.PageList;
+import com.web.entity.ReturnResult.RemoveRecentBrowsingResult;
 import com.web.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -11,6 +16,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
 
+@CrossOrigin
+@Controller
 public class RecentUseController {
     @Autowired
     GroupRepository groupRepository;
@@ -26,61 +33,51 @@ public class RecentUseController {
     @ResponseBody
     public ArrayList<PageList> getRecentDoc(@RequestParam("userID") int userId, Model model, HttpSession session){
         ArrayList<PageList> pageLists=new ArrayList<>();
-        PageList pageList=new PageList();
+        PageList pageList1=new PageList();
+        PageList pageList2=new PageList();
+        PageList pageList3=new PageList();
+        PageList pageList4=new PageList();
+        PageList pageList5=new PageList();
         User user=userRepository.findUserById(userId);
         int l=user.recently_usednum;
 
         if(l>0){
-            pageList.id=user.recently_used5;
-            pageList.title=documentationRepository.findDocumentationById(user.recently_used5).title;
-            if(documentationRepository.findDocumentationById(user.recently_used5).creatorId==userId)
-                pageList.isCreator=true;
-            else
-                pageList.isCreator=false;
-            pageLists.add(pageList);
+            pageList5.id=user.recently_used5;
+            pageList5.title=documentationRepository.findDocumentationById(user.recently_used5).title;
+            pageList5.isCreator= documentationRepository.findDocumentationById(user.recently_used5).creatorId == userId;
+            pageLists.add(pageList5);
         }
 
         if(l>1){
-            pageList.id=user.recently_used4;
-            pageList.title=documentationRepository.findDocumentationById(user.recently_used4).title;
-            if(documentationRepository.findDocumentationById(user.recently_used4).creatorId==userId)
-                pageList.isCreator=true;
-            else
-                pageList.isCreator=false;
-            pageLists.add(pageList);
+            pageList4.id=user.recently_used4;
+            pageList4.title=documentationRepository.findDocumentationById(user.recently_used4).title;
+            pageList4.isCreator= documentationRepository.findDocumentationById(user.recently_used4).creatorId == userId;
+            pageLists.add(pageList4);
         }
         if(l>2){
-            pageList.id=user.recently_used3;
-            pageList.title=documentationRepository.findDocumentationById(user.recently_used3).title;
-            if(documentationRepository.findDocumentationById(user.recently_used3).creatorId==userId)
-                pageList.isCreator=true;
-            else
-                pageList.isCreator=false;
-            pageLists.add(pageList);
+            pageList3.id=user.recently_used3;
+            pageList3.title=documentationRepository.findDocumentationById(user.recently_used3).title;
+            pageList3.isCreator= documentationRepository.findDocumentationById(user.recently_used3).creatorId == userId;
+            pageLists.add(pageList3);
         }
         if(l>3){
-            pageList.id=user.recently_used2;
-            pageList.title=documentationRepository.findDocumentationById(user.recently_used2).title;
-            if(documentationRepository.findDocumentationById(user.recently_used2).creatorId==userId)
-                pageList.isCreator=true;
-            else
-                pageList.isCreator=false;
-            pageLists.add(pageList);
+            pageList2.id=user.recently_used2;
+            pageList2.title=documentationRepository.findDocumentationById(user.recently_used2).title;
+            pageList2.isCreator= documentationRepository.findDocumentationById(user.recently_used2).creatorId == userId;
+            pageLists.add(pageList2);
         }
         if(l>4){
-            pageList.id=user.recently_used1;
-            pageList.title=documentationRepository.findDocumentationById(user.recently_used1).title;
-            if(documentationRepository.findDocumentationById(user.recently_used1).creatorId==userId)
-                pageList.isCreator=true;
-            else
-                pageList.isCreator=false;
-            pageLists.add(pageList);
+
+            pageList1.id=user.recently_used1;
+            pageList1.title=documentationRepository.findDocumentationById(user.recently_used1).title;
+            pageList1.isCreator= documentationRepository.findDocumentationById(user.recently_used1).creatorId == userId;
+            pageLists.add(pageList1);
         }
         return pageLists;
     }
     @GetMapping(value = {"/removeRecentBrowsing"})
     @ResponseBody
-    public RemoveRecentBrowsingResult removeRecentBrowsing(@RequestParam("userID") int userId, @RequestParam("docID") int docId,Model model, HttpSession session){
+    public RemoveRecentBrowsingResult removeRecentBrowsing(@RequestParam("userID") int userId, @RequestParam("docID") int docId, Model model, HttpSession session){
         User user=userRepository.findUserById(userId);
         int l=user.recently_usednum;
         DocumentationResult documentationResult=new DocumentationResult();

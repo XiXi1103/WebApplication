@@ -1,8 +1,8 @@
 package com.web.controller;
 
-import com.web.entity.LoginResult;
+import com.web.entity.ReturnResult.LoginResult;
 import com.web.entity.User;
-import com.web.entity.User_vue;
+import com.web.entity.vue.User_vue;
 import com.web.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;

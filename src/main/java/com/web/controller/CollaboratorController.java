@@ -1,14 +1,20 @@
 package com.web.controller;
 
 import com.web.entity.*;
+import com.web.entity.ReturnResult.Result;
+import com.web.entity.ReturnResult.WriterList;
+import com.web.entity.vue.Collaborator_vue;
 import com.web.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
 
+@CrossOrigin
+@Controller
 public class CollaboratorController {
     @Autowired
     CollaboratorRepository collaboratorRepository;
@@ -29,10 +35,9 @@ public class CollaboratorController {
     @GetMapping(value = {"/addWriter"})
     @ResponseBody
     public Result addWriter(@RequestParam("userID1") int userId1,
-                                        @RequestParam("username") String userName,
-                                        @RequestParam("docID") int docId,
-                                        @RequestParam("permission") int permission,
-                                       Model model, HttpSession session){
+                            @RequestParam("username") String userName,
+                            @RequestParam("docID") int docId,
+                            Model model, HttpSession session){
         Result result = new  Result();
         result.success=false;
         result.msg="权限不足";
@@ -115,12 +120,41 @@ public class CollaboratorController {
                 findCollaboratorByDocumentationId(docId);
         int l=collaborators.size();
         ArrayList<WriterList> writerLists=new ArrayList<>();
-        WriterList writerList=new WriterList();
+
         for(int i=0;i<l;i++){
+            WriterList writerList=new WriterList();
             writerList.id=collaborators.get(i).userId;
             writerList.name=userRepository.findUserById(writerList.id).username;
             writerLists.add(writerList);
         }
         return writerLists;
+    }
+    @GetMapping(value = {"/confirmDocInvitation"})
+    @ResponseBody
+    public Result confirmDocInvitation(@RequestParam("userID") int userId,
+                                       @RequestParam("docID") int docId,
+                                       @RequestParam("userResponse") boolean userResponse,
+                                       @RequestParam("noticeID") int noticeId,
+                                         Model model, HttpSession session){
+        Result result = new Result();
+        Documentation documentation=documentationRepository.findDocumentationById(docId);
+        User user = userRepository.findUserById(userId);
+        Notice notice = noticeRepository.findNoticeById(noticeId);
+
+        if(userResponse == false){
+            notice.status = true;
+            noticeRepository.save(notice);
+            result.success = true;
+        }
+        else{
+            notice.status = true;
+            noticeRepository.save(notice);
+            Collaborator collaborator=new Collaborator();
+            collaborator.permission=4;
+            collaborator.userId=userId;
+            collaborator.documentationId=docId;
+            collaboratorRepository.save(collaborator);
+        }
+        return result;
     }
 }

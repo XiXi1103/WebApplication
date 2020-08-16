@@ -1,8 +1,8 @@
-package com.web.entity;
+package com.web.entity.vue;
 
 public class Group_vue {
     public String groupName;
-    public int creatorId;
+    public int userID;
     public String groupContent;
     public int groupId;
 }

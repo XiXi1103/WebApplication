@@ -1,11 +1,12 @@
 package com.web.controller;
 
 import com.web.entity.*;
+import com.web.entity.ReturnResult.MemberList;
+import com.web.entity.ReturnResult.Result;
 import com.web.repository.GroupMemberRepository;
 import com.web.repository.GroupRepository;
 import com.web.repository.NoticeRepository;
 import com.web.repository.UserRepository;
-import org.aspectj.weaver.ast.Not;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.stereotype.Controller;
@@ -30,10 +31,11 @@ public class GroupController {
     NoticeRepository noticeRepository;
     @GetMapping(value = {"/createGroup"})
     @ResponseBody
-    public Result create(@RequestParam("userId") int userId,@RequestParam("groupName") String groupName,
-                             Model model, HttpSession session){
+    public Result create(@RequestParam int userID, @RequestParam String groupName,
+                         Model model, HttpSession session){
+//        System.out.println("2");
         int creatorId = -1;
-        creatorId = userId;
+        creatorId = userID;
         Result result = new Result();
         if(groupName == null){
             result.success = false;
@@ -63,7 +65,6 @@ public class GroupController {
         result.ID = group.id ;
         return result;
     }
-
     @GetMapping(value = {"/delGroup"})
     @ResponseBody
     public Result deleteOrExit(@RequestParam("userId") int userId,@RequestParam("groupId") int groupId,
@@ -78,7 +79,6 @@ public class GroupController {
             result.msg="Unknown error happen!";
             return result;
         }
-
         if(groupRepository.findGroupById(groupId).creatorId==userId){
             Result result=new Result();
             result.success = true;
@@ -108,18 +108,20 @@ public class GroupController {
     @GetMapping(value = {"/catMember"})
     @ResponseBody
     public ArrayList<MemberList> catMember(@RequestParam("groupID") int groupId,
-                               Model model, HttpSession session){
-        ArrayList<MemberList> memberLists=new ManagedList<>();
-        MemberList memberList=new MemberList();
+                                           Model model, HttpSession session){
+        ArrayList<MemberList> memberLists=new ArrayList();
+
         List<GroupMember> groupMembers=  groupMemberRepository.findGroupMemberByGroupId(groupId);
         int l=groupMembers.size();
         for (GroupMember groupMember : groupMembers) {
+            MemberList memberList=new MemberList();
             memberList.id = groupMember.userId;
             memberList.name = userRepository.findUserById(groupMember.userId).username;
+            memberList.permission=groupMemberRepository.findGroupMemberByUserIdAndGroupId(memberList.id,groupId).permission;
+            memberLists.add(memberList);
         }
         return memberLists;
     }
-
     //少了加入时的权限
     @GetMapping(value = {"/confirmGroupInvitation"})
     @ResponseBody

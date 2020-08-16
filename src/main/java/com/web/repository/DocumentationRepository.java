@@ -9,9 +9,9 @@ import java.util.List;
 
 public interface DocumentationRepository extends JpaRepository<Documentation,Integer> {
     Documentation findDocumentationById(Integer id);
-    List<Documentation> findByTitle(String title);
-    @Query(value="select * from documentation where isTrash == false ", nativeQuery=true)
-    List<Documentation> findByCreatorId(Integer id);
+    List<Documentation> findDocumentationByTitle(String title);
+//    @Query(value="select * from documentation where isTrash == false ", nativeQuery=true)
+    List<Documentation> findDocumentationByCreatorId(Integer id);
 
-    List<Documentation> findByGroupId(Integer id);
+    List<Documentation> findDocumentationByGroupId(Integer id);
 }

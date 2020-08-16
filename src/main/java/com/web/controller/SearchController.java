@@ -30,20 +30,20 @@ public class SearchController {
 
     @GetMapping(value = {"/searchUser"})
     @ResponseBody
-    public List<UsrSearch> searchUser(@RequestParam String username) {
+    public List<UserSearch> searchUser(@RequestParam String username) {
         User user = userRepository.findUserByUsername(username);
-        List<UsrSearch> usrSearchList = new ArrayList<>();
+        List<UserSearch> userSearchList = new ArrayList<>();
 
-        UsrSearch usrSearch = new UsrSearch(user.id, user.username);
-        usrSearchList.add(usrSearch);
+        UserSearch userSearch = new UserSearch(user.id, user.username);
+        userSearchList.add(userSearch);
 
-        return usrSearchList;
+        return userSearchList;
     }
 
     @GetMapping(value = {"/searchDoc"})
     @ResponseBody
     public List<DocSearch> searchDoc(@RequestParam int userId, @RequestParam String keyword) {
-        List<Documentation> docList = documentationRepository.findByCreatorId(userId);
+        List<Documentation> docList = documentationRepository.findDocumentationByCreatorId(userId);
         List<DocSearch> docSearchList = new ArrayList<>();
 
         for (Documentation doc : docList) {
@@ -80,7 +80,7 @@ public class SearchController {
         User user = userRepository.findUserByUsername(username);
         List<DocSearch> docSearchList = new ArrayList<>();
 
-        List<Documentation> docList = documentationRepository.findByCreatorId(user.id);
+        List<Documentation> docList = documentationRepository.findDocumentationByCreatorId(user.id);
 
         if (!docList.isEmpty()) {
             for (Documentation doc : docList) {
@@ -101,7 +101,7 @@ public class SearchController {
         User user = userRepository.findUserById(userId);
         List<DocSearch> docSearchList = new ArrayList<>();
 
-        List<Documentation> docList = documentationRepository.findByCreatorId(user.id);
+        List<Documentation> docList = documentationRepository.findDocumentationByCreatorId(user.id);
 
         if (!docList.isEmpty()) {
             for (Documentation doc : docList) {
