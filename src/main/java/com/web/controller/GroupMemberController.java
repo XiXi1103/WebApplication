@@ -145,31 +145,6 @@ public class GroupMemberController {
             return result;
         }
     }
-    @PostMapping(value = {"/group/modify"})
-    @ResponseBody
-    public Result modifyPermission(@RequestBody Group_vue group_vue,
-                               @RequestBody User_vue user_vue,
-                             @RequestParam int permission,
-                             Model model, HttpSession session){
-        User user = userRepository.findUserByUsername(user_vue.username);
-        Group group = groupRepository.findGroupById(group_vue.groupId);
-        GroupMember groupMember = groupMemberRepository.findGroupMemberByUserIdAndGroupId(user.id,group.id);
-
-        Result result = new Result();
-        if(permission < 0 || permission > 5){
-            result.success = false;
-//            result.ID = group.id ;
-            result.msg = "未知错误!";
-            return result;
-        }
-        groupMember.permission = permission;
-        groupMemberRepository.save(groupMember);
-
-        result.success = true;
-//        result.ID = group.id ;
-        result.msg = "修改权限成功!";
-        return result;
-    }
 //    0 都没有，1 查看，2 评论，3 分享，4 修改,5 创建者
 @GetMapping(value = {"/getJoinGroup"})
 @ResponseBody
