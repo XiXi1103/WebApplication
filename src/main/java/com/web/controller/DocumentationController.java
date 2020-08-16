@@ -224,10 +224,11 @@ public class DocumentationController {
     public ArrayList<MemberList> modifyRecord(@RequestParam("docId") int docId,
                                            Model model, HttpSession session){
         ArrayList<MemberList> memberLists=new ArrayList<>();
-        MemberList memberList=new MemberList();
+
         List<DocumentModificationRecord> documentModificationRecords=
                 documentModificationRecordRepository.findDocumentModificationRecordsByDocId(docId);
         for (DocumentModificationRecord documentModificationRecord : documentModificationRecords) {
+            MemberList memberList=new MemberList();
             memberList.id = documentModificationRecord.userId;
             memberList.name = userRepository.findUserById(documentModificationRecord.userId).username;
             memberList.time=documentModificationRecord.time.toString();

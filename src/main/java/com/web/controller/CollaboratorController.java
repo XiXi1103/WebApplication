@@ -121,8 +121,9 @@ public class CollaboratorController {
                 findCollaboratorByDocumentationId(docId);
         int l=collaborators.size();
         ArrayList<WriterList> writerLists=new ArrayList<>();
-        WriterList writerList=new WriterList();
+
         for(int i=0;i<l;i++){
+            WriterList writerList=new WriterList();
             writerList.id=collaborators.get(i).userId;
             writerList.name=userRepository.findUserById(writerList.id).username;
             writerLists.add(writerList);

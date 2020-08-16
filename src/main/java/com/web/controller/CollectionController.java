@@ -97,14 +97,16 @@ public class CollectionController {
         int l1=documentations.size();
         int l2=collaborators.size();
         ArrayList<PageList> pageLists=new ArrayList<>();
-        PageList pageList=new PageList();
+
         for (Documentation documentation : documentations) {
+            PageList pageList=new PageList();
             pageList.id = documentation.id;
             pageList.title = documentation.title;
             pageList.isCreator = true;
             pageLists.add(pageList);
         }
         for (Collaborator collaborator : collaborators) {
+            PageList pageList=new PageList();
             pageList.id = collaborator.id;
             pageList.title = documentationRepository.findDocumentationById(collaborator.id).title;
             pageList.isCreator = false;
@@ -120,8 +122,9 @@ public class CollectionController {
         ArrayList<Documentation> documentations= (ArrayList<Documentation>) documentationRepository.findDocumentationByGroupId(groupId);
         int l1=documentations.size();
         ArrayList<PageList> pageLists=new ArrayList<>();
-        PageList pageList=new PageList();
+
         for(int i=0;i<l1;i++){
+            PageList pageList=new PageList();
             pageList.id=documentations.get(i).id;
             pageList.title=documentations.get(i).title;
             if(documentations.get(i).creatorId==userId)

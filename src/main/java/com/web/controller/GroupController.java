@@ -110,10 +110,11 @@ public class GroupController {
     public ArrayList<MemberList> catMember(@RequestParam("groupID") int groupId,
                                            Model model, HttpSession session){
         ArrayList<MemberList> memberLists=new ArrayList();
-        MemberList memberList=new MemberList();
+
         List<GroupMember> groupMembers=  groupMemberRepository.findGroupMemberByGroupId(groupId);
         int l=groupMembers.size();
         for (GroupMember groupMember : groupMembers) {
+            MemberList memberList=new MemberList();
             memberList.id = groupMember.userId;
             memberList.name = userRepository.findUserById(groupMember.userId).username;
             memberList.permission=groupMemberRepository.findGroupMemberByUserIdAndGroupId(memberList.id,groupId).permission;
