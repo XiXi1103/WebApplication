@@ -19,6 +19,8 @@ import javax.servlet.http.HttpSession;
 import java.io.*;
 import java.util.*;
 
+
+//YC:finished
 @CrossOrigin
 @Controller
 public class DocumentationController {
@@ -53,7 +55,7 @@ public class DocumentationController {
             result.msg = "请填写标题";
             return result;
         }
-        if (documentation_vue.content == null) {
+        if (documentation_vue.html == null ) {
             result.success = false;
             result.ID = 0;
             result.msg = "请填写内容";
@@ -211,8 +213,18 @@ public class DocumentationController {
     @ResponseBody
     public Result delDocCompletely(@RequestBody Documentation_vue documentation_vue,
                          Model model, HttpSession session) {
-        Documentation documentation = documentationRepository.findDocumentationById(documentation_vue.docID);
         Result result = new Result();
+        if(!CheckController.checkUserById(documentation_vue.userID)){
+            result.success = false;
+            result.msg = "用户不存在";
+            return result;
+        }
+        if(!CheckController.checkDocById(documentation_vue.docID)){
+            result.success = false;
+            result.msg = "该文档不存在";
+            return result;
+        }
+        Documentation documentation = documentationRepository.findDocumentationById(documentation_vue.docID);
         if(!documentation.isTrash){
             result.success = false;
             result.msg = "该文档未在回收站内，无法彻底删除";
@@ -251,6 +263,16 @@ public class DocumentationController {
                          Model model, HttpSession session) {
         Documentation documentation = documentationRepository.findDocumentationById(documentation_vue.docID);
         Result result = new Result();
+        if(!CheckController.checkUserById(documentation_vue.userID)){
+            result.success = false;
+            result.msg = "用户不存在";
+            return result;
+        }
+        if(!CheckController.checkDocById(documentation_vue.docID)){
+            result.success = false;
+            result.msg = "该文档不存在";
+            return result;
+        }
         if (documentation.creatorId == documentation_vue.userID) {
             documentation.isTrash = true;
             documentationRepository.save(documentation);
@@ -286,7 +308,11 @@ public class DocumentationController {
                             @RequestParam int docID,
                             Model model, HttpSession session) {
         DocResult docResult = new DocResult();
-
+        if(!CheckController.checkUserById(userID)){
+            docResult.success = false;
+            docResult.msg = "当前用户不存在";
+            return docResult;
+        }
         Documentation documentation = documentationRepository.findDocumentationById(docID);
         if(documentation == null){
             docResult.success = false;
@@ -375,8 +401,19 @@ public class DocumentationController {
     @ResponseBody
     public Result recoverDoc(@RequestBody Documentation_vue documentation_vue,
                          Model model, HttpSession session) {
-        Documentation documentation = documentationRepository.findDocumentationById(documentation_vue.docID);
+
         Result result = new Result();
+        if(!CheckController.checkUserById(documentation_vue.userID)){
+            result.success = false;
+            result.msg = "用户不存在";
+            return result;
+        }
+        if(!CheckController.checkDocById(documentation_vue.docID)){
+            result.success = false;
+            result.msg = "该文档不存在";
+            return result;
+        }
+        Documentation documentation = documentationRepository.findDocumentationById(documentation_vue.docID);
         if (documentation.creatorId == documentation_vue.userID) {
             if(!documentation.isTrash){
                 result.success = false;
@@ -422,6 +459,11 @@ public class DocumentationController {
             docResult.success = false;
             docResult.msg = "文档不存在";
             docResult.permission=0;
+            return docResult;
+        }
+        if(!CheckController.checkUserById(userID)){
+            docResult.success = false;
+            docResult.msg = "用户不存在";
             return docResult;
         }
         if (documentation.groupId != 0) {

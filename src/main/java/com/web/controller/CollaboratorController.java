@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
-// 传入参数检查完毕（id是否存在），除两个返回list的未检查
+// 严：传入参数检查完毕（id是否存在），除两个返回list的未检查
 @CrossOrigin
 @Controller
 public class CollaboratorController {

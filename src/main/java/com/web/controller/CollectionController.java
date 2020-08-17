@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+//YC:finished
 @CrossOrigin
 @Controller
 public class CollectionController {
@@ -29,11 +30,23 @@ public class CollectionController {
     GroupMemberRepository groupMemberRepository;
     @Autowired
     CollaboratorRepository collaboratorRepository;
+
     @GetMapping(value = {"/collection"})
     @ResponseBody
     public Result collection(@RequestParam int userId,
                              @RequestParam int docId,
                              Model model, HttpSession session){
+        Result result = new Result();
+        if(!CheckController.checkUserById(userId)){
+            result.success = false;
+            result.msg = "用户不存在";
+            return result;
+        }
+        if(!CheckController.checkDocById(docId)){
+            result.success = false;
+            result.msg = "收藏文档不存在";
+            return result;
+        }
         Collection collection = collectionRepository.findCollectionByUserIdAndDocumentationId(userId,docId);
         if(collection==null){
             collection = new Collection();
@@ -42,7 +55,7 @@ public class CollectionController {
             collection.userId=userId;
             collection.status=true;
             collectionRepository.save(collection);
-            Result result = new Result();
+            result = new Result();
             result.success = true;
             result.ID =collection.id ;
             result.msg = "收藏成功!";
@@ -52,7 +65,7 @@ public class CollectionController {
             collection.status=true;
             collection.collect_time=new Date();
             collectionRepository.save(collection);
-            Result result = new Result();
+            result = new Result();
             result.success = true;
             result.ID =collection.id ;
             result.msg = "收藏成功!";
@@ -61,13 +74,14 @@ public class CollectionController {
         else{
             collection.status=false;
             collectionRepository.save(collection);
-            Result result = new Result();
+            result = new Result();
             result.success = true;
             result.ID = collection.id ;
             result.msg = "删除收藏成功!";
             return result;
         }
     }
+
     @GetMapping(value = {"/getCollectionDoc"})
     @ResponseBody
     public ArrayList<PageList> getCollectionDoc(@RequestParam("userID") int userId,
@@ -96,10 +110,10 @@ public class CollectionController {
 
     @GetMapping(value = {"/getMyDoc"})
     @ResponseBody
-    public List<PageList> getMyDoc(@RequestParam int userID,
+    public List<PageList> getMyDoc(@RequestParam(value = "userID") int userId,
                                                Model model, HttpSession session){
-        List<Documentation> documentations= documentationRepository.findDocumentationByCreatorId(userID);
-        List<Collaborator> collaborators= collaboratorRepository.findCollaboratorByUserId(userID);
+        List<Documentation> documentations= documentationRepository.findDocumentationByCreatorId(userId);
+        List<Collaborator> collaborators= collaboratorRepository.findCollaboratorByUserId(userId);
         int l1=documentations.size();
         int l2=collaborators.size();
         List<PageList> pageLists=new ArrayList<>();
