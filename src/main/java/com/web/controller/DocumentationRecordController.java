@@ -1,5 +1,6 @@
 package com.web.controller;
 
+import com.web.entity.Documentation;
 import com.web.entity.DocumentationRecord;
 import com.web.entity.GroupMember;
 import com.web.entity.ReturnResult.GroupList;
@@ -40,13 +41,17 @@ public class DocumentationRecordController {
     @ResponseBody
     public List<PageList> getRecentDoc(@RequestParam("userID") int userId, Model model, HttpSession session){
         List<DocumentationRecord> documentationRecords=documentationRecordRepository.findDocumentationRecordByUserId(userId);
-        Collections.sort(documentationRecords);
+        //Collections.sort(documentationRecords);
         List<PageList> pageLists=new ArrayList<>();
-        for (DocumentationRecord documentationRecord : documentationRecords) {
-            PageList pageList = new PageList();
-            pageList.id = documentationRecord.documentationId;
-            pageList.title = documentationRepository.findDocumentationById(documentationRecord.documentationId).title;
-            pageList.isCreator = userId == documentationRepository.findDocumentationById(documentationRecord.documentationId).creatorId;
+        int l = documentationRecords.size();
+        for(int i = 0 ; i < l; i++){
+            PageList pageList=new PageList();
+            Documentation documentation=documentationRepository.findDocumentationById(documentationRecords.get(i).documentationId);
+            if(documentation==null)
+                continue;
+            pageList.id = documentationRecords.get(i).documentationId;
+            pageList.title = documentation.title;
+            pageList.isCreator= userId == documentation.creatorId;
             pageLists.add(pageList);
         }
         return pageLists;

@@ -11,7 +11,7 @@ import java.util.List;
 
 public interface DocumentationRecordRepository extends JpaRepository<DocumentationRecord,Integer> {
     ArrayList<DocumentationRecord> findDocumentationRecordByDocumentationId(int docId);
-    //@Query(value="select * from  DocumentationRecord order by 'time' desc", nativeQuery=true)
+    @Query(value="select * from  documentation_record where user_id=?1 order by time desc ", nativeQuery=true)
     ArrayList<DocumentationRecord> findDocumentationRecordByUserId(int userId);
     DocumentationRecord findDocumentationRecordByUserIdAndDocumentationId(int userId,int docId);
 }
