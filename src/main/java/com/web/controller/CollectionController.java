@@ -74,8 +74,9 @@ public class CollectionController {
         int l=collections.size();
         ArrayList<PageList> pageLists=new ArrayList<>();
         PageList pageList=new PageList();
-        Documentation documentation=new Documentation();
+
         for(int i=0;i<l;i++){
+            Documentation documentation=new Documentation();
             documentation=documentationRepository.findDocumentationById(collections.get(i).id);
             pageList.id=collections.get(i).id;
             pageList.title=documentation.title;
@@ -128,6 +129,43 @@ public class CollectionController {
             pageList.id=documentations.get(i).id;
             pageList.title=documentations.get(i).title;
             if(documentations.get(i).creatorId==userId)
+                pageList.isCreator=true;
+            else
+                pageList.isCreator=false;
+            pageLists.add(pageList);
+        }
+        return pageLists;
+    }
+    @GetMapping(value = {"/getAllTemplate"})
+    @ResponseBody
+    public ArrayList<PageList> getAllTemplate(Model model, HttpSession session){
+        ArrayList<Documentation> documentations= (ArrayList<Documentation>) documentationRepository.findDocumentationByTemplate(true);
+        int l1=documentations.size();
+        ArrayList<PageList> pageLists=new ArrayList<>();
+        for(int i=0;i<l1;i++){
+            PageList pageList=new PageList();
+            pageList.id=documentations.get(i).id;
+            pageList.title=documentations.get(i).title;
+            pageLists.add(pageList);
+        }
+        return pageLists;
+    }
+    @GetMapping(value = {"/getMyTemplate1"})
+    @ResponseBody
+    public ArrayList<PageList> getMyTemplate(@RequestParam("userId") int userId,
+                                             Model model, HttpSession session){
+        ArrayList<Collection> collections= (ArrayList<Collection>) collectionRepository.findCollectionByUserId(userId);
+        int l=collections.size();
+        ArrayList<PageList> pageLists=new ArrayList<>();
+        PageList pageList=new PageList();
+        for(int i=0;i<l;i++){
+            Documentation documentation=new Documentation();
+            documentation=documentationRepository.findDocumentationById(collections.get(i).id);
+            if(documentation.isTemplate==false)
+                continue;
+            pageList.id=collections.get(i).id;
+            pageList.title=documentation.title;
+            if(documentation.creatorId==userId)
                 pageList.isCreator=true;
             else
                 pageList.isCreator=false;
