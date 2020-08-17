@@ -284,13 +284,15 @@ public class DocumentationController {
                             @RequestParam int docID,
                             Model model, HttpSession session) {
         DocResult docResult = new DocResult();
+
         Documentation documentation = documentationRepository.findDocumentationById(docID);
         if(documentation == null){
             docResult.success = false;
             docResult.msg = "文档不存在";
             return docResult;
         }
-        if(documentation.isEdit){
+        long time=new Date().getTime()-documentation.lastTime.getTime();
+        if(documentation.isEdit&&time<=1800000000){
             docResult.success = false;
             docResult.msg = "文档正在被"+userRepository.findUserById(documentation.editorId).username+"编辑";
             return docResult;
@@ -304,6 +306,8 @@ public class DocumentationController {
                 documentation.isEdit=true;
                 documentation.editorId=userID;
                 DocumentationRecordController.addRecord(userID,docID,new Date(),documentationRecordRepository);
+                documentation.lastTime=new Date();
+                documentationRepository.save(documentation);
             } else {
                 docResult.success = false;
                 docResult.msg = "权限不足，无法修改";
@@ -316,6 +320,8 @@ public class DocumentationController {
                 docResult.msg = "返回成功";
                 documentation.isEdit=true;
                 documentation.editorId=userID;
+                documentation.lastTime=new Date();
+                documentationRepository.save(documentation);
                 DocumentationRecordController.addRecord(userID,docID,new Date(),documentationRecordRepository);
                 int category=5;
                 Notice notice;
@@ -335,6 +341,8 @@ public class DocumentationController {
                 docResult.msg = "返回成功";
                 documentation.isEdit=true;
                 documentation.editorId=userID;
+                documentation.lastTime=new Date();
+                documentationRepository.save(documentation);
                 DocumentationRecordController.addRecord(userID,docID,new Date(),documentationRecordRepository);
                 int category=5;
                 Notice notice;
