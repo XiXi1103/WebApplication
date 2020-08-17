@@ -35,6 +35,8 @@ public class DocumentationController {
     ReplyRepository replyRepository;
     @Autowired
     DocumentModificationRecordRepository documentModificationRecordRepository;
+    @Autowired
+    DocumentationRecordRepository documentationRecordRepository;
     @PostMapping(value = {"/newDoc"})
     @ResponseBody
     public Result newDoc(@RequestBody Documentation_vue documentation_vue,
@@ -95,6 +97,7 @@ public class DocumentationController {
         }
         saveDoc(documentation_vue, result, documentation);
         documentationRepository.save(documentation);
+        DocumentationRecordController.addRecord(documentation_vue.userID,documentation_vue.docID,documentation.lastTime,documentationRecordRepository);
         if(documentation_vue.docID != 0){
             result.msg = "修改成功";
         }
@@ -113,7 +116,6 @@ public class DocumentationController {
             noticeRepository.save(notice);
         }
     }
-
     private void saveDoc(@RequestBody Documentation_vue documentation_vue, Result result, Documentation documentation) {
         try {
             File docFolder= new File("../doc");
@@ -297,6 +299,7 @@ public class DocumentationController {
                 docResult.msg = "返回成功";
                 documentation.isEdit=true;
                 documentation.editorId=userID;
+                DocumentationRecordController.addRecord(userID,docID,new Date(),documentationRecordRepository);
             } else {
                 docResult.success = false;
                 docResult.msg = "权限不足，无法修改";
@@ -309,6 +312,7 @@ public class DocumentationController {
                 docResult.msg = "返回成功";
                 documentation.isEdit=true;
                 documentation.editorId=userID;
+                DocumentationRecordController.addRecord(userID,docID,new Date(),documentationRecordRepository);
                 int category=5;
                 Notice notice;
                 ArrayList<Collaborator> collaborators=collaboratorRepository.findCollaboratorByDocumentationId(docID);
@@ -327,6 +331,7 @@ public class DocumentationController {
                 docResult.msg = "返回成功";
                 documentation.isEdit=true;
                 documentation.editorId=userID;
+                DocumentationRecordController.addRecord(userID,docID,new Date(),documentationRecordRepository);
                 int category=5;
                 Notice notice;
                 ArrayList<Collaborator> collaborators=collaboratorRepository.findCollaboratorByDocumentationId(docID);
@@ -413,6 +418,7 @@ public class DocumentationController {
                 docResult.msg = "显示成功";
                 docResult.permission=groupMember.permission;
                 addRecentUse(userID,docID);
+                DocumentationRecordController.addRecord(userID,docID,documentation.lastTime,documentationRecordRepository);
             } else {
                 docResult.success = false;
                 docResult.msg = "权限不足，无法查看";
@@ -422,15 +428,17 @@ public class DocumentationController {
         else if(collaboratorRepository.findCollaboratorByUserIdAndAndDocumentationId(userID,docID)!=null){
             docResult.success = true;
             docResult.msg = "显示成功";
+            DocumentationRecordController.addRecord(userID,docID,documentation.lastTime,documentationRecordRepository);
             docResult.permission=collaboratorRepository.findCollaboratorByUserIdAndAndDocumentationId(userID,docID).permission;
         }
         else{
-            if(userID == documentation.creatorId ){
+            if(userID == documentation.creatorId){
                 getDocResult(docResult, documentation);
                 docResult.success = true;
                 docResult.msg = "显示成功";
                 docResult.permission=5;
                 addRecentUse(userID,docID);
+                DocumentationRecordController.addRecord(userID,docID,documentation.lastTime,documentationRecordRepository);
             }
             else if(documentation.otherPermission >= 1){
                 getDocResult(docResult, documentation);
@@ -438,6 +446,7 @@ public class DocumentationController {
                 docResult.msg = "显示成功";
                 docResult.permission=documentation.otherPermission;
                 addRecentUse(userID,docID);
+                DocumentationRecordController.addRecord(userID,docID,documentation.lastTime,documentationRecordRepository);
             }
             else{
                 docResult.success = false;
