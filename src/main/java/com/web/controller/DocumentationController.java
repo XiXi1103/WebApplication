@@ -176,7 +176,7 @@ public class DocumentationController {
         Result result = new Result();
         //保存
         try {
-            File imageFolder= new File("/../uploadImg");
+            File imageFolder= new File("../uploadImg");
             File targetFile = new File(imageFolder,file.getOriginalFilename());
             if(!targetFile.getParentFile().exists()){
                 targetFile.getParentFile().mkdirs();
