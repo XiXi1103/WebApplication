@@ -34,12 +34,13 @@ public class GroupMemberController {
     NoticeRepository noticeRepository;
     @Autowired
     CollaboratorRepository collaboratorRepository;
-    @PostMapping(value = {"/addMember"})
+    @GetMapping(value = {"/addMember"})
     @ResponseBody
     public Result invite(@RequestParam int groupID,
                          @RequestParam int userID,
                          @RequestParam String username
                         ){
+//        System.out.println("1");
         User inviter = userRepository.findUserById(userID);
         User user = userRepository.findUserByUsername(username);
         Group group = groupRepository.findGroupById(groupID);
@@ -148,19 +149,21 @@ public class GroupMemberController {
 //    0 都没有，1 查看，2 评论，3 分享，4 修改,5 创建者
 @GetMapping(value = {"/getJoinGroup"})
 @ResponseBody
-public List<GroupList> getGroup(@RequestParam("userID") int userId,
+public List<GroupList> getGroup(@RequestParam int userID,
                                      Model model, HttpSession session){
-        System.out.println(userId);
-    List<GroupList> groupLists=new ArrayList<>();
-    List<GroupMember> groupMembers= groupMemberRepository.findGroupMemberByUserId(userId);
+        System.out.println(userID);
+    List<GroupList> groupLists =new ArrayList<>();
+    List<GroupMember> groupMembers= groupMemberRepository.findGroupMemberByUserId(userID);
     int l = groupMembers.size();
     for(int i = 0 ; i < l; i++){
-        GroupList groupList=new GroupList();
+        GroupList groupList = new GroupList();
         groupList.id = groupMembers.get(i).groupId;
         groupList.name = groupRepository.findGroupById(groupMembers.get(i).groupId).groupName;
-        groupList.isCreator = groupRepository.findGroupById(groupMembers.get(i).groupId).creatorId == userId;
+        groupList.isCreator = groupRepository.findGroupById(groupMembers.get(i).groupId).creatorId == userID;
         groupLists.add(i,groupList);
+//        System.out.println(groupList1.get(i).name);
     }
+//    System.out.println(groupList1);
     return groupLists;
 }
 

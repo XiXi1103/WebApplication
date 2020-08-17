@@ -67,11 +67,11 @@ public class GroupController {
     }
     @GetMapping(value = {"/delGroup"})
     @ResponseBody
-    public Result deleteOrExit(@RequestParam("userId") int userId,@RequestParam("groupId") int groupId,
+    public Result deleteOrExit(@RequestParam int userID,@RequestParam int groupID,
                          Model model, HttpSession session){
-
-        User user = userRepository.findUserById(userId);
-        Group group = groupRepository.findGroupById(groupId);
+//        System.out.println("1");
+        User user = userRepository.findUserById(userID);
+        Group group = groupRepository.findGroupById(groupID);
 
         if(user == null || group == null){
             Result result=new Result();
@@ -79,27 +79,28 @@ public class GroupController {
             result.msg="Unknown error happen!";
             return result;
         }
-        if(groupRepository.findGroupById(groupId).creatorId==userId){
+        if(groupRepository.findGroupById(groupID).creatorId==userID){
             Result result=new Result();
             result.success = true;
-            result.ID = groupId ;
+            result.ID = groupID ;
             result.msg="删除成功";
-            List<GroupMember> groupMembers=  groupMemberRepository.findGroupMemberByGroupId(groupId);
+            List<GroupMember> groupMembers=  groupMemberRepository.findGroupMemberByGroupId(groupID);
             int l=groupMembers.size();
             for (GroupMember groupMember : groupMembers) {
                 groupMemberRepository.delete(groupMember);
-                Notice notice = new NoticeController().addNoticeAboutGroup(groupMember.userId, user.id, 4, groupId, userRepository, groupRepository);
+                Notice notice = new NoticeController().addNoticeAboutGroup(groupMember.userId, user.id, 4, groupID, userRepository, groupRepository);
                 noticeRepository.save(notice);
             }
+            groupRepository.delete(groupRepository.findGroupById(groupID));
             return result;
         }
         else{
             Result result=new Result();
             result.success = true;
-            result.ID = groupId ;
+            result.ID = groupID ;
             result.msg="退出成功";
-            GroupMember groupMember=  groupMemberRepository.findGroupMemberByUserIdAndGroupId(userId,groupId);
-            Notice notice = new NoticeController().addNoticeAboutGroup(groupMember.userId,user.id,3,groupId,userRepository,groupRepository);
+            GroupMember groupMember=  groupMemberRepository.findGroupMemberByUserIdAndGroupId(userID,groupID);
+            Notice notice = new NoticeController().addNoticeAboutGroup(groupMember.userId,user.id,3,groupID,userRepository,groupRepository);
             groupMemberRepository.delete(groupMember);
             return result;
         }

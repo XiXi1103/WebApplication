@@ -6,12 +6,15 @@ import com.web.entity.ReturnResult.MemberList;
 import com.web.entity.ReturnResult.Result;
 import com.web.entity.vue.Documentation_vue;
 import com.web.repository.*;
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.io.*;
 import java.util.*;
@@ -166,39 +169,40 @@ public class DocumentationController {
         }
     }
 
-//    @RequestMapping(value="/imgAdd")
-//    public @ResponseBody Map<String,Object> demo(@RequestParam(value = "file", required = false) MultipartFile file, HttpServletRequest request) {
-//        Result result = new Result();
-//        //保存
-//        try {
-//            File imageFolder= new File("/home/yzx/web/uploadImg");
-//            File targetFile = new File(imageFolder,limitLength(file.getOriginalFilename(),10));
-//            if(!targetFile.getParentFile().exists()){
-//                targetFile.getParentFile().mkdirs();
-//
-//            }
-//            System.out.println(targetFile.getAbsolutePath());
-//            FileUtils.copyInputStreamToFile(file.getInputStream(), targetFile);
-////            BufferedImage img = ImageUtil.change2jpg(targetFile);
-////            ImageIO.write(img, "jpg", targetFile);
-//            /*            file.transferTo(targetFile);*/
-////            byte[] bytes = file.getBytes();
-////            Path path = Paths.get(realPath + file.getOriginalFilename());
-////            Files.write(path, bytes);
-//            resultMap.put("success", 1);
-//            resultMap.put("message", "上传成功！");
-//            resultMap.put("url","/UploadImages/"+file.getOriginalFilename());
-//        } catch (Exception e) {
-//            resultMap.put("success", 0);
-//            resultMap.put("message", "上传失败！");
-//            e.printStackTrace();
-//        }
-//
-//    }
+    //图片上传
+    @RequestMapping(value="/imgAdd")
+    @ResponseBody
+    public Result demo(@RequestParam(value = "file", required = false) MultipartFile file, HttpServletRequest request) {
+        Result result = new Result();
+        //保存
+        try {
+            File imageFolder= new File("../uploadImg");
+            File targetFile = new File(imageFolder,file.getOriginalFilename());
+            if(!targetFile.getParentFile().exists()){
+                targetFile.getParentFile().mkdirs();
 
-    public static String limitLength(String name,int length){
-        return name.substring(0,Math.min(name.length(),length));
+            }
+//            System.out.println(targetFile.getAbsolutePath());
+            FileUtils.copyInputStreamToFile(file.getInputStream(), targetFile);
+//            BufferedImage img = ImageUtil.change2jpg(targetFile);
+//            ImageIO.write(img, "jpg", targetFile);
+            /*            file.transferTo(targetFile);*/
+//            byte[] bytes = file.getBytes();
+//            Path path = Paths.get(realPath + file.getOriginalFilename());
+//            Files.write(path, bytes);
+                result.success = true;
+                result.msg = targetFile.getAbsolutePath();
+        } catch (Exception e) {
+                result.success = false;
+                result.msg = "图片上传失败";
+            e.printStackTrace();
+        }
+        return result;
     }
+//
+//    public static String limitLength(String name,int length){
+//        return name.substring(0,Math.min(name.length(),length));
+//    }
 
 
     @PostMapping(value = {"/delDocCompletely"})
