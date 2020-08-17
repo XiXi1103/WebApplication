@@ -362,12 +362,7 @@ public class NoticeController {
             }
             else{
                 noticeResult.name = documentationRepository.findDocumentationById(notice.docID).title;
-                if(notice.about == 2){
-                    noticeResult.objectID = notice.replyID;
-                }
-                else{
-                    noticeResult.objectID = notice.docID;
-                }
+                noticeResult.objectID = notice.docID;
             }
             noticeResultList.add(noticeResult);
         }
