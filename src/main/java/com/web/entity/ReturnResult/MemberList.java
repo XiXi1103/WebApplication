@@ -5,4 +5,5 @@ public class MemberList {
     public String name;
     public int permission;
     public String time;
+    public String msg;
 }

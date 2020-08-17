@@ -224,7 +224,7 @@ public class DocumentationController {
     public ArrayList<MemberList> modifyRecord(@RequestParam("docId") int docId,
                                            Model model, HttpSession session){
         ArrayList<MemberList> memberLists=new ArrayList<>();
-
+        Documentation documentation=documentationRepository.findDocumentationById(docId);
         List<DocumentModificationRecord> documentModificationRecords=
                 documentModificationRecordRepository.findDocumentModificationRecordsByDocId(docId);
         for (DocumentModificationRecord documentModificationRecord : documentModificationRecords) {
@@ -232,6 +232,7 @@ public class DocumentationController {
             memberList.id = documentModificationRecord.userId;
             memberList.name = userRepository.findUserById(documentModificationRecord.userId).username;
             memberList.time=documentModificationRecord.time.toString();
+            memberList.msg=memberList.name+"在"+memberList.time+"修改了"+documentation.title;
             memberLists.add(memberList);
         }
         return memberLists;
