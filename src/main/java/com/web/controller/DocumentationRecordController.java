@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -39,6 +40,7 @@ public class DocumentationRecordController {
     @ResponseBody
     public List<PageList> getRecentDoc(@RequestParam("userID") int userId, Model model, HttpSession session){
         List<DocumentationRecord> documentationRecords=documentationRecordRepository.findDocumentationRecordByUserId(userId);
+        Collections.sort(documentationRecords);
         List<PageList> pageLists=new ArrayList<>();
         int l = documentationRecords.size();
         for(int i = 0 ; i < l; i++){
