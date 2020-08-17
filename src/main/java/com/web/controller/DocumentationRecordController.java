@@ -42,12 +42,11 @@ public class DocumentationRecordController {
         List<DocumentationRecord> documentationRecords=documentationRecordRepository.findDocumentationRecordByUserId(userId);
         Collections.sort(documentationRecords);
         List<PageList> pageLists=new ArrayList<>();
-        int l = documentationRecords.size();
-        for(int i = 0 ; i < l; i++){
-            PageList pageList=new PageList();
-            pageList.id = documentationRecords.get(i).documentationId;
-            pageList.title = documentationRepository.findDocumentationById(documentationRecords.get(i).documentationId).title;
-            pageList.isCreator= userId == documentationRepository.findDocumentationById(documentationRecords.get(i).documentationId).creatorId;
+        for (DocumentationRecord documentationRecord : documentationRecords) {
+            PageList pageList = new PageList();
+            pageList.id = documentationRecord.documentationId;
+            pageList.title = documentationRepository.findDocumentationById(documentationRecord.documentationId).title;
+            pageList.isCreator = userId == documentationRepository.findDocumentationById(documentationRecord.documentationId).creatorId;
             pageLists.add(pageList);
         }
         return pageLists;

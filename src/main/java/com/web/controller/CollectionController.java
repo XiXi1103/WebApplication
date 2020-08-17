@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @CrossOrigin
 @Controller
@@ -94,13 +95,13 @@ public class CollectionController {
 
     @GetMapping(value = {"/getMyDoc"})
     @ResponseBody
-    public ArrayList<PageList> getMyDoc(@RequestParam("userID") int userId,
+    public List<PageList> getMyDoc(@RequestParam int userID,
                                                Model model, HttpSession session){
-        ArrayList<Documentation> documentations= (ArrayList<Documentation>) documentationRepository.findDocumentationByCreatorId(userId);
-        ArrayList<Collaborator> collaborators= collaboratorRepository.findCollaboratorByUserId(userId);
+        List<Documentation> documentations= documentationRepository.findDocumentationByCreatorId(userID);
+        List<Collaborator> collaborators= collaboratorRepository.findCollaboratorByUserId(userID);
         int l1=documentations.size();
         int l2=collaborators.size();
-        ArrayList<PageList> pageLists=new ArrayList<>();
+        List<PageList> pageLists=new ArrayList<>();
 
         for (Documentation documentation : documentations) {
             PageList pageList=new PageList();
