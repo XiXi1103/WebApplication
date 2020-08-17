@@ -76,8 +76,11 @@ public class CollectionController {
         PageList pageList=new PageList();
 
         for(int i=0;i<l;i++){
+
             Documentation documentation=new Documentation();
             documentation=documentationRepository.findDocumentationById(collections.get(i).id);
+            if(documentation.isTemplate)
+                continue;
             pageList.id=collections.get(i).id;
             pageList.title=documentation.title;
             if(documentation.creatorId==userId)
