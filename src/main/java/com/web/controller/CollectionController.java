@@ -142,7 +142,7 @@ public class CollectionController {
     @GetMapping(value = {"/getAllTemplate"})
     @ResponseBody
     public ArrayList<PageList> getAllTemplate(Model model, HttpSession session){
-        ArrayList<Documentation> documentations= (ArrayList<Documentation>) documentationRepository.findDocumentationByTemplate(true);
+        ArrayList<Documentation> documentations= (ArrayList<Documentation>) documentationRepository.findDocumentationByisTemplate(true);
         int l1=documentations.size();
         ArrayList<PageList> pageLists=new ArrayList<>();
         for(int i=0;i<l1;i++){
