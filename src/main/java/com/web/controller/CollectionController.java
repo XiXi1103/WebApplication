@@ -31,7 +31,7 @@ public class CollectionController {
     CollaboratorRepository collaboratorRepository;
     @GetMapping(value = {"/collection"})
     @ResponseBody
-    public Result collection(@RequestParam("userId") int userId,
+    public Result collection(@RequestParam("userID") int userId,
                              @RequestParam("documentationId") int documentationId,
                              Model model, HttpSession session){
         Collection collection = collectionRepository.findCollectionByUserIdAndDocumentationId(userId,documentationId);

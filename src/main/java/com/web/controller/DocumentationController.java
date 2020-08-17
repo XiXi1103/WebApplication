@@ -78,6 +78,7 @@ public class DocumentationController {
             documentation.isEdit=false;
             documentation.editorId=0;
             documentationRepository.save(documentation);
+            DocumentationRecordController.addRecord(documentation_vue.authorID,documentation.id,documentation.lastTime,documentationRecordRepository);
 
         }
         else {
@@ -92,6 +93,8 @@ public class DocumentationController {
             documentModificationRecord.userId=documentation.editorId;
             documentModificationRecord.time=documentation.lastTime;
             documentation.editorId=0;
+            DocumentationRecordController.addRecord(documentation_vue.userID,documentation.id,documentation.lastTime,documentationRecordRepository);
+
             //团队文档被修改发送通知
             if(documentation.groupId != 0){
                 int category = 1;
@@ -100,7 +103,6 @@ public class DocumentationController {
         }
         saveDoc(documentation_vue, result, documentation);
         documentationRepository.save(documentation);
-        DocumentationRecordController.addRecord(documentation_vue.userID,documentation_vue.docID,documentation.lastTime,documentationRecordRepository);
         if(documentation_vue.docID != 0){
             result.msg = "修改成功";
         }

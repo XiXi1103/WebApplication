@@ -12,7 +12,7 @@ public interface DocumentationRepository extends JpaRepository<Documentation,Int
     Documentation findDocumentationById(Integer id);
     List<Documentation> findDocumentationByTitle(String title);
 //    @Query(value="select * from article where category_name=?1 order by pinned DESC,id DESC ", nativeQuery=true)
-    @Query(value="select * from documentation  where is_trash = 0 and creator_id=?1", nativeQuery=true)
+    @Query(value="select * from documentation  where is_trash = 0 and creator_id=?1 order by create_time desc", nativeQuery=true)
     List<Documentation> findDocumentationByCreatorId(Integer id);
     List<Documentation> findDocumentationByisTemplate(Boolean template);
     List<Documentation> findDocumentationByGroupId(Integer id);
