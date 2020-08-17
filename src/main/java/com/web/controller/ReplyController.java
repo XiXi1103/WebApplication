@@ -1,6 +1,7 @@
 package com.web.controller;
 
 import com.web.entity.*;
+import com.web.entity.ReturnResult.ReplyResult;
 import com.web.entity.ReturnResult.Result;
 import com.web.entity.vue.Reply_vue;
 import com.web.repository.*;
@@ -33,6 +34,7 @@ public class ReplyController {
                         Model model, HttpSession session){
         Reply reply = new Reply();
         Result result = new Result();
+        System.out.println(reply_vue.docId);
         if(documentationRepository.findDocumentationById(reply_vue.docId) == null){
             result.success = false;
             result.msg = "文档不存在";
@@ -60,6 +62,7 @@ public class ReplyController {
         reply.content = reply_vue.content;
         reply.likes = 0;
         reply.userId = reply_vue.userId;
+        reply.username = userRepository.findUserById(reply_vue.userId).username;
         reply.date = new Date();
         reply.docId = reply_vue.docId;
         reply.isReply = reply_vue.isReply;
@@ -102,5 +105,21 @@ public class ReplyController {
         result.msg = "删除成功";
         result.ID = reply.id;
         return result;
+    }
+
+    @GetMapping(value = {"/findAllReply"})
+    @ResponseBody
+    public ReplyResult reply(@RequestParam int docId,
+                             Model model, HttpSession session){
+        ReplyResult replyResult = new ReplyResult();
+        if(docId == 0){
+            replyResult.success = false;
+            replyResult.msg = "文档不存在！";
+            return replyResult;
+        }
+        List<Reply> replyList = replyRepository.findByDocId(docId);
+        replyResult.success = true;
+        replyResult.replyList = replyList;
+        return replyResult;
     }
 }

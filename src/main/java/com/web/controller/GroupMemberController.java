@@ -40,7 +40,7 @@ public class GroupMemberController {
                          @RequestParam int userID,
                          @RequestParam String username
                         ){
-//        System.out.println("1");
+        System.out.println("0");
         User inviter = userRepository.findUserById(userID);
         User user = userRepository.findUserByUsername(username);
         Group group = groupRepository.findGroupById(groupID);
@@ -151,7 +151,7 @@ public class GroupMemberController {
 @ResponseBody
 public List<GroupList> getGroup(@RequestParam int userID,
                                      Model model, HttpSession session){
-        System.out.println(userID);
+//        System.out.println(userID);
     List<GroupList> groupLists =new ArrayList<>();
     List<GroupMember> groupMembers= groupMemberRepository.findGroupMemberByUserId(userID);
     int l = groupMembers.size();

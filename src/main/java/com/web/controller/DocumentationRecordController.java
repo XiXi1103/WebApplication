@@ -39,19 +39,20 @@ public class DocumentationRecordController {
     GroupMemberRepository groupMemberRepository;
     @GetMapping(value = {"/getRecentDoc"})
     @ResponseBody
-    public List<PageList> getRecentDoc(@RequestParam("userID") int userId, Model model, HttpSession session){
+    public List<PageList> getRecentDoc(@RequestParam int userId, Model model, HttpSession session){
         List<DocumentationRecord> documentationRecords=documentationRecordRepository.findDocumentationRecordByUserId(userId);
         //Collections.sort(documentationRecords);
         List<PageList> pageLists=new ArrayList<>();
+        System.out.println("1");
         int l = documentationRecords.size();
-        for(int i = 0 ; i < l; i++){
-            PageList pageList=new PageList();
-            Documentation documentation=documentationRepository.findDocumentationById(documentationRecords.get(i).documentationId);
-            if(documentation==null)
+        for (DocumentationRecord documentationRecord : documentationRecords) {
+            PageList pageList = new PageList();
+            Documentation documentation = documentationRepository.findDocumentationById(documentationRecord.documentationId);
+            if (documentation == null)
                 continue;
-            pageList.id = documentationRecords.get(i).documentationId;
+            pageList.id = documentationRecord.documentationId;
             pageList.title = documentation.title;
-            pageList.isCreator= userId == documentation.creatorId;
+            pageList.isCreator = userId == documentation.creatorId;
             pageLists.add(pageList);
         }
         return pageLists;

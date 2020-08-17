@@ -11,6 +11,8 @@ public class Reply {
     public int id;
     @Column(name = "user_id")
     public int userId;
+    @Column(name = "username")
+    public String username;
     @Column(name = "doc_id")
     public int docId;
     @Column(name = "reply_id")

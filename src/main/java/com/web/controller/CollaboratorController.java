@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
-
+// 传入参数检查完毕（id是否存在），除两个返回list的未检查
 @CrossOrigin
 @Controller
 public class CollaboratorController {
@@ -38,9 +38,25 @@ public class CollaboratorController {
                             @RequestParam("username") String userName,
                             @RequestParam("docID") int docId,
                             Model model, HttpSession session){
-        Result result = new  Result();
+        Result result = new Result();
         result.success=false;
+        result.ID = 0;
+        result.result = null;
         result.msg="权限不足";
+
+        if( !CheckController.checkUserById(userId1)){
+            result.msg = "当前用户不存在或是游客";
+            return result;
+        }
+        if( !CheckController.checkUserByUsername(userName)){
+            result.msg = "查询不到被邀请者";
+            return result;
+        }
+        if( !CheckController.checkDocById(docId)){
+            result.msg = "对应文档不存在";
+            return result;
+        }
+
         if(collaboratorRepository.findCollaboratorByUserIdAndAndDocumentationId(userId1,docId).permission <= 4)
             return result;
 //        Collaborator collaborator=new Collaborator();
@@ -59,11 +75,29 @@ public class CollaboratorController {
         result.msg="发送邀请成功";
         return result;
     }
+
     @PostMapping(value = {"/kickCollaborator"})
     @ResponseBody
     public Result kickCollaborator(@RequestBody Collaborator_vue collaborator_vue,
                              Model model, HttpSession session){
         Result result=new Result();
+        //判断输入
+        if(!CheckController.checkUserById(collaborator_vue.userId1)){
+            result.success = false;
+            result.msg = "发起者不存在";
+            return result;
+        }
+        if(!CheckController.checkUserById(collaborator_vue.userId2)){
+            result.success = false;
+            result.msg = "被踢者不存在";
+            return result;
+        }
+        if(!CheckController.checkDocById(collaborator_vue.docId)){
+            result.success = false;
+            result.msg = "该文档不存在";
+            return result;
+        }
+
         if(collaboratorRepository.findCollaboratorByUserIdAndAndDocumentationId
                 (collaborator_vue.userId1,collaborator_vue.docId).permission==5){
             Collaborator collaborator=collaboratorRepository.findCollaboratorByUserIdAndAndDocumentationId
@@ -92,6 +126,16 @@ public class CollaboratorController {
     public Result exitCollaborator(@RequestBody Collaborator_vue collaborator_vue,
                                    Model model, HttpSession session){
         Result result=new Result();
+        if(!CheckController.checkUserById(collaborator_vue.userId1)){
+            result.success = false;
+            result.msg = "发起者不存在";
+            return result;
+        }
+        if(!CheckController.checkDocById(collaborator_vue.docId)){
+            result.success = false;
+            result.msg = "该文档不存在";
+            return result;
+        }
         if(collaboratorRepository.findCollaboratorByUserIdAndAndDocumentationId
                 (collaborator_vue.userId1,collaborator_vue.docId)!=null){
             collaboratorRepository.delete(collaboratorRepository.findCollaboratorByUserIdAndAndDocumentationId
@@ -116,6 +160,11 @@ public class CollaboratorController {
     @ResponseBody
     public ArrayList<WriterList> catWriter(@RequestParam("docID") int docId,
                                            Model model, HttpSession session){
+//        if(!CheckController.checkDocById(docId)){
+//            result.success = false;
+//            result.msg = "该文档不存在";
+//            return result;
+//        }
         ArrayList<Collaborator> collaborators= (ArrayList<Collaborator>) collaboratorRepository.
                 findCollaboratorByDocumentationId(docId);
         int l=collaborators.size();
@@ -138,11 +187,26 @@ public class CollaboratorController {
                                        @RequestParam("noticeID") int noticeId,
                                          Model model, HttpSession session){
         Result result = new Result();
+        if(!CheckController.checkUserById(userId)){
+            result.success = false;
+            result.msg = "邀请者不存在";
+            return result;
+        }
+        if(!CheckController.checkDocById(docId)){
+            result.success = false;
+            result.msg = "该文档已不存在";
+            return result;
+        }
+        if(!CheckController.checkNoticeById(noticeId)){
+            result.success = false;
+            result.msg = "该邀请已不存在";
+            return result;
+        }
         Documentation documentation=documentationRepository.findDocumentationById(docId);
         User user = userRepository.findUserById(userId);
         Notice notice = noticeRepository.findNoticeById(noticeId);
 
-        if(userResponse == false){
+        if(!userResponse){
             notice.status = true;
             noticeRepository.save(notice);
             result.success = true;
@@ -160,36 +224,51 @@ public class CollaboratorController {
     }
     @GetMapping(value = {"/writerPermission"})
     @ResponseBody
-    public Result writerPermission(@RequestParam int userID,
+    public Result writerPermission(@RequestParam(value = "userID") int userId,
                                    @RequestParam String username,
-                                   @RequestParam int docID,
+                                   @RequestParam(value = "docID") int docId,
                                    @RequestParam int permission,
                                    Model model, HttpSession session){
-        Documentation documentation=documentationRepository.findDocumentationById(docID);
+        Result result = new Result();
+        if(!CheckController.checkUserById(userId)){
+            result.success = false;
+            result.msg = "发起用户不存在";
+            return result;
+        }
+        if(!CheckController.checkUserByUsername(username)){
+            result.success = false;
+            result.msg = "被修改权限用户不存在";
+            return result;
+        }
+        if(!CheckController.checkDocById(docId)){
+            result.success = false;
+            result.msg = "该文档已不存在";
+            return result;
+        }
+        Documentation documentation=documentationRepository.findDocumentationById(docId);
         User user=userRepository.findUserByUsername(username);
-        Collaborator collaborator=collaboratorRepository.findCollaboratorByUserIdAndAndDocumentationId(userID,docID);
+        Collaborator collaborator=collaboratorRepository.findCollaboratorByUserIdAndAndDocumentationId(userId,docId);
 
-        if(userID==documentation.creatorId||collaborator.permission==5){
-            Collaborator collaborator1=collaboratorRepository.findCollaboratorByUserIdAndAndDocumentationId(user.id,docID);
+        if(userId==documentation.creatorId||collaborator.permission==5){
+            Collaborator collaborator1=collaboratorRepository.findCollaboratorByUserIdAndAndDocumentationId(user.id,docId);
             collaborator1.permission=permission;
             collaboratorRepository.save(collaborator1);
-            Result result = new Result();
+            result = new Result();
             result.success = true;
-            result.ID = docID ;
+            result.ID = docId ;
             result.msg = "修改权限成功!";
             int category = 2;
             Notice notice;
-            notice = new NoticeController().addNoticeAboutPermission(user.id,userID,category,0,docID,permission,
+            notice = new NoticeController().addNoticeAboutPermission(user.id,userId,category,0,docId,permission,
                     userRepository,documentationRepository,groupRepository,groupMemberRepository,collaboratorRepository);
             noticeRepository.save(notice);
-            return result;
         }
         else{
-            Result result = new Result();
+            result = new Result();
             result.success = false;
-            result.ID = docID ;
+            result.ID = docId ;
             result.msg = "权限不足!";
-            return result;
         }
+        return result;
     }
 }

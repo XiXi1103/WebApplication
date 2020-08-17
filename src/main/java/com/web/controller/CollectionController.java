@@ -31,13 +31,14 @@ public class CollectionController {
     CollaboratorRepository collaboratorRepository;
     @GetMapping(value = {"/collection"})
     @ResponseBody
-    public Result collection(@RequestParam("userID") int userId,
-                             @RequestParam("documentationId") int documentationId,
+    public Result collection(@RequestParam int userId,
+                             @RequestParam int docId,
                              Model model, HttpSession session){
-        Collection collection = collectionRepository.findCollectionByUserIdAndDocumentationId(userId,documentationId);
+        Collection collection = collectionRepository.findCollectionByUserIdAndDocumentationId(userId,docId);
         if(collection==null){
+            collection = new Collection();
             collection.collect_time=new Date();
-            collection.documentationId=documentationId;
+            collection.documentationId=docId;
             collection.userId=userId;
             collection.status=true;
             collectionRepository.save(collection);
