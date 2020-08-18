@@ -31,23 +31,24 @@ public class SearchController {
     @GetMapping(value = {"/searchUser"})
     @ResponseBody
     public List<UserSearch> searchUser(@RequestParam String username) {
-        User user = userRepository.findUserByUsername(username);
+        List<User> userList = userRepository.findByUsernameLike("%" + username + "%");
         List<UserSearch> userSearchList = new ArrayList<>();
 
-        UserSearch userSearch = new UserSearch(user.id, user.username);
-        userSearchList.add(userSearch);
-
+        for(User user : userList) {
+            UserSearch userSearch = new UserSearch(user.id, user.username);
+            userSearchList.add(userSearch);
+        }
         return userSearchList;
     }
 
     @GetMapping(value = {"/searchDoc"})
     @ResponseBody
-    public List<DocSearch> searchDoc(@RequestParam int userId, @RequestParam String keyword) {
+    public List<DocSearch> searchDoc(@RequestParam int userId, @RequestParam String text) {
         List<Documentation> docList = documentationRepository.findDocumentationByCreatorId(userId);
         List<DocSearch> docSearchList = new ArrayList<>();
 
         for (Documentation doc : docList) {
-            if (doc.title.contains(keyword)) {
+            if (doc.title.toLowerCase().contains(text.toLowerCase())) {
                 DocSearch docSearch = new DocSearch(doc.title, doc.id);
                 docSearchList.add(docSearch);
             }
@@ -58,13 +59,13 @@ public class SearchController {
 
     @GetMapping(value = {"/searchGroup"})
     @ResponseBody
-    public List<GrpSearch> searchGroup(@RequestParam int userId, @RequestParam String keyword) {
+    public List<GrpSearch> searchGroup(@RequestParam int userId, @RequestParam String text) {
         List<GroupMember> grpMemberList = groupMemberRepository.findGroupMemberByUserId(userId);
         List<GrpSearch> grpSearchList = new ArrayList<>();
 
         for (GroupMember grpMember : grpMemberList) {
             Group grp = groupRepository.findGroupById(grpMember.groupId);
-            if (grp.groupName.contains(keyword)) {
+            if (grp.groupName.toLowerCase().contains(text.toLowerCase())) {
                 GrpSearch grpSearch = new GrpSearch(grp.groupName, grp.id);
                 grpSearchList.add(grpSearch);
             }
