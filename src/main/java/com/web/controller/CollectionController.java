@@ -108,32 +108,6 @@ public class CollectionController {
         return pageLists;
     }
 
-    @GetMapping(value = {"/getMyDoc"})
-    @ResponseBody
-    public List<PageList> getMyDoc(@RequestParam(value = "userID") int userId,
-                                               Model model, HttpSession session){
-        List<Documentation> documentations= documentationRepository.findDocumentationByCreatorId(userId);
-        List<Collaborator> collaborators= collaboratorRepository.findCollaboratorByUserId(userId);
-        int l1=documentations.size();
-        int l2=collaborators.size();
-        List<PageList> pageLists=new ArrayList<>();
-
-        for (Documentation documentation : documentations) {
-            PageList pageList=new PageList();
-            pageList.id = documentation.id;
-            pageList.title = documentation.title;
-            pageList.isCreator = true;
-            pageLists.add(pageList);
-        }
-        for (Collaborator collaborator : collaborators) {
-            PageList pageList=new PageList();
-            pageList.id = collaborator.id;
-            pageList.title = documentationRepository.findDocumentationById(collaborator.id).title;
-            pageList.isCreator = false;
-            pageLists.add(pageList);
-        }
-        return pageLists;
-    }
     @GetMapping(value = {"/getGroupDoc"})
     @ResponseBody
     public ArrayList<PageList> getGroupDoc(@RequestParam("groupID") int groupId,

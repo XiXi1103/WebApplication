@@ -253,7 +253,7 @@ public class NoticeController {
         notice.status = false;
         notice.success = false;
         notice.about = 3;
-
+        notice.category = category;
         String[] inform = {"",
                 "邀请您加入团队:",
                 "将您踢出团队:",

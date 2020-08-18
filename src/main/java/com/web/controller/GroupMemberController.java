@@ -40,7 +40,7 @@ public class GroupMemberController {
                          @RequestParam int userID,
                          @RequestParam String username
                         ){
-        System.out.println("0");
+//        System.out.println("0");
         User inviter = userRepository.findUserById(userID);
         User user = userRepository.findUserByUsername(username);
         Group group = groupRepository.findGroupById(groupID);
@@ -71,7 +71,7 @@ public class GroupMemberController {
             int category = 1;
             Notice notice;
             User actor = userRepository.findUserById(groupRepository.findGroupById(groupID).creatorId);
-            if(noticeRepository.findNoticeByUserIDAndGroupIDAndCategory(userID,groupID,1)!=null){
+            if(noticeRepository.findNoticeByUserIDAndGroupIDAndCategory(user.id,groupID,1)!=null){
                 result.success = false;
                 result.ID = group.id ;
                 result.msg = "已邀请!";

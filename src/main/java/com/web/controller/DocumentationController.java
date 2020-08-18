@@ -2,10 +2,7 @@ package com.web.controller;
 
 import com.web.entity.*;
 import com.web.entity.Collection;
-import com.web.entity.ReturnResult.DocResult;
-import com.web.entity.ReturnResult.EditDocResult;
-import com.web.entity.ReturnResult.MemberList;
-import com.web.entity.ReturnResult.Result;
+import com.web.entity.ReturnResult.*;
 import com.web.entity.vue.Documentation_vue;
 import com.web.repository.*;
 import org.apache.commons.io.FileUtils;
@@ -687,4 +684,33 @@ public class DocumentationController {
         return res.toString();
     }
 
+    @GetMapping(value = {"/getMyDoc"})
+    @ResponseBody
+    public MyDocResult getMyDoc(@RequestParam(value = "userID") int userId,
+                                   Model model, HttpSession session){
+        MyDocResult myDocResult = new MyDocResult();
+        List<Documentation> documentations= documentationRepository.findDocumentationByCreatorId(userId);
+        List<Collaborator> collaborators= collaboratorRepository.findCollaboratorByUserId(userId);
+        int l1=documentations.size();
+        int l2=collaborators.size();
+        List<PageList> pageLists=new ArrayList<>();
+
+        for (Documentation documentation : documentations) {
+            PageList pageList=new PageList();
+            pageList.id = documentation.id;
+            pageList.title = documentation.title;
+            pageList.isCreator = true;
+            pageLists.add(pageList);
+        }
+        for (Collaborator collaborator : collaborators) {
+            PageList pageList=new PageList();
+            pageList.id = collaborator.id;
+            pageList.title = documentationRepository.findDocumentationById(collaborator.id).title;
+            pageList.isCreator = false;
+            pageLists.add(pageList);
+        }
+        myDocResult.pageList = pageLists;
+        myDocResult.writerList = null;
+        return myDocResult;
+    }
 }
