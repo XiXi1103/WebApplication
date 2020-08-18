@@ -87,5 +87,11 @@ public class CheckController {
         return notice != null;
     }
 
+    public static boolean checkGroupMemberByUserIdAndGroupId(int userId, int groupId){
+        GroupMember groupMember = groupMemberRepository.findGroupMemberByUserIdAndGroupId(userId,groupId);
+        return groupMember != null;
+    }
+
+
 
 }

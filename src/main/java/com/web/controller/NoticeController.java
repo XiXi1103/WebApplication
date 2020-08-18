@@ -345,17 +345,19 @@ public class NoticeController {
         notice.success = true;
         return notice;
     }
-    @PostMapping(value = "/getNotification")
+    @GetMapping(value = "/getNotification")
     @ResponseBody
-    public List<NoticeResult> getNotification(@RequestParam int userID){
+    public List<NoticeResult> getNotification(@RequestParam(value = "userId") int userID){
         List<Notice> noticeList = noticeRepository.findByUserID(userID);
         List<NoticeResult> noticeResultList = new ArrayList<>();
+//        System.out.println("1");
         for(Notice notice : noticeList){
             NoticeResult noticeResult = new NoticeResult();
             noticeResult.id = notice.id;
             noticeResult.category = notice.category + ( notice.about - 1 ) * 10;
             noticeResult.date = notice.date.toString();
             noticeResult.msg = notice.msg;
+            noticeResult.status = notice.status;
             if(notice.about == 3){
                 noticeResult.name = groupRepository.findGroupById(notice.groupID).groupName;
                 noticeResult.objectID = notice.groupID;

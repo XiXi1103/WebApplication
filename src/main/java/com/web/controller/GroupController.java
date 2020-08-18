@@ -126,15 +126,22 @@ public class GroupController {
     //少了加入时的权限
     @GetMapping(value = {"/confirmGroupInvitation"})
     @ResponseBody
-    public Result confirmGroupInvitation(@RequestParam("userID") int userID,
-            @RequestParam("groupID") int groupID,
-            @RequestParam("noticeID") int noticeID,
-            @RequestParam("userResponse") boolean userResponse,
+    public Result confirmGroupInvitation(@RequestParam int userId,
+            @RequestParam int groupId,
+            @RequestParam int noticeId,
+            @RequestParam boolean userResponse,
             Model model, HttpSession session){
         Result result = new Result();
-        Group group = groupRepository.findGroupById(groupID);
-        User user = userRepository.findUserById(userID);
-        Notice notice = noticeRepository.findNoticeById(noticeID);
+        Group group = groupRepository.findGroupById(groupId);
+        User user = userRepository.findUserById(userId);
+        Notice notice = noticeRepository.findNoticeById(noticeId);
+        if(CheckController.checkGroupMemberByUserIdAndGroupId(userId,groupId)){
+            notice.status = true;
+            noticeRepository.save(notice);
+            result.success = false;
+            result.msg = "您已在该团队中";
+            return result;
+        }
         if(!userResponse){
             notice.status = true;
             noticeRepository.save(notice);
@@ -145,9 +152,10 @@ public class GroupController {
             noticeRepository.save(notice);
             GroupMember groupMember = new GroupMember();
             groupMember.join_time = new Date();
-            groupMember.userId = userID;
-            groupMember.groupId = groupID;
+            groupMember.userId = userId;
+            groupMember.groupId = groupId;
             groupMemberRepository.save(groupMember);
+            result.success = true;
         }
         return result;
     }

@@ -91,18 +91,18 @@ public class CollectionController {
         ArrayList<PageList> pageLists=new ArrayList<>();
         PageList pageList=new PageList();
 
-        for(int i=0;i<l;i++){
+        for (Collection collection : collections) {
 
-            Documentation documentation=new Documentation();
-            documentation=documentationRepository.findDocumentationById(collections.get(i).id);
-            if(documentation.isTemplate)
+            Documentation documentation = new Documentation();
+            documentation = documentationRepository.findDocumentationById(collection.id);
+            if (documentation.isTemplate)
                 continue;
-            pageList.id=collections.get(i).id;
-            pageList.title=documentation.title;
-            if(documentation.creatorId==userId)
-                pageList.isCreator=true;
+            pageList.id = collection.id;
+            pageList.title = documentation.title;
+            if (documentation.creatorId == userId)
+                pageList.isCreator = true;
             else
-                pageList.isCreator=false;
+                pageList.isCreator = false;
             pageLists.add(pageList);
         }
         return pageLists;
