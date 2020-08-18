@@ -1,13 +1,13 @@
 package com.web.entity;
 
 public class UserSearch {
-    public String username;
+    public String name;
     public int id;
 
     public UserSearch() {}
 
     public UserSearch(int id, String username) {
-        this.username = username;
+        this.name = username;
         this.id = id;
     }
 }

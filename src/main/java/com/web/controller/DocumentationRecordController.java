@@ -66,22 +66,22 @@ public  boolean isTheSameDay(Date d1,Date d2) {
     public List<PageListResult> getRecentDoc(@RequestParam int userId, Model model, HttpSession session){
         List<DocumentationRecord> documentationRecords=documentationRecordRepository.findDocumentationRecordByUserId(userId);
         //Collections.sort(documentationRecords);
-        List<PageListResult> pageListResults=new ArrayList<>();
+        List<PageListResult> pageListResults = new ArrayList<>();
         int l = documentationRecords.size();
-        if(l==0)
+        if(l == 0)
             return pageListResults;
         int k=0;
         for (int i=0;i<l;i++){
             DocumentationRecord documentationRecord=documentationRecords.get(i);
             Date date=documentationRecord.time;
-            PageList pageList = new PageList();
             Documentation documentation = documentationRepository.findDocumentationById(documentationRecord.documentationId);
-
             if (documentation == null)
                 continue;
             if(i==0){
-                PageListResult pageListResult=new PageListResult();
-                pageListResult.date=date;
+                PageListResult pageListResult = new PageListResult();
+                pageListResult.pageList = new ArrayList<>();
+                PageList pageList = new PageList();
+                pageListResult.date = date;
                 pageList.id = documentationRecord.documentationId;
                 pageList.title = documentation.title;
                 pageList.isCreator = userId == documentation.creatorId;
@@ -90,6 +90,8 @@ public  boolean isTheSameDay(Date d1,Date d2) {
             }
             else if(!isTheSameDay(pageListResults.get(k).date,documentationRecord.time)){
                 PageListResult pageListResult=new PageListResult();
+                PageList pageList = new PageList();
+                pageListResult.pageList = new ArrayList<>();
                 pageListResult.date=date;
                 pageList.id = documentationRecord.documentationId;
                 pageList.title = documentation.title;
@@ -99,6 +101,8 @@ public  boolean isTheSameDay(Date d1,Date d2) {
             }
             else {
                 PageListResult pageListResult=pageListResults.get(k);
+                PageList pageList = new PageList();
+                pageListResult.pageList = new ArrayList<>();
                 pageList.id = documentationRecord.documentationId;
                 pageList.title = documentation.title;
                 pageList.isCreator = userId == documentation.creatorId;

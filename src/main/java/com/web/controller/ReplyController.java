@@ -92,9 +92,9 @@ public class ReplyController {
 
     @GetMapping(value = {"/deleteReply"})
     @ResponseBody
-    public Result delete(@RequestParam int replyID,
+    public Result delete(@RequestParam int replyId,
                         Model model, HttpSession session){
-        Reply reply = replyRepository.findReplyById(replyID);
+        Reply reply = replyRepository.findReplyById(replyId);
         List<Reply> replyList = replyRepository.findByReplyId(reply.id);
         replyRepository.delete(reply);
         for(Reply reply1:replyList){

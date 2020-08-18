@@ -3,6 +3,7 @@ package com.web.controller;
 import com.web.entity.*;
 import com.web.entity.Collection;
 import com.web.entity.ReturnResult.DocResult;
+import com.web.entity.ReturnResult.EditDocResult;
 import com.web.entity.ReturnResult.MemberList;
 import com.web.entity.ReturnResult.Result;
 import com.web.entity.vue.Documentation_vue;
@@ -64,7 +65,7 @@ public class DocumentationController {
             result.msg = "请填写内容";
             return result;
         }
-        if (creatorId == 0) {
+        if (creatorId == 0 && documentation_vue.userID == 0) {
             result.success = false;
             result.ID = 0;
             result.msg = "请登录";
@@ -324,12 +325,13 @@ public class DocumentationController {
         return result;
     }
 
+    //@倪某，协作者
     @GetMapping(value = {"/editDoc"})
     @ResponseBody
-    public DocResult update(@RequestParam int userID,
-                            @RequestParam int docID,
-                            Model model, HttpSession session) {
-        DocResult docResult = new DocResult();
+    public EditDocResult update(@RequestParam int userID,
+                                @RequestParam int docID,
+                                Model model, HttpSession session) {
+        EditDocResult docResult = new EditDocResult();
         if(!CheckController.checkUserById(userID)){
             docResult.success = false;
             docResult.msg = "当前用户不存在";
@@ -341,6 +343,8 @@ public class DocumentationController {
             docResult.msg = "文档不存在";
             return docResult;
         }
+        docResult.title = documentation.title;
+        docResult.currentPermission = documentation.otherPermission;
         long time=new Date().getTime()-documentation.lastTime.getTime();
         if(documentation.isEdit&&time<=1800000000){
             docResult.success = false;
@@ -353,6 +357,7 @@ public class DocumentationController {
                 getDocResult(docResult, documentation);
                 docResult.success = true;
                 docResult.msg = "返回成功";
+                docResult.userPermission = groupMember.permission;
                 documentation.isEdit=true;
                 documentation.editorId=userID;
                 DocumentationRecordController.addRecord(userID,docID,new Date(),documentationRecordRepository);
@@ -368,6 +373,7 @@ public class DocumentationController {
                 docResult = getDocResult(docResult, documentation);
                 docResult.success = true;
                 docResult.msg = "返回成功";
+                docResult.userPermission = 5;
                 documentation.isEdit=true;
                 documentation.editorId=userID;
                 documentation.lastTime=new Date();
@@ -389,6 +395,7 @@ public class DocumentationController {
                 docResult = getDocResult(docResult, documentation);
                 docResult.success = true;
                 docResult.msg = "返回成功";
+                docResult.currentPermission = documentation.otherPermission;
                 documentation.isEdit=true;
                 documentation.editorId=userID;
                 documentation.lastTime=new Date();
@@ -516,6 +523,7 @@ public class DocumentationController {
         else if(collaboratorRepository.findCollaboratorByUserIdAndAndDocumentationId(userID,docID)!=null){
             docResult.success = true;
             docResult.msg = "显示成功";
+            docResult.permission = collaboratorRepository.findCollaboratorByUserIdAndAndDocumentationId(userID,docID).permission;
             if(collection == null){
                 docResult.isCollect = false;
             }
@@ -537,7 +545,7 @@ public class DocumentationController {
                 docResult.isTemplate = documentation.isTemplate;
                 docResult.success = true;
                 docResult.msg = "显示成功";
-                docResult.permission=5;
+                docResult.permission = 5;
                 addRecentUse(userID,docID);
                 DocumentationRecordController.addRecord(userID,docID,documentation.lastTime,documentationRecordRepository);
             }
@@ -598,6 +606,13 @@ public class DocumentationController {
     }
 
     private DocResult getDocResult(DocResult docResult, Documentation documentation) {
+        Map<String,String> docMap = getDoc(documentation);
+        docResult.content = docMap.get("content");
+        docResult.html = docMap.get("html");
+        return docResult;
+    }
+
+    private EditDocResult getDocResult(EditDocResult docResult, Documentation documentation) {
         Map<String,String> docMap = getDoc(documentation);
         docResult.content = docMap.get("content");
         docResult.html = docMap.get("html");

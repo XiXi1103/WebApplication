@@ -91,7 +91,6 @@ public class CollectionController {
         PageList pageList=new PageList();
 
         for (Collection collection : collections) {
-
             Documentation documentation = new Documentation();
             documentation = documentationRepository.findDocumentationById(collection.id);
             if (documentation.isTemplate)

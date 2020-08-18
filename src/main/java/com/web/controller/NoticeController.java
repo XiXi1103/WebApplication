@@ -363,7 +363,11 @@ public class NoticeController {
                 noticeResult.objectID = notice.groupID;
             }
             else{
-                noticeResult.name = documentationRepository.findDocumentationById(notice.docID).title;
+
+                Documentation documentation = documentationRepository.findDocumentationById(notice.docID);
+                if(documentation == null)
+                    continue;
+                noticeResult.name = documentation.title;
                 noticeResult.objectID = notice.docID;
             }
             noticeResultList.add(noticeResult);

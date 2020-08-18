@@ -30,8 +30,8 @@ public class SearchController {
 
     @GetMapping(value = {"/searchUser"})
     @ResponseBody
-    public List<UserSearch> searchUser(@RequestParam String username) {
-        List<User> userList = userRepository.findByUsernameLike("%" + username + "%");
+    public List<UserSearch> searchUser(@RequestParam String text) {
+        List<User> userList = userRepository.findByUsernameLike("%" + text + "%");
         List<UserSearch> userSearchList = new ArrayList<>();
 
         for(User user : userList) {
@@ -59,19 +59,19 @@ public class SearchController {
 
     @GetMapping(value = {"/searchGroup"})
     @ResponseBody
-    public List<GrpSearch> searchGroup(@RequestParam int userId, @RequestParam String text) {
+    public List<GroupSearch> searchGroup(@RequestParam int userId, @RequestParam String text) {
         List<GroupMember> grpMemberList = groupMemberRepository.findGroupMemberByUserId(userId);
-        List<GrpSearch> grpSearchList = new ArrayList<>();
+        List<GroupSearch> groupSearchList = new ArrayList<>();
 
         for (GroupMember grpMember : grpMemberList) {
             Group grp = groupRepository.findGroupById(grpMember.groupId);
             if (grp.groupName.toLowerCase().contains(text.toLowerCase())) {
-                GrpSearch grpSearch = new GrpSearch(grp.groupName, grp.id);
-                grpSearchList.add(grpSearch);
+                GroupSearch groupSearch = new GroupSearch(grp.groupName, grp.id);
+                groupSearchList.add(groupSearch);
             }
         }
 
-        return grpSearchList;
+        return groupSearchList;
     }
 
     /*

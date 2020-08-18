@@ -35,12 +35,17 @@ public class UserController {
     }
     @GetMapping(value = {"/personalInfo"})
     @ResponseBody
-    public PersonalInfoResult personalInfo(@RequestParam int userID,
+    public PersonalInfoResult personalInfo(@RequestParam int userId,
                                          Model model, HttpSession session){
+        System.out.println("Person:" + userId);
         PersonalInfoResult result = new PersonalInfoResult();
-        User user = userRepository.findById(userID).get();
-
-        result.phone_num = user.phoneNumber;
+        User user = userRepository.findUserById(userId);
+        if(user == null){
+            result.success = false;
+            result.msg = "查无此人";
+            return result;
+        }
+        result.phoneNum = user.phoneNumber;
         result.password = user.password;
         result.email = user.email;
         result.create_time = user.createTime.toString();
