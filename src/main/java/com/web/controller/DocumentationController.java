@@ -212,10 +212,13 @@ public class DocumentationController {
 //    }
 
 
-    @PostMapping(value = {"/delDocCompletely"})
+    @GetMapping(value = {"/delDocCompletely"})
     @ResponseBody
-    public Result delDocCompletely(@RequestBody Documentation_vue documentation_vue,
-                         Model model, HttpSession session) {
+    public Result delDocCompletely(@RequestParam int userId,@RequestParam int docId,
+    Model model, HttpSession session) {
+        Documentation_vue documentation_vue=new Documentation_vue();
+        documentation_vue.docID=docId;
+        documentation_vue.userID=userId;
         Result result = new Result();
         if(!CheckController.checkUserById(documentation_vue.userID)){
             result.success = false;
@@ -416,11 +419,13 @@ public class DocumentationController {
         return docResult;
     }
 
-    @PostMapping(value = {"/recoverDoc"})
+    @GetMapping(value = {"/recoverDoc"})
     @ResponseBody
-    public Result recoverDoc(@RequestBody Documentation_vue documentation_vue,
+    public Result recoverDoc(@RequestParam int userId,@RequestParam int docId,
                          Model model, HttpSession session) {
-
+        Documentation_vue documentation_vue=new Documentation_vue();
+        documentation_vue.userID=userId;
+        documentation_vue.docID=docId;
         Result result = new Result();
         if(!CheckController.checkUserById(documentation_vue.userID)){
             result.success = false;

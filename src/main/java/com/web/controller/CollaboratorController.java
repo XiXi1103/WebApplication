@@ -34,7 +34,7 @@ public class CollaboratorController {
     NoticeRepository noticeRepository;
     @GetMapping(value = {"/addWriter"})
     @ResponseBody
-    public Result addWriter(@RequestParam("userID1") int userId1,
+    public Result addWriter(@RequestParam("userID") int userId1,
                             @RequestParam("username") String userName,
                             @RequestParam("docID") int docId,
                             Model model, HttpSession session){

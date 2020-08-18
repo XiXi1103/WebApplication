@@ -98,11 +98,10 @@ public class SearchController {
 
     @GetMapping(value = {"/getDelDoc"})
     @ResponseBody
-    public List<DocSearch> getDelDoc(@RequestParam int userId) {
-        User user = userRepository.findUserById(userId);
+    public List<DocSearch> getDelDoc(@RequestParam int userID) {
+        User user = userRepository.findUserById(userID);
         List<DocSearch> docSearchList = new ArrayList<>();
-
-        List<Documentation> docList = documentationRepository.findDocumentationByCreatorId(user.id);
+        List<Documentation> docList = documentationRepository.findDocumentationByCreatorIdAndTrash(user.id);
 
         if (!docList.isEmpty()) {
             for (Documentation doc : docList) {
