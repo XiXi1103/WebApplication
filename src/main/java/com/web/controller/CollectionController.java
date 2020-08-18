@@ -35,6 +35,7 @@ public class CollectionController {
     public Result collection(@RequestParam int docId,
                              @RequestParam int userId,Model model, HttpSession session){
         Result result = new Result();
+        System.out.println(userId + "," + docId);
         if(!CheckController.checkUserById(userId)){
             result.success = false;
             result.msg = "用户不存在";
@@ -59,7 +60,7 @@ public class CollectionController {
             result.msg = "收藏成功!";
             return result;
         }
-        else if(collection.status==false){
+        else if(!collection.status){
             collection.status=true;
             collection.collect_time=new Date();
             collectionRepository.save(collection);
@@ -75,7 +76,7 @@ public class CollectionController {
             result = new Result();
             result.success = true;
             result.ID = collection.id ;
-            result.msg = "删除收藏成功!";
+            result.msg = "取消收藏成功!";
             return result;
         }
     }

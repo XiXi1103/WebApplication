@@ -1,6 +1,7 @@
 package com.web.controller;
 
 import com.web.entity.*;
+import com.web.entity.Collection;
 import com.web.entity.ReturnResult.DocResult;
 import com.web.entity.ReturnResult.MemberList;
 import com.web.entity.ReturnResult.Result;
@@ -40,6 +41,8 @@ public class DocumentationController {
     ReplyRepository replyRepository;
     @Autowired
     DocumentModificationRecordRepository documentModificationRecordRepository;
+    @Autowired
+    CollectionRepository collectionRepository;
     @Autowired
     DocumentationRecordRepository documentationRecordRepository;
     @PostMapping(value = {"/newDoc"})
@@ -455,6 +458,7 @@ public class DocumentationController {
                              Model model, HttpSession session) {
         DocResult docResult = new DocResult();
         Documentation documentation = documentationRepository.findDocumentationById(docID);
+        Collection collection =  collectionRepository.findCollectionByUserIdAndDocumentationId(userID,docID);
         if(documentation == null){
             docResult.success = false;
             docResult.msg = "文档不存在";
@@ -471,6 +475,12 @@ public class DocumentationController {
             if (groupMember.permission >= 1) {
                 getDocResult(docResult, documentation);
                 docResult.success = true;
+                if(collection == null){
+                    docResult.isCollect = false;
+                }
+                else{
+                    docResult.isCollect = collection.status;
+                }
                 docResult.msg = "显示成功";
                 docResult.permission=groupMember.permission;
                 addRecentUse(userID,docID);
@@ -484,11 +494,23 @@ public class DocumentationController {
         else if(collaboratorRepository.findCollaboratorByUserIdAndAndDocumentationId(userID,docID)!=null){
             docResult.success = true;
             docResult.msg = "显示成功";
+            if(collection == null){
+                docResult.isCollect = false;
+            }
+            else{
+                docResult.isCollect = collection.status;
+            }
             DocumentationRecordController.addRecord(userID,docID,documentation.lastTime,documentationRecordRepository);
             docResult.permission=collaboratorRepository.findCollaboratorByUserIdAndAndDocumentationId(userID,docID).permission;
         }
         else{
             if(userID == documentation.creatorId){
+                if(collection == null){
+                    docResult.isCollect = false;
+                }
+                else{
+                    docResult.isCollect = collection.status;
+                }
                 getDocResult(docResult, documentation);
                 docResult.success = true;
                 docResult.msg = "显示成功";
@@ -497,6 +519,12 @@ public class DocumentationController {
                 DocumentationRecordController.addRecord(userID,docID,documentation.lastTime,documentationRecordRepository);
             }
             else if(documentation.otherPermission >= 1){
+                if(collection == null){
+                    docResult.isCollect = false;
+                }
+                else{
+                    docResult.isCollect = collection.status;
+                }
                 getDocResult(docResult, documentation);
                 docResult.success = true;
                 docResult.msg = "显示成功";
