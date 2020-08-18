@@ -71,6 +71,12 @@ public class GroupMemberController {
             int category = 1;
             Notice notice;
             User actor = userRepository.findUserById(groupRepository.findGroupById(groupID).creatorId);
+            if(noticeRepository.findNoticeByUserIDAndGroupIDAndCategory(userID,groupID,1)!=null){
+                result.success = false;
+                result.ID = group.id ;
+                result.msg = "已邀请!";
+                return result;
+            }
             notice = new NoticeController().addNoticeAboutGroup(user.id,actor.id,category,groupID,
                     userRepository,groupRepository);
             noticeRepository.save(notice);

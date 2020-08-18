@@ -68,9 +68,16 @@ public class CollaboratorController {
         User user = userRepository.findUserByUsername(userName);
         int category = 3;
         Notice notice;
+        if(noticeRepository.findNoticeByUserIDAndGroupIDAndCategory(user.id,docId,3)!=null){
+            result.success = false;
+            result.ID = docId;
+            result.msg = "已邀请!";
+            return result;
+        }
         notice = new NoticeController().addNoticeAboutDoc(user.id,userId1,category,docId,0,
                 userRepository,documentationRepository,replyRepository);
         noticeRepository.save(notice);
+
         result.success = true;
         result.msg="发送邀请成功";
         return result;
