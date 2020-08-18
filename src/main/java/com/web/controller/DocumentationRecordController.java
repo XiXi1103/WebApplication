@@ -3,10 +3,7 @@ package com.web.controller;
 import com.web.entity.Documentation;
 import com.web.entity.DocumentationRecord;
 import com.web.entity.GroupMember;
-import com.web.entity.ReturnResult.GroupList;
-import com.web.entity.ReturnResult.PageList;
-import com.web.entity.ReturnResult.RemoveRecentBrowsingResult;
-import com.web.entity.ReturnResult.Result;
+import com.web.entity.ReturnResult.*;
 import com.web.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -15,12 +12,10 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.thymeleaf.util.DateUtils;
 
 import javax.servlet.http.HttpSession;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @CrossOrigin
 @Controller
@@ -37,25 +32,80 @@ public class DocumentationRecordController {
     DocumentationRepository documentationRepository;
     @Autowired
     GroupMemberRepository groupMemberRepository;
+//    @GetMapping(value = {"/getRecentDoc"})
+//    @ResponseBody
+//    public List<PageList> getRecentDoc(@RequestParam int userId, Model model, HttpSession session){
+//        List<DocumentationRecord> documentationRecords=documentationRecordRepository.findDocumentationRecordByUserId(userId);
+//        //Collections.sort(documentationRecords);
+//        List<PageList> pageLists=new ArrayList<>();
+//        System.out.println("1");
+//        int l = documentationRecords.size();
+//        for (DocumentationRecord documentationRecord : documentationRecords) {
+//            PageList pageList = new PageList();
+//            Documentation documentation = documentationRepository.findDocumentationById(documentationRecord.documentationId);
+//            if (documentation == null)
+//                continue;
+//            pageList.id = documentationRecord.documentationId;
+//            pageList.title = documentation.title;
+//            pageList.isCreator = userId == documentation.creatorId;
+//            pageLists.add(pageList);
+//        }
+//        return pageLists;
+//    }
+public  boolean isTheSameDay(Date d1,Date d2) {
+    Calendar c1 = Calendar.getInstance();
+    Calendar c2 = Calendar.getInstance();
+    c1.setTime(d1);
+    c2.setTime(d2);
+    return (c1.get(Calendar.YEAR) == c2.get(Calendar.YEAR))
+            && (c1.get(Calendar.MONTH) == c2.get(Calendar.MONTH))
+            && (c1.get(Calendar.DAY_OF_MONTH) == c2.get(Calendar.DAY_OF_MONTH));
+}
     @GetMapping(value = {"/getRecentDoc"})
     @ResponseBody
-    public List<PageList> getRecentDoc(@RequestParam int userId, Model model, HttpSession session){
+    public List<PageListResult> getRecentDoc(@RequestParam int userId, Model model, HttpSession session){
         List<DocumentationRecord> documentationRecords=documentationRecordRepository.findDocumentationRecordByUserId(userId);
         //Collections.sort(documentationRecords);
-        List<PageList> pageLists=new ArrayList<>();
-        System.out.println("1");
+        List<PageListResult> pageListResults=new ArrayList<>();
         int l = documentationRecords.size();
-        for (DocumentationRecord documentationRecord : documentationRecords) {
+        if(l==0)
+            return pageListResults;
+        int k=0;
+        for (int i=0;i<l;i++){
+            DocumentationRecord documentationRecord=documentationRecords.get(i);
+            Date date=documentationRecord.time;
             PageList pageList = new PageList();
             Documentation documentation = documentationRepository.findDocumentationById(documentationRecord.documentationId);
+
             if (documentation == null)
                 continue;
-            pageList.id = documentationRecord.documentationId;
-            pageList.title = documentation.title;
-            pageList.isCreator = userId == documentation.creatorId;
-            pageLists.add(pageList);
+            if(i==0){
+                PageListResult pageListResult=new PageListResult();
+                pageListResult.date=date;
+                pageList.id = documentationRecord.documentationId;
+                pageList.title = documentation.title;
+                pageList.isCreator = userId == documentation.creatorId;
+                pageListResult.pageList.add(pageList);
+                pageListResults.add(pageListResult);
+            }
+            else if(!isTheSameDay(pageListResults.get(k).date,documentationRecord.time)){
+                PageListResult pageListResult=new PageListResult();
+                pageListResult.date=date;
+                pageList.id = documentationRecord.documentationId;
+                pageList.title = documentation.title;
+                pageList.isCreator = userId == documentation.creatorId;
+                pageListResult.pageList.add(pageList);
+                pageListResults.add(pageListResult);
+            }
+            else {
+                PageListResult pageListResult=pageListResults.get(k);
+                pageList.id = documentationRecord.documentationId;
+                pageList.title = documentation.title;
+                pageList.isCreator = userId == documentation.creatorId;
+                pageListResult.pageList.add(pageList);
+            }
         }
-        return pageLists;
+        return pageListResults;
     }
     @GetMapping(value = {"/removeRecentBrowsing"})
     @ResponseBody

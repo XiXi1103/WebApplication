@@ -30,12 +30,10 @@ public class CollectionController {
     GroupMemberRepository groupMemberRepository;
     @Autowired
     CollaboratorRepository collaboratorRepository;
-
     @GetMapping(value = {"/collection"})
     @ResponseBody
-    public Result collection(@RequestParam int userId,
-                             @RequestParam int docId,
-                             Model model, HttpSession session){
+    public Result collection(@RequestParam int docId,
+                             @RequestParam int userId,Model model, HttpSession session){
         Result result = new Result();
         if(!CheckController.checkUserById(userId)){
             result.success = false;

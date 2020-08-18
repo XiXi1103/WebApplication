@@ -169,7 +169,6 @@ public class CollaboratorController {
                 findCollaboratorByDocumentationId(docId);
         int l=collaborators.size();
         ArrayList<WriterList> writerLists=new ArrayList<>();
-
         for(int i=0;i<l;i++){
             WriterList writerList=new WriterList();
             writerList.id=collaborators.get(i).userId;
