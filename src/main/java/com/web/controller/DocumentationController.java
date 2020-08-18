@@ -453,8 +453,8 @@ public class DocumentationController {
 
     @GetMapping(value = {"/viewDoc"})
     @ResponseBody
-    public DocResult showDoc(@RequestParam int userID,
-                             @RequestParam int docID,
+    public DocResult showDoc(@RequestParam(value = "userId") int userID,
+                             @RequestParam(value = "docId") int docID,
                              Model model, HttpSession session) {
         DocResult docResult = new DocResult();
         Documentation documentation = documentationRepository.findDocumentationById(docID);
@@ -483,6 +483,7 @@ public class DocumentationController {
                 }
                 docResult.msg = "显示成功";
                 docResult.permission=groupMember.permission;
+                docResult.isTemplate = documentation.isTemplate;
                 addRecentUse(userID,docID);
                 DocumentationRecordController.addRecord(userID,docID,documentation.lastTime,documentationRecordRepository);
             } else {
@@ -512,6 +513,7 @@ public class DocumentationController {
                     docResult.isCollect = collection.status;
                 }
                 getDocResult(docResult, documentation);
+                docResult.isTemplate = documentation.isTemplate;
                 docResult.success = true;
                 docResult.msg = "显示成功";
                 docResult.permission=5;
@@ -526,6 +528,7 @@ public class DocumentationController {
                     docResult.isCollect = collection.status;
                 }
                 getDocResult(docResult, documentation);
+                docResult.isTemplate = documentation.isTemplate;
                 docResult.success = true;
                 docResult.msg = "显示成功";
                 docResult.permission=documentation.otherPermission;

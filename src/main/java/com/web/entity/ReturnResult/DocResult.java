@@ -6,5 +6,6 @@ public class DocResult {
     public String html;
     public boolean success;
     public boolean isCollect;
+    public boolean isTemplate;
     public int permission;
 }
