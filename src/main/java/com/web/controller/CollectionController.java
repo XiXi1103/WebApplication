@@ -21,6 +21,8 @@ public class CollectionController {
     @Autowired
     GroupRepository groupRepository;
     @Autowired
+    MyTemplateRepository myTemplateRepository;
+    @Autowired
     CollectionRepository collectionRepository;
     @Autowired
     UserRepository userRepository;
@@ -156,6 +158,7 @@ public class CollectionController {
     @GetMapping(value = {"/getAllTemplate"})
     @ResponseBody
     public ArrayList<PageList> getAllTemplate(Model model, HttpSession session){
+//        System.out.println("template");
         ArrayList<Documentation> documentations= (ArrayList<Documentation>) documentationRepository.findDocumentationByisTemplate(true);
         int l1=documentations.size();
         ArrayList<PageList> pageLists=new ArrayList<>();
@@ -169,25 +172,60 @@ public class CollectionController {
     }
     @GetMapping(value = {"/getMyTemplate1"})
     @ResponseBody
-    public ArrayList<PageList> getMyTemplate(@RequestParam("userId") int userId,
+    public List<PageList> getMyTemplate(@RequestParam("userId") int userId,
                                              Model model, HttpSession session){
-        ArrayList<Collection> collections= (ArrayList<Collection>) collectionRepository.findCollectionByUserId(userId);
-        int l=collections.size();
-        ArrayList<PageList> pageLists=new ArrayList<>();
-        PageList pageList=new PageList();
-        for(int i=0;i<l;i++){
-            Documentation documentation=new Documentation();
-            documentation=documentationRepository.findDocumentationById(collections.get(i).id);
-            if(documentation.isTemplate==false)
-                continue;
-            pageList.id=collections.get(i).id;
-            pageList.title=documentation.title;
-            if(documentation.creatorId==userId)
-                pageList.isCreator=true;
-            else
-                pageList.isCreator=false;
-            pageLists.add(pageList);
+        if(userRepository.findById(userId) == null)
+            return null;
+
+        List<MyTemplate> myTemplateList = myTemplateRepository.findByUserId(userId);
+        List<PageList> pageListList = new ArrayList<>();
+        Documentation documentation;
+        for(MyTemplate myTemplate : myTemplateList){
+            documentation = documentationRepository.findDocumentationById(myTemplate.docId);
+            if(documentation != null){
+                PageList pageList = new PageList();
+                pageList.title = documentation.title;
+                pageList.id = documentation.id;
+                pageListList.add(pageList);
+            }
         }
-        return pageLists;
+        return pageListList;
+    }
+
+    @GetMapping(value = {"/addMyTemplate"})
+    @ResponseBody
+    public Result addMyTemplate(@RequestParam("userID") int userId,
+                                             @RequestParam int docID,
+                                             Model model, HttpSession session){
+        Result result = new Result();
+        Documentation documentation = documentationRepository.findDocumentationById(docID);
+        User user = userRepository.findUserById(userId);
+        if(user == null){
+            result.success = false;
+            result.msg = "当前用户不存在";
+            return result;
+        }
+        if(documentation == null || !documentation.isTemplate){
+            result.success = false;
+            result.msg = "该模板不存在";
+            return result;
+        }
+        MyTemplate myTemplate = myTemplateRepository.findMyTemplateByUserIdAndDocId(userId,docID);
+        if(myTemplate == null){
+            myTemplate = new MyTemplate();
+            myTemplate.date = new Date();
+            myTemplate.docId = docID;
+            myTemplate.userId = userId;
+            myTemplate.status = true;
+            myTemplateRepository.save(myTemplate);
+            result.success = true;
+            result.msg = "收藏模板成功";
+        }
+        else{
+            result.success = false;
+            result.msg = "您已收藏该模板";
+        }
+        return result;
+
     }
 }

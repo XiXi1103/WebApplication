@@ -498,6 +498,15 @@ public class DocumentationController {
             docResult.msg = "用户不存在";
             return docResult;
         }
+        if(documentation.isTemplate){
+            getDocResult(docResult, documentation);
+            docResult.isCollect = false;
+            docResult.isTemplate = true;
+            docResult.success = true;
+            docResult.permission = documentation.otherPermission;
+            docResult.msg = "";
+            return  docResult;
+        }
         if (documentation.groupId != 0) {
             GroupMember groupMember = groupMemberRepository.findGroupMemberByUserIdAndGroupId(userID, documentation.groupId);
             if (groupMember.permission >= 1) {
