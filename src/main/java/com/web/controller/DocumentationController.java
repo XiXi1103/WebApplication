@@ -285,6 +285,20 @@ public class DocumentationController {
             result.success = true;
             result.msg = "删除文档成功!";
         }
+        else if(collaboratorRepository.findCollaboratorByUserIdAndAndDocumentationId(userId,docId) != null && collaboratorRepository.findCollaboratorByUserIdAndAndDocumentationId(userId,docId).permission == 5){
+            documentation.isTrash = true;
+            documentationRepository.save(documentation);
+            result.success = true;
+            result.msg = "删除协作文档成功!";
+            int category = 6;
+            List<Collaborator> collaboratorList = collaboratorRepository.findCollaboratorByDocumentationId(documentation_vue.docID);
+            for(Collaborator collaborator : collaboratorList) {
+                new NoticeController().addNoticeAboutDoc(collaborator.userId, documentation_vue.userID, category,documentation.id,0,userRepository,documentationRepository,replyRepository);
+            }
+            if(documentation.groupId != 0){
+                generateNoticeAboutGroupDoc(documentation_vue, documentation, 2);
+            }
+        }
         else if(documentation.groupId != 0){
             GroupMember groupMember = groupMemberRepository.findGroupMemberByUserIdAndGroupId(documentation_vue.userID,documentation.groupId);
             if(groupMember.permission >= 4){

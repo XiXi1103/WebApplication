@@ -307,7 +307,7 @@ public class NoticeController {
         notice.success = true;
         return notice;
     }
-    //    1 团队权限被修改 2写作文档权限被修改
+    //    1 团队权限被修改 2 协作文档权限被修改
     //    finished 1,2
     public Notice addNoticeAboutPermission(int userID,int informerID,int category,
                                            int groupID,int docID,int permission,
