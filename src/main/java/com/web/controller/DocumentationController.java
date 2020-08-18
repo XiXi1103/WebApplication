@@ -260,10 +260,13 @@ public class DocumentationController {
         }
         return memberLists;
     }
-    @PostMapping(value = {"/delDoc"})
+    @GetMapping(value = {"/delDoc"})
     @ResponseBody
-    public Result delDoc(@RequestBody Documentation_vue documentation_vue,
+    public Result delDoc(@RequestParam int userId,@RequestParam int docId,
                          Model model, HttpSession session) {
+        Documentation_vue documentation_vue=new Documentation_vue();
+        documentation_vue.docID=docId;
+        documentation_vue.userID=userId;
         Documentation documentation = documentationRepository.findDocumentationById(documentation_vue.docID);
         Result result = new Result();
         if(!CheckController.checkUserById(documentation_vue.userID)){
@@ -289,7 +292,6 @@ public class DocumentationController {
                 documentationRepository.save(documentation);
                 result.success = true;
                 result.msg = "删除团队文档成功!";
-
                 int category = 2;
                 generateNoticeAboutGroupDoc(documentation_vue, documentation, category);
             }

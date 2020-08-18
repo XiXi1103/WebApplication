@@ -16,7 +16,7 @@ import org.thymeleaf.util.DateUtils;
 
 import javax.servlet.http.HttpSession;
 import java.util.*;
-
+//finished
 @CrossOrigin
 @Controller
 public class DocumentationRecordController {
