@@ -18,6 +18,8 @@ import javax.servlet.http.HttpSession;
 import java.io.*;
 import java.util.*;
 
+import static com.web.controller.DocumentationRecordController.isTheSameDay;
+
 
 //YC:finished
 @CrossOrigin
@@ -686,31 +688,56 @@ public class DocumentationController {
 
     @GetMapping(value = {"/getMyDoc"})
     @ResponseBody
-    public MyDocResult getMyDoc(@RequestParam(value = "userID") int userId,
-                                   Model model, HttpSession session){
-        MyDocResult myDocResult = new MyDocResult();
-        List<Documentation> documentations= documentationRepository.findDocumentationByCreatorId(userId);
-        List<Collaborator> collaborators= collaboratorRepository.findCollaboratorByUserId(userId);
-        int l1=documentations.size();
-        int l2=collaborators.size();
-        List<PageList> pageLists=new ArrayList<>();
+    public List<PageListResult> getMyDoc(@RequestParam(value = "userID") int userId,
+                                         Model model, HttpSession session){
 
-        for (Documentation documentation : documentations) {
-            PageList pageList=new PageList();
-            pageList.id = documentation.id;
-            pageList.title = documentation.title;
-            pageList.isCreator = true;
-            pageLists.add(pageList);
+        List<Documentation> documentations= documentationRepository.findDocumentationByCreatorId(userId);
+        int l=documentations.size();
+        List<PageListResult> pageListResults = new ArrayList<>();
+        for (int i=0;i<l;i++){
+            Documentation documentation=documentations.get(i);
+            Date date=documentation.createTime;
+            if(documentation==null)
+                return pageListResults;
+            PageList pageList = new PageList();
+            if(i==0){
+                PageListResult pageListResult=new PageListResult();
+                pageListResult.date=date;
+                pageListResult.setDates(date);
+                pageList.id = documentation.id;
+                pageList.title = documentation.title;
+                pageList.isCreator = userId == documentation.creatorId;
+                pageList.date=date;
+                pageList.setDates(date);
+                pageListResult.pageList=new ArrayList<>();
+                pageListResult.pageList.add(pageList);
+                pageListResults.add(pageListResult);
+
+            }
+            else if(!isTheSameDay(pageListResults.get(pageListResults.size()-1).date,date)){
+                PageListResult pageListResult=new PageListResult();
+                pageListResult.date=date;
+                pageListResult.setDates(date);
+                pageList.id = documentation.id;
+                pageList.title = documentation.title;
+                pageList.isCreator = userId == documentation.creatorId;
+                pageList.date=date;
+                pageList.setDates(date);
+                pageListResult.pageList=new ArrayList<>();
+                pageListResult.pageList.add(pageList);
+                pageListResults.add(pageListResult);
+
+            }
+            else {
+                PageListResult pageListResult=pageListResults.get(pageListResults.size()-1);
+                pageList.id = documentation.id;
+                pageList.title = documentation.title;
+                pageList.date=date;
+                pageList.setDates(date);
+                pageList.isCreator = userId == documentation.creatorId;
+                pageListResult.pageList.add(pageList);
+            }
         }
-        for (Collaborator collaborator : collaborators) {
-            PageList pageList=new PageList();
-            pageList.id = collaborator.id;
-            pageList.title = documentationRepository.findDocumentationById(collaborator.id).title;
-            pageList.isCreator = false;
-            pageLists.add(pageList);
-        }
-        myDocResult.pageList = pageLists;
-        myDocResult.writerList = null;
-        return myDocResult;
+        return pageListResults;
     }
 }

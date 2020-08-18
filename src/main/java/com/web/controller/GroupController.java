@@ -154,6 +154,7 @@ public class GroupController {
             groupMember.join_time = new Date();
             groupMember.userId = userId;
             groupMember.groupId = groupId;
+            groupMember.permission=1;
             groupMemberRepository.save(groupMember);
             result.success = true;
         }

@@ -2,6 +2,7 @@ package com.web.controller;
 
 import com.web.entity.*;
 import com.web.entity.ReturnResult.PageList;
+import com.web.entity.ReturnResult.PageListResult;
 import com.web.entity.ReturnResult.Result;
 import com.web.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,8 @@ import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import static com.web.controller.DocumentationRecordController.isTheSameDay;
 
 //YC:finished
 @CrossOrigin
@@ -85,64 +88,112 @@ public class CollectionController {
 
     @GetMapping(value = {"/getCollectionDoc"})
     @ResponseBody
-    public ArrayList<PageList> getCollectionDoc(@RequestParam("userID") int userId,
+    public List<PageListResult> getCollectionDoc(@RequestParam("userID") int userId,
                                                 Model model, HttpSession session){
         ArrayList<Collection> collections= (ArrayList<Collection>) collectionRepository.findCollectionByUserId(userId);
         int l=collections.size();
-        ArrayList<PageList> pageLists=new ArrayList<>();
-        PageList pageList=new PageList();
+        List<PageListResult> pageListResults = new ArrayList<>();
+        for (int i=0;i<l;i++){
+            Collection collection=collections.get(i);
+            Date date=collection.collect_time;
+            Documentation documentation = documentationRepository.findDocumentationById(collection.documentationId);
+            if(documentation==null)
+                return pageListResults;
+            PageList pageList = new PageList();
+            if(i==0){
+                PageListResult pageListResult=new PageListResult();
+                pageListResult.date=date;
+                pageListResult.setDates(date);
+                pageList.id = documentation.id;
+                pageList.title = documentation.title;
+                pageList.isCreator = userId == documentation.creatorId;
+                pageList.date=date;
+                pageList.setDates(date);
+                pageListResult.pageList=new ArrayList<>();
+                pageListResult.pageList.add(pageList);
+                pageListResults.add(pageListResult);
 
-        for (Collection collection : collections) {
-            Documentation documentation = new Documentation();
-            documentation = documentationRepository.findDocumentationById(collection.id);
-            if (documentation.isTemplate)
-                continue;
-            pageList.id = collection.id;
-            pageList.title = documentation.title;
-            if (documentation.creatorId == userId)
-                pageList.isCreator = true;
-            else
-                pageList.isCreator = false;
-            pageLists.add(pageList);
+            }
+            else if(!isTheSameDay(pageListResults.get(pageListResults.size()-1).date,date)){
+                PageListResult pageListResult=new PageListResult();
+                pageListResult.date=date;
+                pageListResult.setDates(date);
+                pageList.id = documentation.id;
+                pageList.title = documentation.title;
+                pageList.isCreator = userId == documentation.creatorId;
+                pageList.date=date;
+                pageList.setDates(date);
+                pageListResult.pageList=new ArrayList<>();
+                pageListResult.pageList.add(pageList);
+                pageListResults.add(pageListResult);
+
+            }
+            else {
+                PageListResult pageListResult=pageListResults.get(pageListResults.size()-1);
+                pageList.id = documentation.id;
+                pageList.title = documentation.title;
+                pageList.date=date;
+                pageList.setDates(date);
+                pageList.isCreator = userId == documentation.creatorId;
+                pageListResult.pageList.add(pageList);
+            }
         }
-        return pageLists;
+        return pageListResults;
     }
 
     @GetMapping(value = {"/getGroupDoc"})
     @ResponseBody
-    public ArrayList<PageList> getGroupDoc(@RequestParam("groupID") int groupId,
+    public List<PageListResult> getGroupDoc(@RequestParam("groupID") int groupId,
                                           @RequestParam("userId") int userId,
                                           Model model, HttpSession session){
         ArrayList<Documentation> documentations= (ArrayList<Documentation>) documentationRepository.findDocumentationByGroupId(groupId);
-        int l1=documentations.size();
-        ArrayList<PageList> pageLists=new ArrayList<>();
+        int l=documentations.size();
+        List<PageListResult> pageListResults = new ArrayList<>();
+        for (int i=0;i<l;i++){
+            Documentation documentation=documentations.get(i);
+            Date date=documentation.createTime;
+            if(documentation==null)
+                return pageListResults;
+            PageList pageList = new PageList();
+            if(i==0){
+                PageListResult pageListResult=new PageListResult();
+                pageListResult.date=date;
+                pageListResult.setDates(date);
+                pageList.id = documentation.id;
+                pageList.title = documentation.title;
+                pageList.isCreator = userId == documentation.creatorId;
+                pageList.date=date;
+                pageList.setDates(date);
+                pageListResult.pageList=new ArrayList<>();
+                pageListResult.pageList.add(pageList);
+                pageListResults.add(pageListResult);
 
-        for(int i=0;i<l1;i++){
-            PageList pageList=new PageList();
-            pageList.id=documentations.get(i).id;
-            pageList.title=documentations.get(i).title;
-            if(documentations.get(i).creatorId==userId)
-                pageList.isCreator=true;
-            else
-                pageList.isCreator=false;
-            pageLists.add(pageList);
+            }
+            else if(!isTheSameDay(pageListResults.get(pageListResults.size()-1).date,date)){
+                PageListResult pageListResult=new PageListResult();
+                pageListResult.date=date;
+                pageListResult.setDates(date);
+                pageList.id = documentation.id;
+                pageList.title = documentation.title;
+                pageList.isCreator = userId == documentation.creatorId;
+                pageList.date=date;
+                pageList.setDates(date);
+                pageListResult.pageList=new ArrayList<>();
+                pageListResult.pageList.add(pageList);
+                pageListResults.add(pageListResult);
+
+            }
+            else {
+                PageListResult pageListResult=pageListResults.get(pageListResults.size()-1);
+                pageList.id = documentation.id;
+                pageList.title = documentation.title;
+                pageList.date=date;
+                pageList.setDates(date);
+                pageList.isCreator = userId == documentation.creatorId;
+                pageListResult.pageList.add(pageList);
+            }
         }
-        return pageLists;
-    }
-    @GetMapping(value = {"/getAllTemplate"})
-    @ResponseBody
-    public ArrayList<PageList> getAllTemplate(Model model, HttpSession session){
-//        System.out.println("template");
-        ArrayList<Documentation> documentations= (ArrayList<Documentation>) documentationRepository.findDocumentationByisTemplate(true);
-        int l1=documentations.size();
-        ArrayList<PageList> pageLists=new ArrayList<>();
-        for(int i=0;i<l1;i++){
-            PageList pageList=new PageList();
-            pageList.id=documentations.get(i).id;
-            pageList.title=documentations.get(i).title;
-            pageLists.add(pageList);
-        }
-        return pageLists;
+        return pageListResults;
     }
     @GetMapping(value = {"/getMyTemplate1"})
     @ResponseBody

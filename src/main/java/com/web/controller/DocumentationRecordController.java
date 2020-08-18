@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.thymeleaf.util.DateUtils;
 
 import javax.servlet.http.HttpSession;
+import java.text.SimpleDateFormat;
 import java.util.*;
 //finished
 @CrossOrigin
@@ -52,14 +53,11 @@ public class DocumentationRecordController {
 //        }
 //        return pageLists;
 //    }
-public  boolean isTheSameDay(Date d1,Date d2) {
-    Calendar c1 = Calendar.getInstance();
-    Calendar c2 = Calendar.getInstance();
-    c1.setTime(d1);
-    c2.setTime(d2);
-    return (c1.get(Calendar.YEAR) == c2.get(Calendar.YEAR))
-            && (c1.get(Calendar.MONTH) == c2.get(Calendar.MONTH))
-            && (c1.get(Calendar.DAY_OF_MONTH) == c2.get(Calendar.DAY_OF_MONTH));
+public static boolean isTheSameDay(Date d1,Date d2) {
+    SimpleDateFormat dateformat = new SimpleDateFormat("yyyy-MM-dd");
+    String date1=dateformat.format(d1);
+    String date2=dateformat.format(d2);
+    return date1.compareTo(date2)==0;
 }
     @GetMapping(value = {"/getRecentDoc"})
     @ResponseBody
@@ -68,43 +66,47 @@ public  boolean isTheSameDay(Date d1,Date d2) {
         //Collections.sort(documentationRecords);
         List<PageListResult> pageListResults = new ArrayList<>();
         int l = documentationRecords.size();
-        if(l == 0)
-            return pageListResults;
-        int k=0;
         for (int i=0;i<l;i++){
             DocumentationRecord documentationRecord=documentationRecords.get(i);
             Date date=documentationRecord.time;
             Documentation documentation = documentationRepository.findDocumentationById(documentationRecord.documentationId);
-            if (documentation == null)
-                continue;
+            if(documentation==null)
+                return pageListResults;
+            PageList pageList = new PageList();
             if(i==0){
-                PageListResult pageListResult = new PageListResult();
-                pageListResult.pageList = new ArrayList<>();
-                PageList pageList = new PageList();
-                pageListResult.date = date;
-                pageList.id = documentationRecord.documentationId;
-                pageList.title = documentation.title;
-                pageList.isCreator = userId == documentation.creatorId;
-                pageListResult.pageList.add(pageList);
-                pageListResults.add(pageListResult);
-            }
-            else if(!isTheSameDay(pageListResults.get(k).date,documentationRecord.time)){
                 PageListResult pageListResult=new PageListResult();
-                PageList pageList = new PageList();
-                pageListResult.pageList = new ArrayList<>();
                 pageListResult.date=date;
-                pageList.id = documentationRecord.documentationId;
+                pageListResult.setDates(date);
+                pageList.id = documentation.id;
                 pageList.title = documentation.title;
                 pageList.isCreator = userId == documentation.creatorId;
+                pageList.date=documentationRecord.time;
+                pageList.setDates(documentationRecord.time);
+                pageListResult.pageList=new ArrayList<>();
                 pageListResult.pageList.add(pageList);
                 pageListResults.add(pageListResult);
+
+            }
+            else if(!isTheSameDay(pageListResults.get(pageListResults.size()-1).date,date)){
+                PageListResult pageListResult=new PageListResult();
+                pageListResult.date=date;
+                pageListResult.setDates(date);
+                pageList.id = documentation.id;
+                pageList.title = documentation.title;
+                pageList.isCreator = userId == documentation.creatorId;
+                pageList.date=documentationRecord.time;
+                pageList.setDates(documentationRecord.time);
+                pageListResult.pageList=new ArrayList<>();
+                pageListResult.pageList.add(pageList);
+                pageListResults.add(pageListResult);
+
             }
             else {
-                PageListResult pageListResult=pageListResults.get(k);
-                PageList pageList = new PageList();
-                pageListResult.pageList = new ArrayList<>();
-                pageList.id = documentationRecord.documentationId;
+                PageListResult pageListResult=pageListResults.get(pageListResults.size()-1);
+                pageList.id = documentation.id;
                 pageList.title = documentation.title;
+                pageList.date=documentationRecord.time;
+                pageList.setDates(documentationRecord.time);
                 pageList.isCreator = userId == documentation.creatorId;
                 pageListResult.pageList.add(pageList);
             }

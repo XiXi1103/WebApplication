@@ -1,6 +1,8 @@
 package com.web.controller;
 
 import com.web.entity.*;
+import com.web.entity.ReturnResult.PageList;
+import com.web.entity.ReturnResult.PageListResult;
 import com.web.repository.DocumentationRepository;
 import com.web.repository.GroupMemberRepository;
 import com.web.repository.GroupRepository;
@@ -8,9 +10,11 @@ import com.web.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+
+import static com.web.controller.DocumentationRecordController.isTheSameDay;
 
 @Controller
 @CrossOrigin
@@ -98,21 +102,56 @@ public class SearchController {
 
     @GetMapping(value = {"/getDelDoc"})
     @ResponseBody
-    public List<DocSearch> getDelDoc(@RequestParam int userID) {
+    public List<PageListResult> getDelDoc(@RequestParam int userID) {
         User user = userRepository.findUserById(userID);
         List<DocSearch> docSearchList = new ArrayList<>();
-        List<Documentation> docList = documentationRepository.findDocumentationByCreatorIdAndTrash(user.id);
+        List<Documentation> documentations = documentationRepository.findDocumentationByCreatorIdAndTrash(user.id);
 
-        if (!docList.isEmpty()) {
-            for (Documentation doc : docList) {
-                if (doc.isTrash) {
-                    DocSearch docSearch = new DocSearch(doc.title, doc.id);
-                    docSearchList.add(docSearch);
-                }
+        List<PageListResult> pageListResults=new ArrayList<>();
+        int l = documentations.size();
+        for (int i=0;i<l;i++){
+            Documentation documentation=documentations.get(i);
+            Date date=documentation.lastTime;
+            PageList pageList = new PageList();
+            if(i==0){
+                PageListResult pageListResult=new PageListResult();
+                pageListResult.date=date;
+                pageListResult.setDates(date);
+                pageList.id = documentation.id;
+                pageList.title = documentation.title;
+                pageList.isCreator = userID == documentation.creatorId;
+                pageList.date=documentation.lastTime;
+                pageList.setDates(documentation.lastTime);
+                pageListResult.pageList=new ArrayList<>();
+                pageListResult.pageList.add(pageList);
+                pageListResults.add(pageListResult);
+
+            }
+            else if(!isTheSameDay(pageListResults.get(pageListResults.size()-1).date,documentation.lastTime)){
+                PageListResult pageListResult=new PageListResult();
+                pageListResult.date=date;
+                pageListResult.setDates(date);
+                pageList.id = documentation.id;
+                pageList.title = documentation.title;
+                pageList.isCreator = userID == documentation.creatorId;
+                pageList.date=documentation.lastTime;
+                pageList.setDates(documentation.lastTime);
+                pageListResult.pageList=new ArrayList<>();
+                pageListResult.pageList.add(pageList);
+                pageListResults.add(pageListResult);
+
+            }
+            else {
+                PageListResult pageListResult=pageListResults.get(pageListResults.size()-1);
+                pageList.id = documentation.id;
+                pageList.title = documentation.title;
+                pageList.date=documentation.lastTime;
+                pageList.setDates(documentation.lastTime);
+                pageList.isCreator = userID == documentation.creatorId;
+                pageListResult.pageList.add(pageList);
             }
         }
-
-        return docSearchList;
+        return pageListResults;
     }
 
 }
