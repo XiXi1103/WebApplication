@@ -7,9 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @CrossOrigin
 @Controller
@@ -359,11 +357,16 @@ public class NoticeController {
             noticeResult.msg = notice.msg;
             noticeResult.status = notice.status;
             if(notice.about == 3){
-                noticeResult.name = groupRepository.findGroupById(notice.groupID).groupName;
-                noticeResult.objectID = notice.groupID;
+                Group group = groupRepository.findGroupById(notice.groupID);
+                if(group != null) {
+                    noticeResult.name = groupRepository.findGroupById(notice.groupID).groupName;
+                    noticeResult.objectID = notice.groupID;
+                }
+                else{
+                    notice.msg = "团队已被解散";
+                }
             }
             else{
-
                 Documentation documentation = documentationRepository.findDocumentationById(notice.docID);
                 if(documentation == null)
                     continue;
@@ -372,6 +375,26 @@ public class NoticeController {
             }
             noticeResultList.add(noticeResult);
         }
+        Collections.sort(noticeResultList, (o1, o2) -> {
+            int a,b;
+            if(o1.status){
+                a = 1;
+            }
+            else
+                a = 0;
+            if(o2.status){
+                b = 1;
+            }
+            else
+                b = 0;
+            int i = a - b;
+            if(i != 0){
+                return i;
+            }
+            else{
+                return o2.date.compareTo(o1.date);
+            }
+        });
         return noticeResultList;
     }
 
