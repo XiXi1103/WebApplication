@@ -208,7 +208,7 @@ public class CollaboratorController {
     }
     @GetMapping(value = {"/catWriter"})
     @ResponseBody
-    public ArrayList<WriterList> catWriter(@RequestParam("docID") int docId,
+    public ArrayList<WriterList> catWriter(int docId,
                                            Model model, HttpSession session){
 //        if(!CheckController.checkDocById(docId)){
 //            result.success = false;
