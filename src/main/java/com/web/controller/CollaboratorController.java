@@ -57,7 +57,19 @@ public class CollaboratorController {
             return result;
         }
 
-        if(collaboratorRepository.findCollaboratorByUserIdAndAndDocumentationId(userId1,docId).permission <= 4)
+        User informer = userRepository.findUserById(userId1);
+        User user = userRepository.findUserByUsername(userName);
+
+        Collaborator collaborator_1 = collaboratorRepository.findCollaboratorByUserIdAndAndDocumentationId(user.id,docId);
+        Collaborator collaborator_2 = collaboratorRepository.findCollaboratorByUserIdAndAndDocumentationId(informer.id,docId);
+
+        if(collaborator_1 != null){
+            result.msg = "您已邀请该用户";
+            return result;
+        }
+
+        if(documentationRepository.findDocumentationById(docId).creatorId != userId1 &&
+        collaborator_2.permission <= 4)
             return result;
 //        Collaborator collaborator=new Collaborator();
 //        collaborator.documentationId=docId;
@@ -65,11 +77,10 @@ public class CollaboratorController {
 //        collaborator.userId=userId2;
 //        collaboratorRepository.save(collaborator);
 //        result.success=true;
-        User user = userRepository.findUserByUsername(userName);
+
         int category = 3;
         Notice notice;
-        if(noticeRepository.findNoticeByUserIDAndGroupIDAndCategory(user.id,docId,3)!=null){
-            result.success = false;
+        if(noticeRepository.findNoticeByUserIDAndGroupIDAndCategory(user.id,docId,3) != null){
             result.ID = docId;
             result.msg = "已邀请!";
             return result;

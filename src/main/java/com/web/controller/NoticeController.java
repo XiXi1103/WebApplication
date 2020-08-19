@@ -156,6 +156,7 @@ public class NoticeController {
         notice.status = false;
         notice.success = false;
         notice.about = 1;
+        notice.category = category;
 
         String[] inform = {"",
                 "评论了您的文档:",
@@ -206,6 +207,7 @@ public class NoticeController {
         notice.status = false;
         notice.success = false;
         notice.about = 2;
+        notice.category = category;
 
         String[] inform = {"",
                 "回复了您的评论:",
@@ -289,6 +291,7 @@ public class NoticeController {
         notice.status = false;
         notice.success = false;
         notice.about = 4;
+        notice.category = category;
 
         String[] inform = {"",
                 "修改了团队文档:",
@@ -327,6 +330,7 @@ public class NoticeController {
         notice.status = false;
         notice.success = false;
         notice.about = 5;
+        notice.category = category;
         User informer = userRepository1.findUserById(informerID);
         Group group = groupRepository1.findGroupById(groupID);
         Documentation documentation = documentationRepository1.findDocumentationById(docID);
@@ -350,6 +354,8 @@ public class NoticeController {
         List<NoticeResult> noticeResultList = new ArrayList<>();
 //        System.out.println("1");
         for(Notice notice : noticeList){
+            if(notice.msg.equals("Unknown error happen!"))
+                continue;
             NoticeResult noticeResult = new NoticeResult();
             noticeResult.id = notice.id;
             noticeResult.category = notice.category + ( notice.about - 1 ) * 10;
@@ -403,8 +409,10 @@ public class NoticeController {
     @ResponseBody
     public void readNotifications(@RequestParam int userID,@RequestParam int notificationID){
         Notice notice = noticeRepository.findNoticeById(notificationID);
-        notice.status = true;
-        noticeRepository.save(notice);
+        if(notice.userID == userID) {
+            notice.status = true;
+            noticeRepository.save(notice);
+        }
     }
 
 }
