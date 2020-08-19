@@ -1,6 +1,7 @@
 package com.web.entity;
 
 import javax.persistence.*;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 @Entity
@@ -22,8 +23,14 @@ public class Reply {
     @Column(name = "isReply") //是否是评论的评论，1表示是
     public boolean isReply;
     @Column(name = "date")
-    public Date date;
+    public Date time;
+    @Column(name = "dates")
+    public String date;
     @Column(name = "likes")
     public int likes;
+    public void setDates(Date date) {
+        SimpleDateFormat sdf =new SimpleDateFormat("yyyy-MM-dd HH:mm:ss" );
+        this.date = sdf.format(date);
+    }
 
 }

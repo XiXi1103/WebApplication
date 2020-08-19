@@ -53,4 +53,26 @@ public class UserController {
         result.success = true;
         return result;
     }
+    @GetMapping(value = {"/personalInfo"})
+    @ResponseBody
+    public PersonalInfoResult getInfo(@RequestParam int userId,
+                                           @RequestParam String username,
+                                           Model model, HttpSession session){
+//        System.out.println("Person:" + userId);
+        PersonalInfoResult result = new PersonalInfoResult();
+        User looker = userRepository.findUserById(userId);
+        User user = userRepository.findUserByUsername(username);
+        if(user == null){
+            result.success = false;
+            result.msg = "查无此人";
+            return result;
+        }
+        result.phoneNum = user.phoneNumber;
+        result.password = user.password;
+        result.email = user.email;
+        result.create_time = user.createTime.toString();
+        result.username = user.username;
+        result.success = true;
+        return result;
+    }
 }
