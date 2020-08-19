@@ -486,6 +486,7 @@ public class DocumentationController {
         DocResult docResult = new DocResult();
         Documentation documentation = documentationRepository.findDocumentationById(docID);
         Collection collection =  collectionRepository.findCollectionByUserIdAndDocumentationId(userID,docID);
+        Date date=new Date();
         if(documentation == null){
             docResult.success = false;
             docResult.msg = "文档不存在";
@@ -520,6 +521,7 @@ public class DocumentationController {
                 docResult.msg = "显示成功";
                 docResult.permission=groupMember.permission;
                 docResult.isTemplate = documentation.isTemplate;
+                documentation.lastTime=date;
                 addRecentUse(userID,docID);
                 DocumentationRecordController.addRecord(userID,docID,documentation.lastTime,documentationRecordRepository);
             } else {
@@ -538,6 +540,7 @@ public class DocumentationController {
             else{
                 docResult.isCollect = collection.status;
             }
+            documentation.lastTime=date;
             DocumentationRecordController.addRecord(userID,docID,documentation.lastTime,documentationRecordRepository);
             docResult.permission=collaboratorRepository.findCollaboratorByUserIdAndAndDocumentationId(userID,docID).permission;
         }
@@ -555,6 +558,7 @@ public class DocumentationController {
                 docResult.msg = "显示成功";
                 docResult.permission = 5;
                 addRecentUse(userID,docID);
+                documentation.lastTime=date;
                 DocumentationRecordController.addRecord(userID,docID,documentation.lastTime,documentationRecordRepository);
             }
             else if(documentation.otherPermission >= 1){
@@ -570,6 +574,7 @@ public class DocumentationController {
                 docResult.msg = "显示成功";
                 docResult.permission=documentation.otherPermission;
                 addRecentUse(userID,docID);
+                documentation.lastTime=date;
                 DocumentationRecordController.addRecord(userID,docID,documentation.lastTime,documentationRecordRepository);
             }
             else{
