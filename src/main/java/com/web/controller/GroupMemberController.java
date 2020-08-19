@@ -152,6 +152,8 @@ public class GroupMemberController {
             return result;
         }
     }
+
+
 //    0 都没有，1 查看，2 评论，3 分享，4 修改,5 创建者
 @GetMapping(value = {"/getJoinGroup"})
 @ResponseBody

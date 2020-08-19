@@ -230,7 +230,7 @@ public class CollaboratorController {
     }
     @GetMapping(value = {"/writerPermission"})
     @ResponseBody
-    public Result writerPermission(@RequestParam(value = "userID") int userId,
+    public Result writerPermission(@RequestParam(value = "userId") int userId,
                                    @RequestParam String username,
                                    @RequestParam(value = "docID") int docId,
                                    @RequestParam int permission,

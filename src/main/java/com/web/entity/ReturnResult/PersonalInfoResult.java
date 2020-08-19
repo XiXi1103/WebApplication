@@ -8,4 +8,5 @@ public class PersonalInfoResult {
     public String create_time;
     public boolean success;
     public String msg;
+    public boolean isOther;
 }
