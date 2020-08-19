@@ -35,4 +35,6 @@ public class Documentation {
     public boolean isTemplate; //是否是模板
     @Column(name = "summary")
     public String summary;
+    @Column(name = "content",length=2000)
+    public String content;
 }
