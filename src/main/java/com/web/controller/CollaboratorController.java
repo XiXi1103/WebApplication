@@ -273,18 +273,19 @@ public class CollaboratorController {
     }
     @GetMapping(value = {"/writerPermission"})
     @ResponseBody
-    public Result writerPermission(@RequestParam(value = "userId") int userId,
-                                   @RequestParam String username,
-                                   @RequestParam(value = "docID") int docId,
+    public Result writerPermission(@RequestParam int userId1,
+                                   @RequestParam int userId2,
+                                   @RequestParam int docId,
                                    @RequestParam int permission,
                                    Model model, HttpSession session){
         Result result = new Result();
-        if(!CheckController.checkUserById(userId)){
+        System.out.println("wp");
+        if(!CheckController.checkUserById(userId1)){
             result.success = false;
             result.msg = "发起用户不存在";
             return result;
         }
-        if(!CheckController.checkUserByUsername(username)){
+        if(!CheckController.checkUserById(userId2)){
             result.success = false;
             result.msg = "被修改权限用户不存在";
             return result;
@@ -295,10 +296,15 @@ public class CollaboratorController {
             return result;
         }
         Documentation documentation=documentationRepository.findDocumentationById(docId);
-        User user=userRepository.findUserByUsername(username);
-        Collaborator collaborator=collaboratorRepository.findCollaboratorByUserIdAndAndDocumentationId(userId,docId);
-
-        if(userId==documentation.creatorId||collaborator.permission==5){
+        User informer = userRepository.findUserById(userId1);
+        User user=userRepository.findUserById(userId2);
+        Collaborator collaborator = collaboratorRepository.findCollaboratorByUserIdAndAndDocumentationId(userId1,docId);
+        if(userId1 != documentation.creatorId && collaborator == null){
+            result.success = false;
+            result.msg = "当前用户无权限";
+            return result;
+        }
+        if(userId1 == documentation.creatorId || collaborator.permission==5){
             Collaborator collaborator1=collaboratorRepository.findCollaboratorByUserIdAndAndDocumentationId(user.id,docId);
             collaborator1.permission=permission;
             collaboratorRepository.save(collaborator1);
@@ -308,7 +314,7 @@ public class CollaboratorController {
             result.msg = "修改权限成功!";
             int category = 2;
             Notice notice;
-            notice = new NoticeController().addNoticeAboutPermission(user.id,userId,category,0,docId,permission,
+            notice = new NoticeController().addNoticeAboutPermission(user.id,userId1,category,0,docId,permission,
                     userRepository,documentationRepository,groupRepository,groupMemberRepository,collaboratorRepository);
             noticeRepository.save(notice);
         }
