@@ -47,35 +47,108 @@ public class SearchController {
 
     @GetMapping(value = {"/searchDoc"})
     @ResponseBody
-    public List<DocSearch> searchDoc(@RequestParam int userId, @RequestParam String text) {
-        List<Documentation> docList = documentationRepository.findDocumentationByCreatorId(userId);
-        List<DocSearch> docSearchList = new ArrayList<>();
+    public List<PageListResult> searchDoc(@RequestParam int userId, @RequestParam String text) {
+        List<Documentation> documentations = documentationRepository.findDocumentationByTitleContaining(text);
+        List<PageListResult> pageListResults = new ArrayList<>();
+        int l = documentations.size();
+        for (int i=0;i<l;i++){
+            Documentation documentation=documentations.get(i);
+            Date date=documentation.createTime;
+            if(documentation==null)
+                return pageListResults;
+            PageList pageList = new PageList();
+            if(i==0){
+                PageListResult pageListResult=new PageListResult();
+                pageListResult.date=date;
+                pageListResult.setDates(date);
+                pageList.id = documentation.id;
+                pageList.title = documentation.title;
+                pageList.isCreator = userId == documentation.creatorId;
+                pageList.date=date;
+                pageList.setDates(date);
+                pageListResult.pageList=new ArrayList<>();
+                pageListResult.pageList.add(pageList);
+                pageListResults.add(pageListResult);
 
-        for (Documentation doc : docList) {
-            if (doc.title.toLowerCase().contains(text.toLowerCase())) {
-                DocSearch docSearch = new DocSearch(doc.title, doc.id);
-                docSearchList.add(docSearch);
+            }
+            else if(!isTheSameDay(pageListResults.get(pageListResults.size()-1).date,date)){
+                PageListResult pageListResult=new PageListResult();
+                pageListResult.date=date;
+                pageListResult.setDates(date);
+                pageList.id = documentation.id;
+                pageList.title = documentation.title;
+                pageList.isCreator = userId == documentation.creatorId;
+                pageList.date=date;
+                pageList.setDates(date);
+                pageListResult.pageList=new ArrayList<>();
+                pageListResult.pageList.add(pageList);
+                pageListResults.add(pageListResult);
+
+            }
+            else {
+                PageListResult pageListResult=pageListResults.get(pageListResults.size()-1);
+                pageList.id = documentation.id;
+                pageList.title = documentation.title;
+                pageList.date=date;
+                pageList.setDates(date);
+                pageList.isCreator = userId == documentation.creatorId;
+                pageListResult.pageList.add(pageList);
             }
         }
-
-        return docSearchList;
+        return pageListResults;
     }
 
     @GetMapping(value = {"/searchGroup"})
     @ResponseBody
-    public List<GroupSearch> searchGroup(@RequestParam int userId, @RequestParam String text) {
-        List<GroupMember> grpMemberList = groupMemberRepository.findGroupMemberByUserId(userId);
-        List<GroupSearch> groupSearchList = new ArrayList<>();
+    public List<PageListResult> searchGroup(@RequestParam int userId, @RequestParam String text) {
+        List<Group> groups = groupRepository.findGroupByGroupNameContaining(text);
+        List<PageListResult> pageListResults = new ArrayList<>();
+        int l = groups.size();
+        for (int i=0;i<l;i++){
+            Group group=groups.get(i);
+            Date date=group.createTime;
+            if(group==null)
+                return pageListResults;
+            PageList pageList = new PageList();
+            if(i==0){
+                PageListResult pageListResult=new PageListResult();
+                pageListResult.date=date;
+                pageListResult.setDates(date);
+                pageList.id = group.id;
+                pageList.title = group.groupName;
+                pageList.isCreator = userId == group.creatorId;
+                pageList.date=date;
+                pageList.setDates(date);
+                pageListResult.pageList=new ArrayList<>();
+                pageListResult.pageList.add(pageList);
+                pageListResults.add(pageListResult);
 
-        for (GroupMember grpMember : grpMemberList) {
-            Group grp = groupRepository.findGroupById(grpMember.groupId);
-            if (grp.groupName.toLowerCase().contains(text.toLowerCase())) {
-                GroupSearch groupSearch = new GroupSearch(grp.groupName, grp.id);
-                groupSearchList.add(groupSearch);
+            }
+            else if(!isTheSameDay(pageListResults.get(pageListResults.size()-1).date,date)){
+                PageListResult pageListResult=new PageListResult();
+                pageListResult.date=date;
+                pageListResult.setDates(date);
+                pageList.id = group.id;
+                pageList.title = group.groupName;
+                pageList.isCreator = userId == group.creatorId;
+                pageList.date=date;
+                pageList.setDates(date);
+                pageListResult.pageList=new ArrayList<>();
+                pageListResult.pageList.add(pageList);
+                pageListResults.add(pageListResult);
+
+            }
+            else {
+                PageListResult pageListResult=pageListResults.get(pageListResults.size()-1);
+                pageList.id = group.id;
+                pageList.title = group.groupName;
+                pageList.date=date;
+                pageList.setDates(date);
+                pageList.isCreator = userId == group.creatorId;
+                pageListResult.pageList.add(pageList);
             }
         }
-
-        return groupSearchList;
+        return pageListResults;
     }
 
     /*

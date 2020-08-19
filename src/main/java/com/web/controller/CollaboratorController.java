@@ -96,12 +96,18 @@ public class CollaboratorController {
         return result;
     }
 
-    @PostMapping(value = {"/kickCollaborator"})
+    @GetMapping(value = {"/kickCollaborator"})
     @ResponseBody
-    public Result kickCollaborator(@RequestBody Collaborator_vue collaborator_vue,
+    public Result kickCollaborator(@RequestParam int userId1,
+                                   @RequestParam int userId2,
+                                   @RequestParam int docId,
                              Model model, HttpSession session){
         Result result=new Result();
         //判断输入
+        Collaborator_vue collaborator_vue=new Collaborator_vue();
+        collaborator_vue.userId1=userId1;
+        collaborator_vue.userId2=userId2;
+        collaborator_vue.docId=docId;
         if(!CheckController.checkUserById(collaborator_vue.userId1)){
             result.success = false;
             result.msg = "发起者不存在";
@@ -126,21 +132,17 @@ public class CollaboratorController {
             result.success = false;
             return result;
         }
-
         Collaborator collaborator = collaboratorRepository.findCollaboratorByUserIdAndAndDocumentationId(user.id,collaborator_vue.docId);
-
         if(collaborator == null){
             result.msg="该成员已被踢出";
             result.success = false;
             return result;
         }
-
-        if(collaboratorRepository.findCollaboratorByUserIdAndAndDocumentationId
-                (collaborator_vue.userId1,collaborator_vue.docId).permission==5){
-
+        Collaborator collaborator1=collaboratorRepository.findCollaboratorByUserIdAndAndDocumentationId
+                (collaborator_vue.userId1,collaborator_vue.docId);
+        if(collaborator_vue.userId1==documentationRepository.findDocumentationById(collaborator_vue.docId).creatorId){
             collaboratorRepository.delete(collaborator);
             result.msg="踢出成功";
-
             int category = 4;
             Notice notice;
             notice = new NoticeController().addNoticeAboutDoc(collaborator_vue.userId2,
@@ -149,7 +151,23 @@ public class CollaboratorController {
             noticeRepository.save(notice);
 
             result.success=true;
+        }
+        else if(collaborator1==null){
+            result.msg="未知原因";
+            result.success = false;
+            return result;
+        }
+        else if(collaborator1.permission==5){
+            collaboratorRepository.delete(collaborator);
+            result.msg="踢出成功";
+            int category = 4;
+            Notice notice;
+            notice = new NoticeController().addNoticeAboutDoc(collaborator_vue.userId2,
+                    collaborator_vue.userId1,category,collaborator.documentationId,0,
+                    userRepository,documentationRepository,replyRepository);
+            noticeRepository.save(notice);
 
+            result.success=true;
         }
         else{
             result.msg="权限不足";
@@ -273,18 +291,19 @@ public class CollaboratorController {
     }
     @GetMapping(value = {"/writerPermission"})
     @ResponseBody
-    public Result writerPermission(@RequestParam(value = "userId") int userId,
-                                   @RequestParam String username,
-                                   @RequestParam(value = "docID") int docId,
+    public Result writerPermission(@RequestParam int userId1,
+                                   @RequestParam int userId2,
+                                   @RequestParam int docId,
                                    @RequestParam int permission,
                                    Model model, HttpSession session){
         Result result = new Result();
-        if(!CheckController.checkUserById(userId)){
+//        System.out.println("wp");
+        if(!CheckController.checkUserById(userId1)){
             result.success = false;
             result.msg = "发起用户不存在";
             return result;
         }
-        if(!CheckController.checkUserByUsername(username)){
+        if(!CheckController.checkUserById(userId2)){
             result.success = false;
             result.msg = "被修改权限用户不存在";
             return result;
@@ -295,10 +314,15 @@ public class CollaboratorController {
             return result;
         }
         Documentation documentation=documentationRepository.findDocumentationById(docId);
-        User user=userRepository.findUserByUsername(username);
-        Collaborator collaborator=collaboratorRepository.findCollaboratorByUserIdAndAndDocumentationId(userId,docId);
-
-        if(userId==documentation.creatorId||collaborator.permission==5){
+        User informer = userRepository.findUserById(userId1);
+        User user=userRepository.findUserById(userId2);
+        Collaborator collaborator = collaboratorRepository.findCollaboratorByUserIdAndAndDocumentationId(userId1,docId);
+        if(userId1 != documentation.creatorId && collaborator == null){
+            result.success = false;
+            result.msg = "当前用户无权限";
+            return result;
+        }
+        if(userId1 == documentation.creatorId || collaborator.permission==5){
             Collaborator collaborator1=collaboratorRepository.findCollaboratorByUserIdAndAndDocumentationId(user.id,docId);
             collaborator1.permission=permission;
             collaboratorRepository.save(collaborator1);
@@ -308,7 +332,7 @@ public class CollaboratorController {
             result.msg = "修改权限成功!";
             int category = 2;
             Notice notice;
-            notice = new NoticeController().addNoticeAboutPermission(user.id,userId,category,0,docId,permission,
+            notice = new NoticeController().addNoticeAboutPermission(user.id,userId1,category,0,docId,permission,
                     userRepository,documentationRepository,groupRepository,groupMemberRepository,collaboratorRepository);
             noticeRepository.save(notice);
         }

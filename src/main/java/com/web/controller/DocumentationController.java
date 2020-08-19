@@ -73,6 +73,7 @@ public class DocumentationController {
         Documentation documentation = new Documentation();
         if(documentation_vue.docID == 0){
             documentation = new Documentation();
+            documentation.isTemplate = documentation_vue.isTemplate;
             documentation.title = documentation_vue.title;
             documentation.createTime = new Date();
             documentation.summary = documentation_vue.summary;
@@ -93,6 +94,7 @@ public class DocumentationController {
             documentation.otherPermission=documentation_vue.otherPermission;
             documentation.lastTime=new Date();
             documentation.isEdit=false;
+            documentation.isTemplate = documentation_vue.isTemplate;
             documentation.content=documentation_vue.content;
             documentation.editorNum++;
             DocumentModificationRecord documentModificationRecord =new DocumentModificationRecord();
@@ -141,7 +143,7 @@ public class DocumentationController {
     }
     private void saveDoc(@RequestBody Documentation_vue documentation_vue, Result result, Documentation documentation) {
         try {
-            File docFolder= new File("doc");
+            File docFolder= new File("../doc") ;
             File targetFile = new File(docFolder,String.valueOf(documentation.id));
             if(!targetFile.getParentFile().exists()){
                 targetFile.getParentFile().mkdirs();
@@ -196,7 +198,7 @@ public class DocumentationController {
         Result result = new Result();
         //保存
         try {
-            File imageFolder= new File("/home/yzx/Web/uploadImg/");
+            File imageFolder= new File("/home/yzx/Web/uploadImg");
             System.out.println(imageFolder.getAbsolutePath());
             File targetFile = new File(imageFolder,file.getOriginalFilename());
             if(!targetFile.getParentFile().exists()){
@@ -359,7 +361,6 @@ public class DocumentationController {
         }
         docResult.title = documentation.title;
         docResult.currentPermission = documentation.otherPermission;
-        docResult.content=documentation.content;
         long time=new Date().getTime()-documentation.lastTime.getTime();
         if(documentation.isEdit&&time<=1800000000){
             docResult.success = false;
@@ -369,7 +370,7 @@ public class DocumentationController {
         if (documentation.groupId != 0) {
             GroupMember groupMember = groupMemberRepository.findGroupMemberByUserIdAndGroupId(userID, documentation.groupId);
             if (groupMember.permission >= 4) {
-//                getDocResult(docResult, documentation);
+                getDocResult(docResult, documentation);
                 docResult.success = true;
                 docResult.msg = "返回成功";
                 docResult.userPermission = groupMember.permission;
@@ -385,7 +386,7 @@ public class DocumentationController {
         }
         else{
             if(userID == documentation.creatorId){
-//                docResult = getDocResult(docResult, documentation);
+                docResult = getDocResult(docResult, documentation);
                 docResult.success = true;
                 docResult.msg = "返回成功";
                 docResult.userPermission = 5;
@@ -407,7 +408,7 @@ public class DocumentationController {
 
             }
             else if(documentation.otherPermission >= 4){
-//                docResult = getDocResult(docResult, documentation);
+                docResult = getDocResult(docResult, documentation);
                 docResult.success = true;
                 docResult.msg = "返回成功";
                 docResult.currentPermission = documentation.otherPermission;
@@ -501,7 +502,6 @@ public class DocumentationController {
                              Model model, HttpSession session) {
         DocResult docResult = new DocResult();
         Documentation documentation = documentationRepository.findDocumentationById(docID);
-        docResult.content=documentation.content;
         Collection collection =  collectionRepository.findCollectionByUserIdAndDocumentationId(userID,docID);
         Date date=new Date();
         if(documentation == null){
@@ -516,7 +516,7 @@ public class DocumentationController {
             return docResult;
         }
         if(documentation.isTemplate){
-//            getDocResult(docResult, documentation);
+            getDocResult(docResult, documentation);
             docResult.isCollect = false;
             docResult.isTemplate = true;
             docResult.success = true;
@@ -527,7 +527,7 @@ public class DocumentationController {
         if (documentation.groupId != 0) {
             GroupMember groupMember = groupMemberRepository.findGroupMemberByUserIdAndGroupId(userID, documentation.groupId);
             if (groupMember.permission >= 1) {
-//                getDocResult(docResult, documentation);
+                getDocResult(docResult, documentation);
                 docResult.success = true;
                 if(collection == null){
                     docResult.isCollect = false;
@@ -569,7 +569,7 @@ public class DocumentationController {
                 else{
                     docResult.isCollect = collection.status;
                 }
-//                getDocResult(docResult, documentation);
+                getDocResult(docResult, documentation);
                 docResult.isTemplate = documentation.isTemplate;
                 docResult.success = true;
                 docResult.msg = "显示成功";
@@ -585,7 +585,7 @@ public class DocumentationController {
                 else{
                     docResult.isCollect = collection.status;
                 }
-//                getDocResult(docResult, documentation);
+                getDocResult(docResult, documentation);
                 docResult.isTemplate = documentation.isTemplate;
                 docResult.success = true;
                 docResult.msg = "显示成功";
@@ -642,12 +642,12 @@ public class DocumentationController {
         return docResult;
     }
 
-//    private EditDocResult getDocResult(EditDocResult docResult, Documentation documentation) {
-//        Map<String,String> docMap = getDoc(documentation);
-//        docResult.content = docMap.get("content");
-//        docResult.html = docMap.get("html");
-//        return docResult;
-//    }
+    private EditDocResult getDocResult(EditDocResult docResult, Documentation documentation) {
+        Map<String,String> docMap = getDoc(documentation);
+        docResult.content = docMap.get("content");
+        docResult.html = docMap.get("html");
+        return docResult;
+    }
 //
 
     public static String readFileByChars(String fileName) {
@@ -712,8 +712,16 @@ public class DocumentationController {
     @ResponseBody
     public List<PageListResult> getMyDoc(@RequestParam(value = "userID") int userId,
                                          Model model, HttpSession session){
+        List<Collaborator> collaborators= collaboratorRepository.findCollaboratorByUserId(userId);
 
         List<Documentation> documentations= documentationRepository.findDocumentationByCreatorId(userId);
+        int k=collaborators.size();
+        for(int i=0;i<k;i++){
+            Documentation documentation=new Documentation();
+            documentation=documentationRepository.findDocumentationById(collaborators.get(i).documentationId);
+            documentations.add(documentation);
+        }
+        Collections.sort(documentations);
         int l=documentations.size();
         List<PageListResult> pageListResults = new ArrayList<>();
         for (int i=0;i<l;i++){
