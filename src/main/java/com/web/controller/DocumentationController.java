@@ -710,8 +710,16 @@ public class DocumentationController {
     @ResponseBody
     public List<PageListResult> getMyDoc(@RequestParam(value = "userID") int userId,
                                          Model model, HttpSession session){
+        List<Collaborator> collaborators= collaboratorRepository.findCollaboratorByUserId(userId);
 
         List<Documentation> documentations= documentationRepository.findDocumentationByCreatorId(userId);
+        int k=collaborators.size();
+        for(int i=0;i<k;i++){
+            Documentation documentation=new Documentation();
+            documentation=documentationRepository.findDocumentationById(collaborators.get(i).documentationId);
+            documentations.add(documentation);
+        }
+        Collections.sort(documentations);
         int l=documentations.size();
         List<PageListResult> pageListResults = new ArrayList<>();
         for (int i=0;i<l;i++){

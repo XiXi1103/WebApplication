@@ -5,7 +5,7 @@ import java.util.Date;
 
 @Entity
 @Table(name = "documentation")
-public class Documentation {
+public class Documentation implements Comparable<Documentation>{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     public int id;
@@ -35,4 +35,8 @@ public class Documentation {
     public boolean isTemplate; //是否是模板
     @Column(name = "summary")
     public String summary;
+    @Override
+    public int compareTo(Documentation documentation) {
+        return documentation.createTime.compareTo(this.createTime);
+    }
 }
