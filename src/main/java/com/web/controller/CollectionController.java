@@ -198,31 +198,118 @@ public class CollectionController {
     }
     @GetMapping(value = {"/getMyTemplate1"})
     @ResponseBody
-    public List<PageList> getMyTemplate(@RequestParam("userId") int userId,
+    public List<PageListResult> getMyTemplate(@RequestParam("userId") int userId,
                                              Model model, HttpSession session){
         if(userRepository.findById(userId) == null)
             return null;
-
-        List<MyTemplate> myTemplateList = myTemplateRepository.findByUserId(userId);
-        List<PageList> pageListList = new ArrayList<>();
-        Documentation documentation;
-        for(MyTemplate myTemplate : myTemplateList){
-            documentation = documentationRepository.findDocumentationById(myTemplate.docId);
-            if(documentation != null){
-                PageList pageList = new PageList();
-                pageList.title = documentation.title;
+        List<MyTemplate> myTemplates = myTemplateRepository.findByUserId(userId);
+        int k=myTemplates.size();
+        List<Documentation> documentations=new ArrayList<>();
+        for(int i=0;i<k;i++){
+            Documentation documentation=new Documentation();
+            documentation=documentationRepository.findDocumentationById(myTemplates.get(i).docId);
+            documentations.add(documentation);
+        }
+        int l=documentations.size();
+        List<PageListResult> pageListResults = new ArrayList<>();
+        for (int i=0;i<l;i++){
+            Documentation documentation=documentations.get(i);
+            Date date=documentation.createTime;
+            if(documentation==null)
+                return pageListResults;
+            PageList pageList = new PageList();
+            if(i==0){
+                PageListResult pageListResult=new PageListResult();
+                pageListResult.date=date;
+                pageListResult.setDates(date);
                 pageList.id = documentation.id;
-                pageListList.add(pageList);
+                pageList.title = documentation.title;
+                pageList.isCreator = false;
+                pageList.date=date;
+                pageList.setDates(date);
+                pageListResult.pageList=new ArrayList<>();
+                pageListResult.pageList.add(pageList);
+                pageListResults.add(pageListResult);
+
+            }
+            else if(!isTheSameDay(pageListResults.get(pageListResults.size()-1).date,date)){
+                PageListResult pageListResult=new PageListResult();
+                pageListResult.date=date;
+                pageListResult.setDates(date);
+                pageList.id = documentation.id;
+                pageList.title = documentation.title;
+                pageList.isCreator = false;
+                pageList.date=date;
+                pageList.setDates(date);
+                pageListResult.pageList=new ArrayList<>();
+                pageListResult.pageList.add(pageList);
+                pageListResults.add(pageListResult);
+
+            }
+            else {
+                PageListResult pageListResult=pageListResults.get(pageListResults.size()-1);
+                pageList.id = documentation.id;
+                pageList.title = documentation.title;
+                pageList.date=date;
+                pageList.setDates(date);
+                pageList.isCreator = false;
+                pageListResult.pageList.add(pageList);
             }
         }
-        return pageListList;
+        return pageListResults;
     }
 
     @GetMapping(value = {"/getAllTemplate"})
     @ResponseBody
-    public List<Documentation> getAllTemplate(){
-        List<Documentation> templateList = documentationRepository.findDocumentationByIsTemplate(true);
-        return templateList;
+    public List<PageListResult> getAllTemplate(){
+        List<Documentation> documentations = documentationRepository.findDocumentationByIsTemplate(true);
+        int l=documentations.size();
+        List<PageListResult> pageListResults = new ArrayList<>();
+        for (int i=0;i<l;i++){
+            Documentation documentation=documentations.get(i);
+            Date date=documentation.createTime;
+            if(documentation==null)
+                return pageListResults;
+            PageList pageList = new PageList();
+            if(i==0){
+                PageListResult pageListResult=new PageListResult();
+                pageListResult.date=date;
+                pageListResult.setDates(date);
+                pageList.id = documentation.id;
+                pageList.title = documentation.title;
+                pageList.isCreator = false;
+                pageList.date=date;
+                pageList.setDates(date);
+                pageListResult.pageList=new ArrayList<>();
+                pageListResult.pageList.add(pageList);
+                pageListResults.add(pageListResult);
+
+            }
+            else if(!isTheSameDay(pageListResults.get(pageListResults.size()-1).date,date)){
+                PageListResult pageListResult=new PageListResult();
+                pageListResult.date=date;
+                pageListResult.setDates(date);
+                pageList.id = documentation.id;
+                pageList.title = documentation.title;
+                pageList.isCreator = false;
+                pageList.date=date;
+                pageList.setDates(date);
+                pageListResult.pageList=new ArrayList<>();
+                pageListResult.pageList.add(pageList);
+                pageListResults.add(pageListResult);
+
+            }
+            else {
+                PageListResult pageListResult=pageListResults.get(pageListResults.size()-1);
+                pageList.id = documentation.id;
+                pageList.title = documentation.title;
+                pageList.date=date;
+                pageList.setDates(date);
+                pageList.isCreator = false;
+                pageListResult.pageList.add(pageList);
+            }
+        }
+        return pageListResults;
     }
 
     @GetMapping(value = {"/addMyTemplate"})
