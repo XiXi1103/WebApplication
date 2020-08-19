@@ -407,9 +407,9 @@ public class NoticeController {
 
     @GetMapping(value = "/readNotifications")
     @ResponseBody
-    public void readNotifications(@RequestParam int userID,@RequestParam int notificationID){
+    public void readNotifications(@RequestParam int userId,@RequestParam int notificationID){
         Notice notice = noticeRepository.findNoticeById(notificationID);
-        if(notice.userID == userID) {
+        if(notice.userID == userId) {
             notice.status = true;
             noticeRepository.save(notice);
         }

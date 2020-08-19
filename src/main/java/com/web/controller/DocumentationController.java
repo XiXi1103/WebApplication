@@ -282,25 +282,11 @@ public class DocumentationController {
             result.msg = "该文档不存在";
             return result;
         }
-        if (documentation.creatorId == documentation_vue.userID) {
-            documentation.isTrash = true;
-            documentationRepository.save(documentation);
-            result.success = true;
-            result.msg = "删除文档成功!";
+        if (documentation.creatorId == documentation_vue.userID && documentation.groupId == 0 && collaboratorRepository.findCollaboratorByUserIdAndAndDocumentationId(userId,docId) == null) {
+            generateNoticeAboutDeleteDoc(documentation_vue, documentation, result, "删除文档成功!");
         }
-        else if(collaboratorRepository.findCollaboratorByUserIdAndAndDocumentationId(userId,docId) != null && collaboratorRepository.findCollaboratorByUserIdAndAndDocumentationId(userId,docId).permission == 5){
-            documentation.isTrash = true;
-            documentationRepository.save(documentation);
-            result.success = true;
-            result.msg = "删除协作文档成功!";
-            int category = 6;
-            List<Collaborator> collaboratorList = collaboratorRepository.findCollaboratorByDocumentationId(documentation_vue.docID);
-            for(Collaborator collaborator : collaboratorList) {
-                new NoticeController().addNoticeAboutDoc(collaborator.userId, documentation_vue.userID, category,documentation.id,0,userRepository,documentationRepository,replyRepository);
-            }
-            if(documentation.groupId != 0){
-                generateNoticeAboutGroupDoc(documentation_vue, documentation, 2);
-            }
+        else if(collaboratorRepository.findCollaboratorByUserIdAndAndDocumentationId(userId,docId).permission == 5){
+            generateNoticeAboutDeleteDoc(documentation_vue, documentation, result, "删除协作文档成功!");
         }
         else if(documentation.groupId != 0){
             GroupMember groupMember = groupMemberRepository.findGroupMemberByUserIdAndGroupId(documentation_vue.userID,documentation.groupId);
@@ -322,6 +308,21 @@ public class DocumentationController {
             result.msg = "删除文档失败，权限不足!";
         }
         return result;
+    }
+
+    private void generateNoticeAboutDeleteDoc(Documentation_vue documentation_vue, Documentation documentation, Result result, String s) {
+        documentation.isTrash = true;
+        documentationRepository.save(documentation);
+        result.success = true;
+        result.msg = s;
+        int category = 6;
+        List<Collaborator> collaboratorList = collaboratorRepository.findCollaboratorByDocumentationId(documentation_vue.docID);
+        for(Collaborator collaborator : collaboratorList) {
+            new NoticeController().addNoticeAboutDoc(collaborator.userId, documentation_vue.userID, category,documentation.id,0,userRepository,documentationRepository,replyRepository);
+        }
+        if(documentation.groupId != 0){
+            generateNoticeAboutGroupDoc(documentation_vue, documentation, 2);
+        }
     }
 
     //@倪某，协作者

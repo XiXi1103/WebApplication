@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
+import java.util.List;
+
 // 严：传入参数检查完毕（id是否存在），除两个返回list的未检查
 @CrossOrigin
 @Controller
@@ -116,10 +118,26 @@ public class CollaboratorController {
             return result;
         }
 
+        User informer = userRepository.findUserById(collaborator_vue.userId1);
+        User user = userRepository.findUserById(collaborator_vue.userId2);
+
+        if(informer.id == user.id){
+            result.msg="您无法踢出自己";
+            result.success = false;
+            return result;
+        }
+
+        Collaborator collaborator = collaboratorRepository.findCollaboratorByUserIdAndAndDocumentationId(user.id,collaborator_vue.docId);
+
+        if(collaborator == null){
+            result.msg="该成员已被踢出";
+            result.success = false;
+            return result;
+        }
+
         if(collaboratorRepository.findCollaboratorByUserIdAndAndDocumentationId
                 (collaborator_vue.userId1,collaborator_vue.docId).permission==5){
-            Collaborator collaborator=collaboratorRepository.findCollaboratorByUserIdAndAndDocumentationId
-                    (collaborator_vue.userId2,collaborator_vue.docId);
+
             collaboratorRepository.delete(collaborator);
             result.msg="踢出成功";
 
@@ -141,31 +159,45 @@ public class CollaboratorController {
     }
     @PostMapping(value = {"/exitCollaborator"})
     @ResponseBody
-    public Result exitCollaborator(@RequestBody Collaborator_vue collaborator_vue,
+    public Result exitCollaborator(@RequestParam int userId,
+                                   @RequestParam int docId,
                                    Model model, HttpSession session){
         Result result=new Result();
-        if(!CheckController.checkUserById(collaborator_vue.userId1)){
+        if(!CheckController.checkUserById(userId)){
             result.success = false;
             result.msg = "发起者不存在";
             return result;
         }
-        if(!CheckController.checkDocById(collaborator_vue.docId)){
+        if(!CheckController.checkDocById(docId)){
             result.success = false;
             result.msg = "该文档不存在";
             return result;
         }
-        if(collaboratorRepository.findCollaboratorByUserIdAndAndDocumentationId
-                (collaborator_vue.userId1,collaborator_vue.docId)!=null){
+        Documentation documentation = documentationRepository.findDocumentationById(docId);
+        if(documentation.groupId != 0){
+            List<GroupMember> groupMembers = groupMemberRepository.findGroupMemberByGroupId(documentation.groupId);
+            for(GroupMember groupMember : groupMembers){
+                if(groupMember.id == userId)
+                    continue;
+                Notice notice = new NoticeController().addNoticeAboutDoc(groupMember.userId,userId,7,docId,0,userRepository,documentationRepository,replyRepository);
+                noticeRepository.save(notice);
+            }
+        }
+        if(collaboratorRepository.findCollaboratorByUserIdAndAndDocumentationId(userId,docId)!=null){
             collaboratorRepository.delete(collaboratorRepository.findCollaboratorByUserIdAndAndDocumentationId
-                    (collaborator_vue.userId1,collaborator_vue.docId));
+                    (userId,docId));
             result.msg="退出成功";
 
-            int category = 5;
-            Notice notice;
-            notice = new NoticeController().addNoticeAboutDoc(collaborator_vue.userId2,collaborator_vue.userId2,category,collaborator_vue.docId,0,
-                    userRepository,documentationRepository,replyRepository);
-            noticeRepository.save(notice);
-
+            int category = 7;
+            List<Collaborator> collaboratorList = collaboratorRepository.findCollaboratorByDocumentationId(docId);
+            for(Collaborator collaborator : collaboratorList) {
+                if(collaborator.userId == userId)
+                    continue;;
+                Notice notice;
+                notice = new NoticeController().addNoticeAboutDoc(collaborator.userId, userId, category, docId, 0,
+                        userRepository, documentationRepository, replyRepository);
+                noticeRepository.save(notice);
+            }
             result.success=true;
         }
         else{
@@ -198,10 +230,10 @@ public class CollaboratorController {
     }
     @GetMapping(value = {"/confirmDocInvitation"})
     @ResponseBody
-    public Result confirmDocInvitation(@RequestParam("userID") int userId,
-                                       @RequestParam("docID") int docId,
+    public Result confirmDocInvitation(@RequestParam int userId,
+                                       @RequestParam int docId,
                                        @RequestParam("userResponse") boolean userResponse,
-                                       @RequestParam("noticeID") int noticeId,
+                                       @RequestParam int noticeId,
                                          Model model, HttpSession session){
         Result result = new Result();
         if(!CheckController.checkUserById(userId)){
