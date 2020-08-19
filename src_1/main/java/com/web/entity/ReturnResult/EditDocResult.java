@@ -9,5 +9,4 @@ public class EditDocResult {
     public String title ;
     public boolean success;
     public String msg;
-    public boolean isTemplate;
 }

@@ -71,22 +71,20 @@ public class DocumentationController {
             return result;
         }
         Documentation documentation = new Documentation();
-        if(documentation_vue.docID == 0||documentation_vue.isTemplate){
+        if(documentation_vue.docID == 0){
             documentation = new Documentation();
             documentation.isTemplate = documentation_vue.isTemplate;
             documentation.title = documentation_vue.title;
             documentation.createTime = new Date();
             documentation.summary = documentation_vue.summary;
             documentation.creatorId = documentation_vue.authorID;
-            documentation.otherPermission=documentation_vue.otherPermission;
+            documentation.otherPermission=documentation_vue.permission;
             documentation.groupId = documentation_vue.groupId;
             documentation.lastTime=documentation.createTime;
-            documentation.content=documentation_vue.content;
             documentation.isEdit=false;
             documentation.editorId=0;
             documentationRepository.save(documentation);
             DocumentationRecordController.addRecord(documentation_vue.authorID,documentation.id,documentation.lastTime,documentationRecordRepository);
-
         }
         else {
             documentation = documentationRepository.findDocumentationById(documentation_vue.docID);
@@ -95,7 +93,6 @@ public class DocumentationController {
             documentation.lastTime=new Date();
             documentation.isEdit=false;
             documentation.isTemplate = documentation_vue.isTemplate;
-            documentation.content=documentation_vue.content;
             documentation.editorNum++;
             DocumentModificationRecord documentModificationRecord =new DocumentModificationRecord();
             documentModificationRecord.docId=documentation_vue.docID;
@@ -121,15 +118,11 @@ public class DocumentationController {
                 generateNoticeAboutGroupDoc(documentation_vue, documentation, category);
             }
         }
-//        saveDoc(documentation_vue, result, documentation);
+        saveDoc(documentation_vue, result, documentation);
         documentationRepository.save(documentation);
         if(documentation_vue.docID != 0){
             result.msg = "修改成功";
         }
-        else {
-            result.msg = "创建成功";
-        }
-
         result.ID = documentation.id;
         return result;
     }
@@ -305,7 +298,7 @@ public class DocumentationController {
         if (documentation.creatorId == documentation_vue.userID && documentation.groupId == 0 && collaboratorRepository.findCollaboratorByUserIdAndAndDocumentationId(userId,docId) == null) {
             generateNoticeAboutDeleteDoc(documentation_vue, documentation, result, "删除文档成功!");
         }
-        else if(collaboratorRepository.findCollaboratorByUserIdAndAndDocumentationId(userId,docId)!=null&&collaboratorRepository.findCollaboratorByUserIdAndAndDocumentationId(userId,docId).permission == 5){
+        else if(collaboratorRepository.findCollaboratorByUserIdAndAndDocumentationId(userId,docId).permission == 5){
             generateNoticeAboutDeleteDoc(documentation_vue, documentation, result, "删除协作文档成功!");
         }
         else if(documentation.groupId != 0){
@@ -358,19 +351,9 @@ public class DocumentationController {
             return docResult;
         }
         Documentation documentation = documentationRepository.findDocumentationById(docID);
-        docResult.content=documentation.content;
         if(documentation == null){
             docResult.success = false;
             docResult.msg = "文档不存在";
-            return docResult;
-        }
-        if (documentation.isTemplate){
-            docResult.isTemplate=true;
-            docResult.content=documentation.content;
-            docResult.title=documentation.title;
-            docResult.currentPermission=0;
-            docResult.userPermission=5;
-            docResult.success=true;
             return docResult;
         }
         docResult.title = documentation.title;
@@ -384,7 +367,7 @@ public class DocumentationController {
         if (documentation.groupId != 0) {
             GroupMember groupMember = groupMemberRepository.findGroupMemberByUserIdAndGroupId(userID, documentation.groupId);
             if (groupMember.permission >= 4) {
-//                getDocResult(docResult, documentation);
+                getDocResult(docResult, documentation);
                 docResult.success = true;
                 docResult.msg = "返回成功";
                 docResult.userPermission = groupMember.permission;
@@ -400,7 +383,7 @@ public class DocumentationController {
         }
         else{
             if(userID == documentation.creatorId){
-//                docResult = getDocResult(docResult, documentation);
+                docResult = getDocResult(docResult, documentation);
                 docResult.success = true;
                 docResult.msg = "返回成功";
                 docResult.userPermission = 5;
@@ -422,7 +405,7 @@ public class DocumentationController {
 
             }
             else if(documentation.otherPermission >= 4){
-//                docResult = getDocResult(docResult, documentation);
+                docResult = getDocResult(docResult, documentation);
                 docResult.success = true;
                 docResult.msg = "返回成功";
                 docResult.currentPermission = documentation.otherPermission;
@@ -507,36 +490,7 @@ public class DocumentationController {
         return result;
     }
 
-    @GetMapping(value = {"/exitEditDoc"})
-    @ResponseBody
-    public void test(@RequestParam int userId,
-                       @RequestParam String docId){
-//        System.out.println(userId + ":" + docId);
-        int docID = Integer.parseInt(docId);
-        Documentation documentation = documentationRepository.findDocumentationById(docID);
-        if(documentation != null){
-            if(documentation.isEdit && documentation.editorId == userId) {
-                documentation.isEdit = false;
-                documentation.editorId = 0;
-                documentationRepository.save(documentation);
-                }
-        }
-    }
 
-    @GetMapping(value = {"/rollBackEditDoc"})
-    @ResponseBody
-    public void rollBack(@RequestParam int userId,
-                     @RequestParam int docId){
-//        System.out.println(userId + ":" + docId);
-        Documentation documentation = documentationRepository.findDocumentationById(docId);
-        if(documentation != null){
-            if(documentation.isEdit && documentation.editorId == userId) {
-                documentation.isEdit = false;
-                documentation.editorId = 0;
-                documentationRepository.save(documentation);
-            }
-        }
-    }
 
     @GetMapping(value = {"/viewDoc"})
     @ResponseBody
@@ -546,7 +500,6 @@ public class DocumentationController {
         DocResult docResult = new DocResult();
         Documentation documentation = documentationRepository.findDocumentationById(docID);
         Collection collection =  collectionRepository.findCollectionByUserIdAndDocumentationId(userID,docID);
-        docResult.content=documentation.content;
         Date date=new Date();
         if(documentation == null){
             docResult.success = false;
@@ -560,7 +513,7 @@ public class DocumentationController {
             return docResult;
         }
         if(documentation.isTemplate){
-//            getDocResult(docResult, documentation);
+            getDocResult(docResult, documentation);
             docResult.isCollect = false;
             docResult.isTemplate = true;
             docResult.success = true;
@@ -571,7 +524,7 @@ public class DocumentationController {
         if (documentation.groupId != 0) {
             GroupMember groupMember = groupMemberRepository.findGroupMemberByUserIdAndGroupId(userID, documentation.groupId);
             if (groupMember.permission >= 1) {
-//                getDocResult(docResult, documentation);
+                getDocResult(docResult, documentation);
                 docResult.success = true;
                 if(collection == null){
                     docResult.isCollect = false;
@@ -613,7 +566,7 @@ public class DocumentationController {
                 else{
                     docResult.isCollect = collection.status;
                 }
-//                getDocResult(docResult, documentation);
+                getDocResult(docResult, documentation);
                 docResult.isTemplate = documentation.isTemplate;
                 docResult.success = true;
                 docResult.msg = "显示成功";
@@ -629,7 +582,7 @@ public class DocumentationController {
                 else{
                     docResult.isCollect = collection.status;
                 }
-//                getDocResult(docResult, documentation);
+                getDocResult(docResult, documentation);
                 docResult.isTemplate = documentation.isTemplate;
                 docResult.success = true;
                 docResult.msg = "显示成功";
@@ -649,14 +602,14 @@ public class DocumentationController {
 
 
 
-//    private Map<String,String> getDoc(Documentation documentation){
-//        String content = readFileByChars(documentation.path + "/content.txt");
-//        String html = readFileByChars(documentation.path + "/html.txt");
-//        Map<String,String> res = new HashMap<>();
-//        res.put("content",content);
-//        res.put("html",html);
-//        return res;
-//    }
+    private Map<String,String> getDoc(Documentation documentation){
+        String content = readFileByChars(documentation.path + "/content.txt");
+        String html = readFileByChars(documentation.path + "/html.txt");
+        Map<String,String> res = new HashMap<>();
+        res.put("content",content);
+        res.put("html",html);
+        return res;
+    }
 
     public void addRecentUse(int userID,int docID){
         User user=userRepository.findUserById(userID);
@@ -679,19 +632,19 @@ public class DocumentationController {
             user.recently_used1=docID;
     }
 
-//    private DocResult getDocResult(DocResult docResult, Documentation documentation) {
-//        Map<String,String> docMap = getDoc(documentation);
-//        docResult.content = docMap.get("content");
-//        docResult.html = docMap.get("html");
-//        return docResult;
-//    }
+    private DocResult getDocResult(DocResult docResult, Documentation documentation) {
+        Map<String,String> docMap = getDoc(documentation);
+        docResult.content = docMap.get("content");
+        docResult.html = docMap.get("html");
+        return docResult;
+    }
 
-//    private EditDocResult getDocResult(EditDocResult docResult, Documentation documentation) {
-//        Map<String,String> docMap = getDoc(documentation);
-//        docResult.content = docMap.get("content");
-//        docResult.html = docMap.get("html");
-//        return docResult;
-//    }
+    private EditDocResult getDocResult(EditDocResult docResult, Documentation documentation) {
+        Map<String,String> docMap = getDoc(documentation);
+        docResult.content = docMap.get("content");
+        docResult.html = docMap.get("html");
+        return docResult;
+    }
 //
 
     public static String readFileByChars(String fileName) {
