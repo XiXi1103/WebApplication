@@ -53,6 +53,8 @@ public class UserController {
         result.success = true;
         return result;
     }
+
+
     @GetMapping(value = {"/personalInfo"})
     @ResponseBody
     public PersonalInfoResult getInfo(@RequestParam int userId,

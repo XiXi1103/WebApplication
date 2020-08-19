@@ -79,7 +79,7 @@ public class GroupController {
             result.msg="Unknown error happen!";
             return result;
         }
-        if(groupRepository.findGroupById(groupID).creatorId==userID){
+        if(groupRepository.findGroupById(groupID).creatorId == userID){
             Result result=new Result();
             result.success = true;
             result.ID = groupID ;
@@ -99,8 +99,18 @@ public class GroupController {
             result.success = true;
             result.ID = groupID ;
             result.msg="退出成功";
-            GroupMember groupMember=  groupMemberRepository.findGroupMemberByUserIdAndGroupId(userID,groupID);
-            Notice notice = new NoticeController().addNoticeAboutGroup(groupMember.userId,user.id,3,groupID,userRepository,groupRepository);
+            GroupMember groupMember =  groupMemberRepository.findGroupMemberByUserIdAndGroupId(userID,groupID);
+            if(groupMember == null) {
+                result.msg = "您已不再该团队中";
+                result.success = false;
+                return result;
+            }
+            List<GroupMember> groupMembers = groupMemberRepository.findGroupMemberByGroupId(groupID);
+            for(GroupMember groupMember1 : groupMembers) {
+                if(groupMember1.userId == userID)
+                    continue;
+                Notice notice = new NoticeController().addNoticeAboutGroup(groupMember1.userId, user.id, 3, groupID, userRepository, groupRepository);
+            }
             groupMemberRepository.delete(groupMember);
             return result;
         }

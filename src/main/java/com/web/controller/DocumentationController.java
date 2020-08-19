@@ -100,6 +100,17 @@ public class DocumentationController {
             documentation.editorId=0;
             DocumentationRecordController.addRecord(documentation_vue.userID,documentation.id,documentation.lastTime,documentationRecordRepository);
 
+            List<Collaborator> collaboratorList = collaboratorRepository.findCollaboratorByDocumentationId(documentation.id);
+            if(collaboratorList != null){
+                for(Collaborator collaborator : collaboratorList){
+                    if(collaborator.userId == creatorId)
+                        continue;
+                    Notice notice = new NoticeController().addNoticeAboutDoc(collaborator.userId,creatorId,6,documentation_vue.docID,0,userRepository,documentationRepository,replyRepository);
+                    noticeRepository.save(notice);
+                }
+            }
+
+
             //团队文档被修改发送通知
             if(documentation.groupId != 0){
                 int category = 1;

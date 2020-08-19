@@ -95,9 +95,46 @@ public class GroupMemberController {
                          @RequestParam int userId2,
                          @RequestParam int groupId,
                          Model model, HttpSession session){
+        User informer = userRepository.findUserById(userId1);
+        User user = userRepository.findUserById(userId2);
         Group group = groupRepository.findGroupById(groupId);
+        if(informer == null){
+            Result result = new Result();
+            result.success = false;
+            result.ID = group.id ;
+            result.msg = "当前用户不存在!";
+            return result;
+        }
+        if(user == null){
+            Result result = new Result();
+            result.success = false;
+            result.ID = group.id ;
+            result.msg = "被删除用户不存在!";
+            return result;
+        }
+        if(group == null){
+            Result result = new Result();
+            result.success = false;
+            result.ID = group.id ;
+            result.msg = "该团队不存在!";
+            return result;
+        }
         GroupMember groupMember1 = groupMemberRepository.findGroupMemberByUserIdAndGroupId(userId1,groupId);
         GroupMember groupMember2 = groupMemberRepository.findGroupMemberByUserIdAndGroupId(userId2,groupId);
+        if(groupMember1 == null){
+            Result result = new Result();
+            result.success = false;
+            result.ID = group.id ;
+            result.msg = "您已不在该团队中";
+            return result;
+        }
+        if(groupMember2 == null){
+            Result result = new Result();
+            result.success = false;
+            result.ID = group.id ;
+            result.msg = "该用户已不在该团队中";
+            return result;
+        }
         if(groupMember1.permission==5){
             groupMemberRepository.delete(groupMember2);
             Result result = new Result();

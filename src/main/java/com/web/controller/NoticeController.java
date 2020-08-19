@@ -2,6 +2,7 @@ package com.web.controller;
 
 import com.web.entity.*;
 import com.web.entity.ReturnResult.NoticeResult;
+import com.web.entity.ReturnResult.PersonalInfoResult;
 import com.web.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -136,6 +137,14 @@ public class NoticeController {
 //        return notice;
 //    }
 
+//存空会报错
+//    @GetMapping(value = {"/testNotice"})
+//    @ResponseBody
+//    public Notice testNotice() {
+//        Notice notice = null;
+//        noticeRepository.save(notice);
+//        return notice;
+//    }
 
 //   1 文档被评论 , 2 文档被点赞 ,3 邀请协作文档, 4 踢出协作文档, 5 协作文档被修改, 6 协作文档被删除，7 退出协作文档，
 //    finished 1,2,3,4,7
@@ -158,6 +167,10 @@ public class NoticeController {
         notice.about = 1;
         notice.category = category;
 
+        if(userID == informerID){
+            notice.about = -1;
+            return notice;
+        }
         String[] inform = {"",
                 "评论了您的文档:",
                 "点赞了您的文档:",
@@ -209,6 +222,11 @@ public class NoticeController {
         notice.about = 2;
         notice.category = category;
 
+        if(userID == informerID){
+            notice.about = -1;
+            return notice;
+        }
+
         String[] inform = {"",
                 "回复了您的评论:",
                 "点赞了您的评论:",
@@ -254,6 +272,12 @@ public class NoticeController {
         notice.success = false;
         notice.about = 3;
         notice.category = category;
+
+        if(userID == informerID){
+            notice.about = -1;
+            return notice;
+        }
+
         String[] inform = {"",
                 "邀请您加入团队:",
                 "将您踢出团队:",
@@ -270,8 +294,7 @@ public class NoticeController {
         notice.success = true;
         return notice;
     }
-
-    //    1 团队文档被修改 2 被删除
+//    1 团队文档被修改 2 被删除
 //    finished 1,2
     public Notice addNoticeAboutGroupDoc(int userID,int informerID,int category,
                                          int groupID,int docID,
@@ -292,6 +315,11 @@ public class NoticeController {
         notice.success = false;
         notice.about = 4;
         notice.category = category;
+
+        if(userID == informerID){
+            notice.about = -1;
+            return notice;
+        }
 
         String[] inform = {"",
                 "修改了团队文档:",
@@ -331,6 +359,12 @@ public class NoticeController {
         notice.success = false;
         notice.about = 5;
         notice.category = category;
+
+        if(userID == informerID){
+            notice.about = -1;
+            return notice;
+        }
+
         User informer = userRepository1.findUserById(informerID);
         Group group = groupRepository1.findGroupById(groupID);
         Documentation documentation = documentationRepository1.findDocumentationById(docID);
@@ -352,10 +386,13 @@ public class NoticeController {
     public List<NoticeResult> getNotification(@RequestParam(value = "userId") int userID){
         List<Notice> noticeList = noticeRepository.findByUserID(userID);
         List<NoticeResult> noticeResultList = new ArrayList<>();
+        List<Notice> wrongNotice = new ArrayList<>();
 //        System.out.println("1");
         for(Notice notice : noticeList){
-            if(notice.msg.equals("Unknown error happen!"))
+            if(notice.msg.equals("Unknown error happen!") || notice.about == -1) {
+                wrongNotice.add(notice);
                 continue;
+            }
             NoticeResult noticeResult = new NoticeResult();
             noticeResult.id = notice.id;
             noticeResult.category = notice.category + ( notice.about - 1 ) * 10;
@@ -401,6 +438,10 @@ public class NoticeController {
                 return o2.date.compareTo(o1.date);
             }
         });
+
+        for(Notice notice : wrongNotice){
+            noticeRepository.delete(notice);
+        }
         return noticeResultList;
     }
 
