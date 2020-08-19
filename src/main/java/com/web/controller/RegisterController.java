@@ -1,5 +1,7 @@
 package com.web.controller;
 
+import com.web.config.MailSender;
+import com.web.entity.ReturnResult.EmailResult;
 import com.web.entity.ReturnResult.RegisterResult;
 import com.web.entity.User;
 import com.web.entity.vue.User_vue;
@@ -24,7 +26,6 @@ public class RegisterController {
     @ResponseBody
     public RegisterResult register(@RequestBody User_vue user,
                         Map<String,Object> map)  {
-
         String username = user.username;
         String password = user.password;
         String email = user.email;
@@ -34,6 +35,14 @@ public class RegisterController {
             RegisterResult registerResult = new RegisterResult();
             registerResult.ID = 0;
             registerResult.success = false;
+            registerResult.msg="用户名已被注册，请重试";
+            return registerResult;
+        }
+        if (!user.code.equals("8547")){
+            RegisterResult registerResult = new RegisterResult();
+            registerResult.ID = 0;
+            registerResult.success = false;
+            registerResult.msg="验证码有误，请重试";
             return registerResult;
         }
         User tmp =new User();
@@ -60,5 +69,20 @@ public class RegisterController {
 //        response.setContentType("application/json; charset=utf-8");//返回的格式必须设置为application/json
 //        response.getWriter().write(s);//写入到返回结果中
 ////        //完成，执行到这里就会返回数据给前端，前端结果为success，调用success里面的内容
+    }
+    @GetMapping(value = "/sendEmail")
+    @ResponseBody
+    public EmailResult sendEmail(@RequestParam String email){
+        EmailResult emailResult = new EmailResult();
+        emailResult.success=true;
+        try {
+            MailSender mSender = new MailSender();
+            mSender.sendMail(email, "您的验证码为：8547，请尽快完成验证\n\n---------From BUAA开发团队");
+        }catch (Exception e){
+            emailResult.success=false;
+            return emailResult;
+        }
+        return emailResult;
+
     }
 }

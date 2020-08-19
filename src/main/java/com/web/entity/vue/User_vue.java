@@ -4,4 +4,5 @@ public class User_vue {
     public String username;
     public String password;
     public String email;
+    public String code;
 }

@@ -209,8 +209,8 @@ public class DocumentationController {
 //            byte[] bytes = file.getBytes();
 //            Path path = Paths.get(realPath + file.getOriginalFilename());
 //            Files.write(path, bytes);
-            result.success = true;
-            result.msg = "/uploadImg/"+file.getOriginalFilename();
+                result.success = true;
+                result.url = "/uploadImg/"+file.getOriginalFilename();
         } catch (Exception e) {
             result.success = false;
             result.msg = "图片上传失败";
@@ -218,35 +218,6 @@ public class DocumentationController {
         }
         return result;
     }
-//    @RequestMapping(value="/imgAdd")
-//    @ResponseBody
-//    public Result demo(@RequestParam(value = "file", required = false) MultipartFile file, HttpServletRequest request) {
-//        Result result = new Result();
-//        //保存
-//        try {
-//            File imageFolder= new File("../uploadImg");
-//            File targetFile = new File(imageFolder,file.getOriginalFilename());
-//            if(!targetFile.getParentFile().exists()){
-//                targetFile.getParentFile().mkdirs();
-//
-//            }
-////            System.out.println(targetFile.getAbsolutePath());
-//            FileUtils.copyInputStreamToFile(file.getInputStream(), targetFile);
-////            BufferedImage img = ImageUtil.change2jpg(targetFile);
-////            ImageIO.write(img, "jpg", targetFile);
-//            /*            file.transferTo(targetFile);*/
-////            byte[] bytes = file.getBytes();
-////            Path path = Paths.get(realPath + file.getOriginalFilename());
-////            Files.write(path, bytes);
-//                result.success = true;
-//                result.msg = targetFile.getAbsolutePath();
-//        } catch (Exception e) {
-//                result.success = false;
-//                result.msg = "图片上传失败";
-//            e.printStackTrace();
-//        }
-//        return result;
-//    }
 //
 //    public static String limitLength(String name,int length){
 //        return name.substring(0,Math.min(name.length(),length));
