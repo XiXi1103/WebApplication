@@ -85,7 +85,6 @@ public class DocumentationController {
             documentation.editorId=0;
             documentationRepository.save(documentation);
             DocumentationRecordController.addRecord(documentation_vue.authorID,documentation.id,documentation.lastTime,documentationRecordRepository);
-
         }
         else {
             documentation = documentationRepository.findDocumentationById(documentation_vue.docID);
