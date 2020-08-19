@@ -78,7 +78,7 @@ public class DocumentationController {
             documentation.createTime = new Date();
             documentation.summary = documentation_vue.summary;
             documentation.creatorId = documentation_vue.authorID;
-            documentation.otherPermission=documentation_vue.permission;
+            documentation.otherPermission=documentation_vue.otherPermission;
             documentation.groupId = documentation_vue.groupId;
             documentation.lastTime=documentation.createTime;
             documentation.content=documentation_vue.content;
@@ -126,6 +126,10 @@ public class DocumentationController {
         if(documentation_vue.docID != 0){
             result.msg = "修改成功";
         }
+        else {
+            result.msg = "创建成功";
+        }
+
         result.ID = documentation.id;
         return result;
     }
@@ -354,6 +358,7 @@ public class DocumentationController {
             return docResult;
         }
         Documentation documentation = documentationRepository.findDocumentationById(docID);
+        docResult.content=documentation.content;
         if(documentation == null){
             docResult.success = false;
             docResult.msg = "文档不存在";
@@ -370,7 +375,7 @@ public class DocumentationController {
         if (documentation.groupId != 0) {
             GroupMember groupMember = groupMemberRepository.findGroupMemberByUserIdAndGroupId(userID, documentation.groupId);
             if (groupMember.permission >= 4) {
-                getDocResult(docResult, documentation);
+//                getDocResult(docResult, documentation);
                 docResult.success = true;
                 docResult.msg = "返回成功";
                 docResult.userPermission = groupMember.permission;
@@ -386,7 +391,7 @@ public class DocumentationController {
         }
         else{
             if(userID == documentation.creatorId){
-                docResult = getDocResult(docResult, documentation);
+//                docResult = getDocResult(docResult, documentation);
                 docResult.success = true;
                 docResult.msg = "返回成功";
                 docResult.userPermission = 5;
@@ -408,7 +413,7 @@ public class DocumentationController {
 
             }
             else if(documentation.otherPermission >= 4){
-                docResult = getDocResult(docResult, documentation);
+//                docResult = getDocResult(docResult, documentation);
                 docResult.success = true;
                 docResult.msg = "返回成功";
                 docResult.currentPermission = documentation.otherPermission;
@@ -503,6 +508,7 @@ public class DocumentationController {
         DocResult docResult = new DocResult();
         Documentation documentation = documentationRepository.findDocumentationById(docID);
         Collection collection =  collectionRepository.findCollectionByUserIdAndDocumentationId(userID,docID);
+        docResult.content=documentation.content;
         Date date=new Date();
         if(documentation == null){
             docResult.success = false;
@@ -516,7 +522,7 @@ public class DocumentationController {
             return docResult;
         }
         if(documentation.isTemplate){
-            getDocResult(docResult, documentation);
+//            getDocResult(docResult, documentation);
             docResult.isCollect = false;
             docResult.isTemplate = true;
             docResult.success = true;
@@ -527,7 +533,7 @@ public class DocumentationController {
         if (documentation.groupId != 0) {
             GroupMember groupMember = groupMemberRepository.findGroupMemberByUserIdAndGroupId(userID, documentation.groupId);
             if (groupMember.permission >= 1) {
-                getDocResult(docResult, documentation);
+//                getDocResult(docResult, documentation);
                 docResult.success = true;
                 if(collection == null){
                     docResult.isCollect = false;
@@ -569,7 +575,7 @@ public class DocumentationController {
                 else{
                     docResult.isCollect = collection.status;
                 }
-                getDocResult(docResult, documentation);
+//                getDocResult(docResult, documentation);
                 docResult.isTemplate = documentation.isTemplate;
                 docResult.success = true;
                 docResult.msg = "显示成功";
@@ -585,7 +591,7 @@ public class DocumentationController {
                 else{
                     docResult.isCollect = collection.status;
                 }
-                getDocResult(docResult, documentation);
+//                getDocResult(docResult, documentation);
                 docResult.isTemplate = documentation.isTemplate;
                 docResult.success = true;
                 docResult.msg = "显示成功";
@@ -605,14 +611,14 @@ public class DocumentationController {
 
 
 
-    private Map<String,String> getDoc(Documentation documentation){
-        String content = readFileByChars(documentation.path + "/content.txt");
-        String html = readFileByChars(documentation.path + "/html.txt");
-        Map<String,String> res = new HashMap<>();
-        res.put("content",content);
-        res.put("html",html);
-        return res;
-    }
+//    private Map<String,String> getDoc(Documentation documentation){
+//        String content = readFileByChars(documentation.path + "/content.txt");
+//        String html = readFileByChars(documentation.path + "/html.txt");
+//        Map<String,String> res = new HashMap<>();
+//        res.put("content",content);
+//        res.put("html",html);
+//        return res;
+//    }
 
     public void addRecentUse(int userID,int docID){
         User user=userRepository.findUserById(userID);
@@ -635,19 +641,19 @@ public class DocumentationController {
             user.recently_used1=docID;
     }
 
-    private DocResult getDocResult(DocResult docResult, Documentation documentation) {
-        Map<String,String> docMap = getDoc(documentation);
-        docResult.content = docMap.get("content");
-        docResult.html = docMap.get("html");
-        return docResult;
-    }
+//    private DocResult getDocResult(DocResult docResult, Documentation documentation) {
+//        Map<String,String> docMap = getDoc(documentation);
+//        docResult.content = docMap.get("content");
+//        docResult.html = docMap.get("html");
+//        return docResult;
+//    }
 
-    private EditDocResult getDocResult(EditDocResult docResult, Documentation documentation) {
-        Map<String,String> docMap = getDoc(documentation);
-        docResult.content = docMap.get("content");
-        docResult.html = docMap.get("html");
-        return docResult;
-    }
+//    private EditDocResult getDocResult(EditDocResult docResult, Documentation documentation) {
+//        Map<String,String> docMap = getDoc(documentation);
+//        docResult.content = docMap.get("content");
+//        docResult.html = docMap.get("html");
+//        return docResult;
+//    }
 //
 
     public static String readFileByChars(String fileName) {
