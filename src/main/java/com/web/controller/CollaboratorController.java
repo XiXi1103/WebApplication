@@ -279,7 +279,7 @@ public class CollaboratorController {
                                    @RequestParam int permission,
                                    Model model, HttpSession session){
         Result result = new Result();
-        System.out.println("wp");
+//        System.out.println("wp");
         if(!CheckController.checkUserById(userId1)){
             result.success = false;
             result.msg = "发起用户不存在";

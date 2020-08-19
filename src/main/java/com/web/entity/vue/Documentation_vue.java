@@ -11,4 +11,5 @@ public class Documentation_vue {
     public int userID;
     public int otherPermission;
     public int groupId;
+    public boolean isTemplate;
 }

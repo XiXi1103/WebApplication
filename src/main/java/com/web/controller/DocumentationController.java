@@ -73,6 +73,7 @@ public class DocumentationController {
         Documentation documentation = new Documentation();
         if(documentation_vue.docID == 0){
             documentation = new Documentation();
+            documentation.isTemplate = documentation_vue.isTemplate;
             documentation.title = documentation_vue.title;
             documentation.createTime = new Date();
             documentation.summary = documentation_vue.summary;
@@ -92,6 +93,7 @@ public class DocumentationController {
             documentation.otherPermission=documentation_vue.otherPermission;
             documentation.lastTime=new Date();
             documentation.isEdit=false;
+            documentation.isTemplate = documentation_vue.isTemplate;
             documentation.editorNum++;
             DocumentModificationRecord documentModificationRecord =new DocumentModificationRecord();
             documentModificationRecord.docId=documentation_vue.docID;
