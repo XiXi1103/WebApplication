@@ -33,11 +33,11 @@ public class UserController {
 
         return result;
     }
-    @GetMapping(value = {"/personalInfo"})
+    @GetMapping(value = {"/personalInfo_1"})
     @ResponseBody
     public PersonalInfoResult personalInfo(@RequestParam int userId,
                                          Model model, HttpSession session){
-        System.out.println("Person:" + userId);
+//        System.out.println("Person:" + userId);
         PersonalInfoResult result = new PersonalInfoResult();
         User user = userRepository.findUserById(userId);
         if(user == null){
@@ -53,7 +53,7 @@ public class UserController {
         result.success = true;
         return result;
     }
-    @GetMapping(value = {"/getOtherInfo"})
+    @GetMapping(value = {"/personalInfo"})
     @ResponseBody
     public PersonalInfoResult getInfo(@RequestParam int userId,
                                            @RequestParam int id,
@@ -64,22 +64,23 @@ public class UserController {
         User user = userRepository.findUserById(id);
         if(looker == null){
             result.success = false;
-            result.msg = "当前用户不存在";
+            result.msg = "当前用户不存在，请登录";
             return result;
         }
         if(user == null){
             result.success = false;
-            result.msg = "查无此人";
+            result.msg = "您查看的用户已不存在";
             return result;
         }
         if(userId == id){
-            result.success = true;
             result.isOther = false;
-            return result;
+            result.password = user.password;
         }
-        result.isOther = true;
+        else{
+            result.password = "您无法查看他人密码(所以你是怎么看到的?";
+            result.isOther = true;
+        }
         result.phoneNum = user.phoneNumber;
-        result.password = "您无法查看他人密码";
         result.email = user.email;
         result.create_time = user.createTime.toString();
         result.username = user.username;
