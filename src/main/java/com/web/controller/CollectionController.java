@@ -10,6 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import javax.print.Doc;
 import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
 import java.util.Date;
@@ -215,6 +216,13 @@ public class CollectionController {
             }
         }
         return pageListList;
+    }
+
+    @GetMapping(value = {"/getAllTemplate"})
+    @ResponseBody
+    public List<Documentation> getAllTemplate(){
+        List<Documentation> templateList = documentationRepository.findDocumentationByIsTemplate(true);
+        return templateList;
     }
 
     @GetMapping(value = {"/addMyTemplate"})
