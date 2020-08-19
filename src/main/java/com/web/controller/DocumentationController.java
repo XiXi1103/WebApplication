@@ -140,7 +140,7 @@ public class DocumentationController {
     }
     private void saveDoc(@RequestBody Documentation_vue documentation_vue, Result result, Documentation documentation) {
         try {
-            File docFolder= new File("../doc");
+            File docFolder= new File("../doc") ;
             File targetFile = new File(docFolder,String.valueOf(documentation.id));
             if(!targetFile.getParentFile().exists()){
                 targetFile.getParentFile().mkdirs();

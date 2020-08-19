@@ -389,7 +389,7 @@ public class NoticeController {
         List<Notice> wrongNotice = new ArrayList<>();
 //        System.out.println("1");
         for(Notice notice : noticeList){
-            if(notice.msg==null||notice.msg.equals("Unknown error happen!") || notice.about == -1) {
+            if((notice.msg != null && notice.msg.equals("Unknown error happen!") )|| notice.about == -1) {
                 wrongNotice.add(notice);
                 continue;
             }
